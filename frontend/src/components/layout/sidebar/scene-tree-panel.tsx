@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { deleteNode, renameNodeInTree } from "@/lib/node-hierarchy";
+import { deleteNode, expandParentsOfNode, renameNodeInTree } from "@/lib/node-hierarchy";
 import { useSceneStore } from "@/store/use-scene-store";
 import type { SceneNode } from "@/types";
 
@@ -31,6 +31,17 @@ function SceneTreePanel() {
       setLastNodeToDelete(nodeToDelete);
     }
   }, [nodeToDelete]);
+
+  React.useEffect(() => {
+    if (selectedIds.length > 0) {
+      const activeId = selectedIds[0];
+      const { updated, found, changed } = expandParentsOfNode(activeId, tree);
+
+      if (found && changed) {
+        setTree(updated);
+      }
+    }
+  }, [selectedIds, tree, setTree]);
 
   const handleRenameConfirm = () => {
     if (!renamingId) return;

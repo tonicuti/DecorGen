@@ -64,3 +64,46 @@ export function deleteNode(id: string, nodes: SceneNode[]): SceneNode[] {
       children: node.children ? deleteNode(id, node.children) : undefined,
     }));
 }
+
+export function expandParentsOfNode(
+  selectedId: string,
+  nodes: SceneNode[]
+): { updated: SceneNode[]; found: boolean; changed: boolean } {
+  let anyFound = false;
+  let anyChanged = false;
+
+  const updatedNodes = nodes.map((node) => {
+    if (node.id === selectedId) {
+      anyFound = true;
+      return node;
+    }
+
+    if (node.children && node.children.length > 0) {
+      const {
+        updated: updatedChildren,
+        found,
+        changed,
+      } = expandParentsOfNode(selectedId, node.children);
+
+      if (found) {
+        anyFound = true;
+
+        if (!node.expanded || changed) {
+          anyChanged = true;
+          return { ...node, expanded: true, children: updatedChildren };
+        }
+
+        return node;
+      }
+
+      if (changed) {
+        anyChanged = true;
+        return { ...node, children: updatedChildren };
+      }
+    }
+
+    return node;
+  });
+
+  return { updated: anyChanged ? updatedNodes : nodes, found: anyFound, changed: anyChanged };
+}

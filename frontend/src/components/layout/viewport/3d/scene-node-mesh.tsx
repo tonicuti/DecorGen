@@ -11,7 +11,8 @@ function isOpeningOnHiddenWall(
   walls: WallDef[],
   cameraPosition: THREE.Vector3
 ): boolean {
-  if (node.placementType !== "opening" || !node.position) return false;
+  if (node.placementType !== "opening" && node.placementType !== "wall") return false;
+  if (!node.position) return false;
 
   const margin = 0.35;
 
@@ -56,7 +57,7 @@ function SceneNodeMesh({
       return;
     }
 
-    if (node.placementType === "opening" && node.position) {
+    if ((node.placementType === "opening" || node.placementType === "wall") && node.position) {
       groupRef.current.visible = !isOpeningOnHiddenWall(node, walls, camera.position);
     } else {
       groupRef.current.visible = true;
@@ -107,11 +108,15 @@ function SceneNodeMesh({
       <mesh
         userData={{ nodeId: node.id }}
         onClick={(e) => {
+          if (!groupRef.current?.visible) return;
           e.stopPropagation();
           setSelectedIds([node.id]);
         }}
         onPointerDown={(e) => {
+          if (!groupRef.current?.visible) return;
+
           e.stopPropagation();
+
           if (isSelected && node.placementType !== "wall" && node.placementType !== "opening") {
             const setDragState = useSceneStore.getState().setDragState;
             setDragState(node.id, node.position as [number, number, number], false);

@@ -10,6 +10,7 @@ import {
   Trash2,
   Unlock,
 } from "lucide-react";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { toggleExpand, toggleLock, toggleVisibility } from "@/lib/node-hierarchy";
 import type { SceneTreeNodeProps } from "@/types";
@@ -32,9 +33,19 @@ export function SceneTreeNode({
   const isSelected = selectedIds.includes(node.id);
   const hasChildren = Boolean(node.children && node.children.length > 0);
   const isEffectivelyVisible = parentVisible && node.visible;
+  const elementRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (isSelected && elementRef.current) {
+      elementRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [isSelected]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col" ref={elementRef}>
       <div
         onClick={(e) => {
           e.stopPropagation();
