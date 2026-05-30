@@ -34,6 +34,7 @@ function DragDropHandler() {
     dragNodeId,
     currentValidPos: null as [number, number, number] | null,
     currentValidWorldPos: null as THREE.Vector3 | null,
+    currentValidRotation: null as [number, number, number] | null,
     isColliding: false,
     hasMoved: false,
   });
@@ -51,9 +52,13 @@ function DragDropHandler() {
         if (node && node.position) {
           stateRef.current.currentValidPos = [...node.position] as [number, number, number];
           stateRef.current.currentValidWorldPos = new THREE.Vector3(...node.position);
+          stateRef.current.currentValidRotation = node.rotation
+            ? ([...node.rotation] as [number, number, number])
+            : [0, 0, 0];
         } else {
           stateRef.current.currentValidPos = null;
           stateRef.current.currentValidWorldPos = null;
+          stateRef.current.currentValidRotation = null;
         }
 
         stateRef.current.isColliding = false;
@@ -80,46 +85,121 @@ function DragDropHandler() {
 
       raycaster.setFromCamera(pointer, camera);
 
-      const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-      const intersectPoint = new THREE.Vector3();
-      raycaster.ray.intersectPlane(floorPlane, intersectPoint);
+      let worldPos: THREE.Vector3 | null = null;
+      let newRotation = dragNode.rotation || [0, 0, 0];
 
-      if (intersectPoint) {
-        const h = dragNode.dimensions?.h || 1;
-        let newY = h / 2;
+      if (dragNode.placementType === "opening") {
+        const intersects = raycaster.intersectObjects(scene.children, true);
+        const hit = intersects.find((h) => h.object.userData?.isWall && h.object.visible);
+        let hitWallPos: number[] | null = null;
+        let hitWallNormal: THREE.Vector3 | null = null;
+        let hitWallAxis: "x" | "z" | null = null;
+        const targetPoint = new THREE.Vector3();
 
-        if (dragNode.placementType === "tabletop") {
-          const intersects = raycaster.intersectObjects(scene.children, true);
-          let hoverTarget: SceneNode | null = null;
-          let highestY = 0;
+        if (hit) {
+          targetPoint.copy(hit.point);
+          hitWallPos = hit.object.userData.wallPosition;
+          hitWallNormal = hit.object.userData.wallNormal;
+          hitWallAxis = hit.object.userData.wallAxis;
+        } else {
+          const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-          for (const hit of intersects) {
-            const hitNodeId = hit.object.userData?.nodeId;
+          if (raycaster.ray.intersectPlane(floorPlane, targetPoint)) {
+            let closestDist = Infinity;
 
-            if (hitNodeId && hitNodeId !== dragNodeId) {
-              const hoverNode = findNode(tree, hitNodeId);
+            scene.traverse((child) => {
+              if (child.userData?.isWall && child.visible) {
+                const wallAxis = child.userData.wallAxis;
+                const wallPos = child.userData.wallPosition;
+                const dist =
+                  wallAxis === "x"
+                    ? Math.abs(targetPoint.x - wallPos[0])
+                    : Math.abs(targetPoint.z - wallPos[2]);
 
-              if (hoverNode && hoverNode.placementType === "floor") {
-                hoverTarget = hoverNode;
-                const hoverWorldMatrix = new THREE.Matrix4();
-                hoverWorldMatrix.copy(hit.object.matrixWorld);
-                const hoverBox = new THREE.Box3();
-                hoverBox.setFromObject(hit.object);
-                highestY = hoverBox.max.y + h / 2;
-                break;
+                if (dist < closestDist) {
+                  closestDist = dist;
+                  hitWallPos = wallPos;
+                  hitWallNormal = child.userData.wallNormal;
+                  hitWallAxis = wallAxis;
+                }
               }
-            }
-          }
-
-          if (hoverTarget) {
-            newY = highestY;
-          } else {
-            newY = h / 2;
+            });
           }
         }
 
-        const worldPos = new THREE.Vector3(intersectPoint.x, newY, intersectPoint.z);
+        if (hitWallPos && hitWallNormal && hitWallAxis) {
+          const { w = 1 } = dragNode.dimensions || {};
+          const h = dragNode.dimensions?.h || 1;
+          const isDoor =
+            dragNode.assetId?.includes("door") || dragNode.name.toLowerCase().includes("door");
+          let newX = targetPoint.x;
+          let newY = targetPoint.y;
+          let newZ = targetPoint.z;
+          const halfRoomW = roomDimensions.width / 2;
+          const halfRoomL = roomDimensions.length / 2;
+          const roomH = roomDimensions.height;
+          const tMeters = 0.15;
 
+          if (hitWallAxis === "x") {
+            newX = hitWallPos[0] + hitWallNormal.x * (tMeters / 2);
+            newZ = Math.max(-halfRoomL + w / 2, Math.min(halfRoomL - w / 2, newZ));
+          } else {
+            newZ = hitWallPos[2] + hitWallNormal.z * (tMeters / 2);
+            newX = Math.max(-halfRoomW + w / 2, Math.min(halfRoomW - w / 2, newX));
+          }
+
+          if (isDoor) {
+            newY = h / 2;
+          } else {
+            newY = Math.max(h / 2, Math.min(roomH - h / 2, newY));
+          }
+
+          worldPos = new THREE.Vector3(newX, newY, newZ);
+          newRotation = [0, Math.atan2(hitWallNormal.x, hitWallNormal.z), 0];
+        }
+      } else {
+        const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        const intersectPoint = new THREE.Vector3();
+
+        if (raycaster.ray.intersectPlane(floorPlane, intersectPoint)) {
+          const h = dragNode.dimensions?.h || 1;
+          let newY = h / 2;
+
+          if (dragNode.placementType === "tabletop") {
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            let hoverTarget: SceneNode | null = null;
+            let highestY = 0;
+
+            for (const hit of intersects) {
+              const hitNodeId = hit.object.userData?.nodeId;
+
+              if (hitNodeId && hitNodeId !== dragNodeId) {
+                const hoverNode = findNode(tree, hitNodeId);
+
+                if (hoverNode && hoverNode.placementType === "floor") {
+                  hoverTarget = hoverNode;
+                  const hoverWorldMatrix = new THREE.Matrix4();
+                  hoverWorldMatrix.copy(hit.object.matrixWorld);
+                  const hoverBox = new THREE.Box3();
+                  hoverBox.setFromObject(hit.object);
+                  highestY = hoverBox.max.y + h / 2;
+                  break;
+                }
+              }
+            }
+
+            if (hoverTarget) {
+              newY = highestY;
+            } else {
+              newY = h / 2;
+            }
+          }
+
+          worldPos = new THREE.Vector3(intersectPoint.x, newY, intersectPoint.z);
+        }
+      }
+
+      if (worldPos) {
         let parentSpace: THREE.Object3D | null = null;
         scene.traverse((child) => {
           if (child.userData?.nodeGroup === dragNodeId) {
@@ -133,9 +213,14 @@ function DragDropHandler() {
         }
 
         const newPosArray: [number, number, number] = [localPos.x, localPos.y, localPos.z];
+        const newRotArray: [number, number, number] = [
+          newRotation[0],
+          newRotation[1],
+          newRotation[2],
+        ];
 
         const targetWorldMatrix = new THREE.Matrix4();
-        const euler = new THREE.Euler(...(dragNode.rotation || [0, 0, 0]));
+        const euler = new THREE.Euler(...newRotArray);
         const quaternion = new THREE.Quaternion().setFromEuler(euler);
         const localMatrix = new THREE.Matrix4().compose(
           localPos,
@@ -157,16 +242,24 @@ function DragDropHandler() {
         stateRef.current.isColliding = !validation.isValid;
         if (validation.isValid) {
           stateRef.current.currentValidPos = newPosArray;
+          stateRef.current.currentValidRotation = newRotArray;
           stateRef.current.currentValidWorldPos = worldPos.clone();
         }
 
-        setDragState(dragNodeId, newPosArray, !validation.isValid);
+        setDragState(dragNodeId, newPosArray, newRotArray, !validation.isValid);
       }
     };
 
     const handlePointerUp = () => {
-      const { dragNodeId, isColliding, currentValidPos, currentValidWorldPos, tree, hasMoved } =
-        stateRef.current;
+      const {
+        dragNodeId,
+        isColliding,
+        currentValidPos,
+        currentValidRotation,
+        currentValidWorldPos,
+        tree,
+        hasMoved,
+      } = stateRef.current;
       if (!dragNodeId) return;
 
       const dragNode = findNode(tree, dragNodeId);
@@ -207,13 +300,16 @@ function DragDropHandler() {
           const finalPosArray: [number, number, number] = [localPos.x, localPos.y, localPos.z];
           reparentNode(dragNodeId, targetParentId, finalPosArray);
         } else {
-          updateNode(dragNodeId, { position: currentValidPos });
+          updateNode(dragNodeId, {
+            position: currentValidPos,
+            rotation: currentValidRotation || undefined,
+          });
         }
       }
 
       stateRef.current.dragNodeId = null;
       stateRef.current.isColliding = false;
-      setDragState(null, null, false);
+      setDragState(null, null, null, false);
 
       const controls = get().controls as unknown as { enabled: boolean } | null;
       if (controls) controls.enabled = true;

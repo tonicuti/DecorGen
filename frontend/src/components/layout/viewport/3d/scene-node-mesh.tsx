@@ -9,21 +9,34 @@ import type { SceneNode, WallDef } from "@/types";
 function isOpeningOnHiddenWall(
   node: SceneNode,
   walls: WallDef[],
-  cameraPosition: THREE.Vector3
+  cameraPosition: THREE.Vector3,
+  currentPos?: [number, number, number] | null
 ): boolean {
   if (node.placementType !== "opening" && node.placementType !== "wall") return false;
-  if (!node.position) return false;
+  const posToCheck = currentPos || node.position;
+  if (!posToCheck) return false;
 
   const margin = 0.35;
 
+  let isOnAnyHiddenWall = false;
+  let isOnAnyVisibleWall = false;
+
   for (const wall of walls) {
-    const nodeAxisVal = node.position[wall.axis === "x" ? 0 : 2];
+    const nodeAxisVal = posToCheck[wall.axis === "x" ? 0 : 2];
     const wallAxisVal = wall.position[wall.axis === "x" ? 0 : 2];
 
     if (Math.abs(nodeAxisVal - wallAxisVal) < margin) {
       const wallVisible = checkWallVisibility(wall.position, cameraPosition, wall.normal);
-      if (!wallVisible) return true;
+      if (wallVisible) {
+        isOnAnyVisibleWall = true;
+      } else {
+        isOnAnyHiddenWall = true;
+      }
     }
+  }
+
+  if (isOnAnyHiddenWall && !isOnAnyVisibleWall) {
+    return true;
   }
 
   return false;
@@ -42,6 +55,7 @@ function SceneNodeMesh({
   const setSelectedIds = useSceneStore((state) => state.setSelectedIds);
   const dragNodeId = useSceneStore((state) => state.dragNodeId);
   const dragPosition = useSceneStore((state) => state.dragPosition);
+  const dragRotation = useSceneStore((state) => state.dragRotation);
   const isColliding = useSceneStore((state) => state.isColliding);
   const isSelected = selectedIds.includes(node.id);
   const isBeingDragged = dragNodeId === node.id;
@@ -57,8 +71,9 @@ function SceneNodeMesh({
       return;
     }
 
-    if ((node.placementType === "opening" || node.placementType === "wall") && node.position) {
-      groupRef.current.visible = !isOpeningOnHiddenWall(node, walls, camera.position);
+    const currentPos = isBeingDragged && dragPosition ? dragPosition : node.position;
+    if ((node.placementType === "opening" || node.placementType === "wall") && currentPos) {
+      groupRef.current.visible = !isOpeningOnHiddenWall(node, walls, camera.position, currentPos as [number, number, number]);
     } else {
       groupRef.current.visible = true;
     }
@@ -94,6 +109,7 @@ function SceneNodeMesh({
   const scale = node.scale || [1, 1, 1];
   const isDoor = node.assetId?.includes("door") || node.name.toLowerCase().includes("door");
   const currentPos = isBeingDragged && dragPosition ? dragPosition : node.position || [0, 0, 0];
+  const currentRot = isBeingDragged && dragRotation ? dragRotation : node.rotation || [0, 0, 0];
   const highlightColliding = isBeingDragged && isColliding;
   const edgeColor = highlightColliding ? "#ff0000" : "#00ffff";
 
@@ -101,7 +117,7 @@ function SceneNodeMesh({
     <group
       ref={groupRef}
       position={currentPos}
-      rotation={node.rotation || [0, 0, 0]}
+      rotation={currentRot}
       scale={scale}
       userData={{ nodeGroup: node.id }}
     >
@@ -117,9 +133,14 @@ function SceneNodeMesh({
 
           e.stopPropagation();
 
-          if (isSelected && node.placementType !== "wall" && node.placementType !== "opening") {
+          if (isSelected && node.placementType !== "wall") {
             const setDragState = useSceneStore.getState().setDragState;
-            setDragState(node.id, node.position as [number, number, number], false);
+            setDragState(
+              node.id,
+              node.position as [number, number, number],
+              node.rotation as [number, number, number],
+              false
+            );
           }
         }}
         receiveShadow
@@ -130,11 +151,14 @@ function SceneNodeMesh({
           color={highlightColliding ? "#ffaaaa" : node.color || "#cccccc"}
           transparent={highlightColliding}
           opacity={highlightColliding ? 0.8 : 1}
+          polygonOffset={node.placementType === "opening" ? true : false}
+          polygonOffsetFactor={node.placementType === "opening" ? -1 : 0}
+          polygonOffsetUnits={node.placementType === "opening" ? -1 : 0}
         />
-        {isSelected && <Edges scale={1.02} threshold={15} color={edgeColor} depthTest={false} />}
+        {isSelected && <Edges scale={1.02} threshold={15} color={edgeColor} depthTest={node.placementType === "opening"} />}
       </mesh>
       {isSelected && isDoor && (
-        <group position={[-w / 2, -h / 2 + 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <group position={[-w / 2, -h / 2 + 0.01, 0]} rotation={[Math.PI / 2, 0, 0]}>
           <mesh>
             <ringGeometry args={[0, w, 32, 1, 0, Math.PI / 2]} />
             <meshBasicMaterial color="#00ffff" transparent opacity={0.15} side={THREE.DoubleSide} />

@@ -91,6 +91,7 @@ export const useSceneStore = create<SceneState>((set) => ({
   selectedIds: [],
   dragNodeId: null,
   dragPosition: null,
+  dragRotation: null,
   isColliding: false,
 
   setRoomDimensions: (dimensions) =>
@@ -123,10 +124,11 @@ export const useSceneStore = create<SceneState>((set) => ({
       tree: updateNodeInTree(state.tree, id, updates),
     })),
 
-  setDragState: (nodeId, position, isColliding) =>
+  setDragState: (nodeId, position, rotation, isColliding) =>
     set(() => ({
       dragNodeId: nodeId,
       dragPosition: position,
+      dragRotation: rotation,
       isColliding,
     })),
 

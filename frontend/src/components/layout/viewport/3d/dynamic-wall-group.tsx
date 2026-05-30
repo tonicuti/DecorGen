@@ -20,7 +20,18 @@ function DynamicWallGroup({ position, args, color, normal, children }: WallGroup
 
   return (
     <group ref={groupRef}>
-      <mesh ref={meshRef} position={position} receiveShadow castShadow>
+      <mesh
+        ref={meshRef}
+        position={position}
+        receiveShadow
+        castShadow
+        userData={{
+          isWall: true,
+          wallNormal: normal,
+          wallPosition: position,
+          wallAxis: normal.x !== 0 ? "x" : "z",
+        }}
+      >
         <boxGeometry args={args} />
         <meshStandardMaterial color={color} side={THREE.DoubleSide} />
       </mesh>

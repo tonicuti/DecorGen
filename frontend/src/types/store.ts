@@ -40,10 +40,12 @@ export interface SceneState {
   updateNode: (id: string, updates: Partial<SceneNode>) => void;
   dragNodeId: string | null;
   dragPosition: [number, number, number] | null;
+  dragRotation: [number, number, number] | null;
   isColliding: boolean;
   setDragState: (
     nodeId: string | null,
     position: [number, number, number] | null,
+    rotation: [number, number, number] | null,
     isColliding: boolean
   ) => void;
   reparentNode: (

@@ -53,18 +53,36 @@ export function validatePlacement(
 
   const halfW = roomDimensions.width / 2;
   const halfL = roomDimensions.length / 2;
-  const tol = 0.01;
+  let tol = 0.01;
+
+  if (targetNode.placementType === "opening" || targetNode.placementType === "wall") {
+    tol = roomDimensions.thickness + 0.01;
+  }
 
   if (
     targetAABB.min.x < -halfW - tol ||
     targetAABB.max.x > halfW + tol ||
     targetAABB.min.z < -halfL - tol ||
     targetAABB.max.z > halfL + tol ||
-    targetAABB.min.y < -tol ||
-    targetAABB.max.y > roomDimensions.height + tol
+    targetAABB.min.y < -0.01 ||
+    targetAABB.max.y > roomDimensions.height + 0.01
   ) {
     result.isOutOfBounds = true;
     result.isValid = false;
+  }
+
+  const collisionAABB = targetAABB.clone();
+  if (
+    targetNode.placementType === "opening" &&
+    (targetNode.assetId?.includes("door") || targetNode.name.toLowerCase().includes("door"))
+  ) {
+    const doorW = targetNode.dimensions?.w || 1;
+    const doorH = targetNode.dimensions?.h || 2;
+    const localBox = new THREE.Box3();
+
+    localBox.min.set(-doorW / 2, -doorH / 2, -doorW);
+    localBox.max.set(doorW / 2, doorH / 2, doorW);
+    collisionAABB.copy(localBox).applyMatrix4(targetWorldMatrix);
   }
 
   const allNodesData = getFlattenedNodesWithTransforms(tree);
@@ -87,7 +105,7 @@ export function validatePlacement(
 
     clearanceBox.copy(localBox).applyMatrix4(doorData.worldMatrix);
 
-    if (targetAABB.intersectsBox(clearanceBox)) {
+    if (collisionAABB.intersectsBox(clearanceBox)) {
       result.violatesClearance = true;
       result.isValid = false;
       break;
@@ -102,7 +120,7 @@ export function validatePlacement(
 
     const nodeAABB = getBoundingBox(node, nodeData.worldMatrix);
 
-    if (targetAABB.intersectsBox(nodeAABB)) {
+    if (collisionAABB.intersectsBox(nodeAABB)) {
       if (targetNode.placementType !== "tabletop" && node.placementType !== "tabletop") {
         result.isColliding = true;
         result.isValid = false;
