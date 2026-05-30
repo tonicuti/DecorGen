@@ -39,7 +39,11 @@ function SceneNodeMesh({
 }) {
   const selectedIds = useSceneStore((state) => state.selectedIds);
   const setSelectedIds = useSceneStore((state) => state.setSelectedIds);
+  const dragNodeId = useSceneStore((state) => state.dragNodeId);
+  const dragPosition = useSceneStore((state) => state.dragPosition);
+  const isColliding = useSceneStore((state) => state.isColliding);
   const isSelected = selectedIds.includes(node.id);
+  const isBeingDragged = dragNodeId === node.id;
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame(({ camera }) => {
@@ -69,6 +73,7 @@ function SceneNodeMesh({
         ref={groupRef}
         position={node.position || [0, 0, 0]}
         rotation={node.rotation || [0, 0, 0]}
+        userData={{ nodeGroup: node.id }}
       >
         {node.children?.map((child) => (
           <SceneNodeMesh
@@ -87,25 +92,41 @@ function SceneNodeMesh({
   const d = node.dimensions?.d || 1;
   const scale = node.scale || [1, 1, 1];
   const isDoor = node.assetId?.includes("door") || node.name.toLowerCase().includes("door");
+  const currentPos = isBeingDragged && dragPosition ? dragPosition : node.position || [0, 0, 0];
+  const highlightColliding = isBeingDragged && isColliding;
+  const edgeColor = highlightColliding ? "#ff0000" : "#00ffff";
 
   return (
     <group
       ref={groupRef}
-      position={node.position || [0, 0, 0]}
+      position={currentPos}
       rotation={node.rotation || [0, 0, 0]}
       scale={scale}
+      userData={{ nodeGroup: node.id }}
     >
       <mesh
+        userData={{ nodeId: node.id }}
         onClick={(e) => {
           e.stopPropagation();
           setSelectedIds([node.id]);
+        }}
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          if (isSelected && node.placementType !== "wall" && node.placementType !== "opening") {
+            const setDragState = useSceneStore.getState().setDragState;
+            setDragState(node.id, node.position as [number, number, number], false);
+          }
         }}
         receiveShadow
         castShadow
       >
         <boxGeometry args={[w, h, d]} />
-        <meshStandardMaterial color={node.color || "#cccccc"} />
-        {isSelected && <Edges scale={1.02} threshold={15} color="#00ffff" depthTest={false} />}
+        <meshStandardMaterial
+          color={highlightColliding ? "#ffaaaa" : node.color || "#cccccc"}
+          transparent={highlightColliding}
+          opacity={highlightColliding ? 0.8 : 1}
+        />
+        {isSelected && <Edges scale={1.02} threshold={15} color={edgeColor} depthTest={false} />}
       </mesh>
       {isSelected && isDoor && (
         <group position={[-w / 2, -h / 2 + 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>

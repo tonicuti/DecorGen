@@ -20,6 +20,57 @@ const updateNodeInTree = (
   });
 };
 
+const removeNodeFromTree = (
+  nodes: SceneNode[],
+  id: string
+): { newTree: SceneNode[]; extractedNode: SceneNode | null } => {
+  let extractedNode: SceneNode | null = null;
+  const newTree = nodes
+    .filter((node) => {
+      if (node.id === id) {
+        extractedNode = node;
+        return false;
+      }
+
+      return true;
+    })
+    .map((node) => {
+      if (node.children && !extractedNode) {
+        const result = removeNodeFromTree(node.children, id);
+
+        if (result.extractedNode) {
+          extractedNode = result.extractedNode;
+          return { ...node, children: result.newTree };
+        }
+      }
+
+      return node;
+    });
+  return { newTree, extractedNode };
+};
+
+const insertNodeIntoTree = (
+  nodes: SceneNode[],
+  nodeToInsert: SceneNode,
+  parentId: string | null
+): SceneNode[] => {
+  if (!parentId) {
+    return [...nodes, nodeToInsert];
+  }
+
+  return nodes.map((node) => {
+    if (node.id === parentId) {
+      return { ...node, children: [...(node.children || []), nodeToInsert] };
+    }
+
+    if (node.children) {
+      return { ...node, children: insertNodeIntoTree(node.children, nodeToInsert, parentId) };
+    }
+
+    return node;
+  });
+};
+
 export const useSceneStore = create<SceneState>((set) => ({
   roomDimensions: {
     width: 4.0,
@@ -38,6 +89,9 @@ export const useSceneStore = create<SceneState>((set) => ({
 
   tree: INITIAL_TREE,
   selectedIds: [],
+  dragNodeId: null,
+  dragPosition: null,
+  isColliding: false,
 
   setRoomDimensions: (dimensions) =>
     set((state) => ({
@@ -68,4 +122,30 @@ export const useSceneStore = create<SceneState>((set) => ({
     set((state) => ({
       tree: updateNodeInTree(state.tree, id, updates),
     })),
+
+  setDragState: (nodeId, position, isColliding) =>
+    set(() => ({
+      dragNodeId: nodeId,
+      dragPosition: position,
+      isColliding,
+    })),
+
+  reparentNode: (id, newParentId, newPosition) =>
+    set((state) => {
+      const { newTree, extractedNode } = removeNodeFromTree(state.tree, id);
+      if (!extractedNode) return { tree: state.tree };
+
+      const updatedNode = { ...extractedNode, position: newPosition };
+
+      let targetParentId = newParentId;
+      if (!targetParentId) {
+        const hasGroup1 = newTree.some((n) => n.id === "group-1");
+        if (hasGroup1) {
+          targetParentId = "group-1";
+        }
+      }
+
+      const finalTree = insertNodeIntoTree(newTree, updatedNode, targetParentId);
+      return { tree: finalTree };
+    }),
 }));

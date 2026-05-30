@@ -38,4 +38,17 @@ export interface SceneState {
   setTree: (tree: SceneNode[] | ((prev: SceneNode[]) => SceneNode[])) => void;
   setSelectedIds: (ids: string[] | ((prev: string[]) => string[])) => void;
   updateNode: (id: string, updates: Partial<SceneNode>) => void;
+  dragNodeId: string | null;
+  dragPosition: [number, number, number] | null;
+  isColliding: boolean;
+  setDragState: (
+    nodeId: string | null,
+    position: [number, number, number] | null,
+    isColliding: boolean
+  ) => void;
+  reparentNode: (
+    id: string,
+    newParentId: string | null,
+    newPosition: [number, number, number]
+  ) => void;
 }

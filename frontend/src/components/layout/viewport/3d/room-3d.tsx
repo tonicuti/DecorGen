@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import * as THREE from "three";
+import { DragDropHandler } from "@/components/layout/viewport/3d/drag-drop-handler";
 import { DynamicWallGroup } from "@/components/layout/viewport/3d/dynamic-wall-group";
 import { SceneNodeMesh } from "@/components/layout/viewport/3d/scene-node-mesh";
 import { useSceneStore } from "@/store/use-scene-store";
@@ -50,6 +51,7 @@ function Room3D() {
         }
       }}
     >
+      <DragDropHandler />
       <group>
         <mesh
           position={floorPosition}
