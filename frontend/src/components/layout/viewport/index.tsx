@@ -1,3 +1,4 @@
+import { Canvas } from "@react-three/fiber";
 import {
   Cuboid,
   DoorOpen,
@@ -10,9 +11,15 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
+import { CameraRig } from "@/components/layout/viewport/3d/camera";
+import { Room3D } from "@/components/layout/viewport/3d/room-3d";
 import type { ViewportProps } from "@/types";
 
 function Viewport({ viewMode, setViewMode }: ViewportProps) {
+  const handleZoomIn = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: 1 }));
+  const handleZoomOut = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: -1 }));
+  const handleHome = () => window.dispatchEvent(new CustomEvent("camera-home"));
+
   return (
     <main
       className={`absolute top-14 right-0 bottom-0 left-0 z-10 flex items-center justify-center transition-all duration-500 ease-in-out ${
@@ -46,28 +53,20 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
         </button>
       </div>
       {viewMode === "3d" ? (
-        <div className="flex flex-col items-center justify-center text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-500/10 text-zinc-500 dark:bg-zinc-500/20">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6 text-zinc-600 dark:text-zinc-400"
-            >
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-              <line x1="12" y1="22.08" x2="12" y2="12"></line>
-            </svg>
-          </div>
-          <h1 className="text-lg font-bold tracking-tight text-zinc-800 dark:text-zinc-200">
-            3D Canvas Viewport
-          </h1>
+        <div className="absolute inset-0">
+          <Canvas shadows>
+            <CameraRig />
+            <ambientLight intensity={1.2} />
+            <hemisphereLight intensity={0.8} color="#ffffff" groundColor="#eeddbb" />
+            <directionalLight
+              position={[5, 12, 5]}
+              intensity={2.0}
+              castShadow
+              shadow-mapSize={[1024, 1024]}
+            />
+            <directionalLight position={[-5, 8, -5]} intensity={1.0} />
+            <Room3D />
+          </Canvas>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center text-center">
@@ -126,12 +125,14 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
         </button>
         <div className="mx-1 h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
         <button
+          onClick={handleZoomOut}
           className="flex items-center justify-center rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
           title="Zoom Out"
         >
           <ZoomOut className="h-4 w-4" />
         </button>
         <button
+          onClick={handleZoomIn}
           className="flex items-center justify-center rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
           title="Zoom In"
         >
@@ -139,6 +140,7 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
         </button>
         <div className="mx-1 h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
         <button
+          onClick={handleHome}
           className="flex items-center justify-center rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
           title="Home View"
         >

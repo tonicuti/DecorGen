@@ -1,26 +1,20 @@
 import { Home, LayoutGrid, Paintbrush, RefreshCw, Ruler, Sparkles } from "lucide-react";
-import * as React from "react";
 import { FLOOR_COLORS, WALL_COLORS } from "@/api/mock-data";
 import { CollapsiblePanel } from "@/components/layout/sidebar/collapsible-panel";
 import { CustomNumberInput } from "@/components/layout/sidebar/number-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useSceneStore } from "@/store/use-scene-store";
 
 function RoomProperties() {
-  const [width, setWidth] = React.useState(4.0);
-  const [length, setLength] = React.useState(3.5);
-  const [height, setHeight] = React.useState(2.8);
-  const [thickness, setThickness] = React.useState(15);
-  const [wallColor, setWallColor] = React.useState(WALL_COLORS[0].value);
-  const [floorColor, setFloorColor] = React.useState(FLOOR_COLORS[0].value);
+  const { width, length, height, thickness } = useSceneStore((state) => state.roomDimensions);
+  const { wallColor, floorColor } = useSceneStore((state) => state.roomMaterials);
+  const setRoomDimensions = useSceneStore((state) => state.setRoomDimensions);
+  const setRoomMaterials = useSceneStore((state) => state.setRoomMaterials);
 
   const handleReset = () => {
-    setWidth(4.0);
-    setLength(3.5);
-    setHeight(2.8);
-    setThickness(15);
-    setWallColor(WALL_COLORS[0].value);
-    setFloorColor(FLOOR_COLORS[0].value);
+    setRoomDimensions({ width: 4.0, length: 3.5, height: 2.8, thickness: 15 });
+    setRoomMaterials({ wallColor: WALL_COLORS[0].value, floorColor: FLOOR_COLORS[0].value });
   };
 
   return (
@@ -54,7 +48,7 @@ function RoomProperties() {
               step={0.1}
               min={1}
               max={20}
-              onChange={setWidth}
+              onChange={(val) => setRoomDimensions({ width: val })}
               badgeColor="bg-indigo-500 text-white dark:bg-indigo-600"
             />
             <CustomNumberInput
@@ -63,7 +57,7 @@ function RoomProperties() {
               step={0.1}
               min={1}
               max={20}
-              onChange={setLength}
+              onChange={(val) => setRoomDimensions({ length: val })}
               badgeColor="bg-indigo-500 text-white dark:bg-indigo-600"
             />
             <CustomNumberInput
@@ -72,7 +66,7 @@ function RoomProperties() {
               step={0.1}
               min={1}
               max={10}
-              onChange={setHeight}
+              onChange={(val) => setRoomDimensions({ height: val })}
               badgeColor="bg-indigo-500 text-white dark:bg-indigo-600"
             />
           </div>
@@ -93,7 +87,7 @@ function RoomProperties() {
                 step={1}
                 min={5}
                 max={50}
-                onChange={setThickness}
+                onChange={(val) => setRoomDimensions({ thickness: val })}
                 badgeColor="bg-teal-500 text-white dark:bg-teal-600"
               />
             </div>
@@ -109,7 +103,7 @@ function RoomProperties() {
                 </span>
                 <Input
                   value={wallColor}
-                  onChange={(e) => setWallColor(e.target.value)}
+                  onChange={(e) => setRoomMaterials({ wallColor: e.target.value })}
                   className="h-6 w-20 border-zinc-200 bg-white px-2 py-0 font-mono text-[10px] text-zinc-900 focus-visible:ring-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                 />
               </div>
@@ -118,7 +112,7 @@ function RoomProperties() {
               {WALL_COLORS.map((swatch) => (
                 <button
                   key={swatch.name}
-                  onClick={() => setWallColor(swatch.value)}
+                  onClick={() => setRoomMaterials({ wallColor: swatch.value })}
                   className={`group relative h-7 w-full overflow-hidden rounded-lg border shadow-2xs transition-all active:scale-95 ${
                     wallColor.toLowerCase() === swatch.value.toLowerCase()
                       ? "border-teal-500 ring-2 ring-teal-500/30 dark:ring-teal-500/40"
@@ -156,7 +150,7 @@ function RoomProperties() {
                 </span>
                 <Input
                   value={floorColor}
-                  onChange={(e) => setFloorColor(e.target.value)}
+                  onChange={(e) => setRoomMaterials({ floorColor: e.target.value })}
                   className="h-6 w-20 border-zinc-200 bg-white px-2 py-0 font-mono text-[10px] text-zinc-900 focus-visible:ring-indigo-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                 />
               </div>
@@ -165,7 +159,7 @@ function RoomProperties() {
               {FLOOR_COLORS.map((swatch) => (
                 <button
                   key={swatch.name}
-                  onClick={() => setFloorColor(swatch.value)}
+                  onClick={() => setRoomMaterials({ floorColor: swatch.value })}
                   className={`group relative h-7 w-full overflow-hidden rounded-lg border shadow-2xs transition-all active:scale-95 ${
                     floorColor.toLowerCase() === swatch.value.toLowerCase()
                       ? "border-amber-600 ring-2 ring-amber-600/30 dark:ring-amber-600/40"

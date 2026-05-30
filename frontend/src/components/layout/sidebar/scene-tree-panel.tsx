@@ -1,6 +1,5 @@
 import { Layers2, Search } from "lucide-react";
 import * as React from "react";
-import { INITIAL_TREE } from "@/api/mock-data";
 import { SceneTreeNode } from "@/components/layout/sidebar/scene-tree-node";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +12,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { deleteNode, renameNodeInTree } from "@/lib/node-hierarchy";
+import { useSceneStore } from "@/store/use-scene-store";
 import type { SceneNode } from "@/types";
 
 function SceneTreePanel() {
   const [search, setSearch] = React.useState("");
-  const [tree, setTree] = React.useState<SceneNode[]>(INITIAL_TREE);
-  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const tree = useSceneStore((state) => state.tree);
+  const setTree = useSceneStore((state) => state.setTree);
+  const selectedIds = useSceneStore((state) => state.selectedIds);
+  const setSelectedIds = useSceneStore((state) => state.setSelectedIds);
   const [nodeToDelete, setNodeToDelete] = React.useState<SceneNode | null>(null);
   const [lastNodeToDelete, setLastNodeToDelete] = React.useState<SceneNode | null>(null);
   const [renamingId, setRenamingId] = React.useState<string | null>(null);
