@@ -1,16 +1,6 @@
 import { Canvas } from "@react-three/fiber";
-import {
-  Cuboid,
-  DoorOpen,
-  Grid3X3,
-  Home,
-  Move,
-  PenTool,
-  Rotate3D,
-  Trash2,
-  ZoomIn,
-  ZoomOut,
-} from "lucide-react";
+import { Cuboid, Grid3X3, Home, Move, Rotate3D, ZoomIn, ZoomOut } from "lucide-react";
+import { Plan2D } from "@/components/layout/viewport/2d/plan-2d";
 import { CameraRig } from "@/components/layout/viewport/3d/camera";
 import { Room3D } from "@/components/layout/viewport/3d/room-3d";
 import { useSceneStore } from "@/store/use-scene-store";
@@ -95,52 +85,7 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
           </Canvas>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-500 dark:bg-indigo-500/20">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6 text-indigo-600 dark:text-indigo-400"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-            </svg>
-          </div>
-          <h1 className="text-lg font-bold tracking-tight text-zinc-800 dark:text-zinc-200">
-            2D Blueprint Mode
-          </h1>
-        </div>
-      )}
-      {viewMode === "2d" && (
-        <>
-          <div className="animate-in fade-in slide-in-from-top-4 absolute top-6 right-6 z-20 flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-1.5 shadow-sm duration-300 dark:border-zinc-800 dark:bg-zinc-950">
-            <button
-              className="flex items-center justify-center rounded-lg bg-indigo-50 p-2 text-indigo-600 transition-colors dark:bg-indigo-500/20 dark:text-indigo-400"
-              title="Draw Wall"
-            >
-              <PenTool className="h-4 w-4" />
-            </button>
-            <button
-              className="flex items-center justify-center rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
-              title="Add Door"
-            >
-              <DoorOpen className="h-4 w-4" />
-            </button>
-            <div className="my-1 h-px w-full bg-zinc-200 dark:bg-zinc-800"></div>
-            <button
-              className="flex items-center justify-center rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
-              title="Delete"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        </>
+        <Plan2D />
       )}
       <div className="animate-in fade-in slide-in-from-bottom-4 absolute right-6 bottom-6 z-20 flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white/90 p-1.5 shadow-sm backdrop-blur-md duration-300 dark:border-zinc-800/80 dark:bg-zinc-950/80">
         <button

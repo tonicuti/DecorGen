@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as THREE from "three";
 import type { Asset, SceneNode } from "@/types/api";
+import type { SceneDimensions } from "@/types/store";
 
 // ==========================================
 // Header & Navigation Action Bar Types
@@ -128,4 +129,18 @@ export interface WallDef {
   normal: THREE.Vector3;
   threshold: number;
   axis: "x" | "z";
+}
+
+// ==========================================
+// 2D Plan View Types
+// ==========================================
+
+export interface Room2DProps {
+  dimensions: SceneDimensions;
+}
+
+export interface SceneNode2DProps {
+  node: SceneNode;
+  parentVisible?: boolean;
+  legendMap?: Map<string, number>;
 }
