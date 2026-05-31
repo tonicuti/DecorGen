@@ -246,7 +246,13 @@ function DragDropHandler() {
           stateRef.current.currentValidWorldPos = worldPos.clone();
         }
 
-        setDragState(dragNodeId, newPosArray, newRotArray, !validation.isValid);
+        setDragState(
+          dragNodeId,
+          newPosArray,
+          newRotArray,
+          !validation.isValid,
+          validation.collidingWith
+        );
       }
     };
 
@@ -308,8 +314,7 @@ function DragDropHandler() {
       }
 
       stateRef.current.dragNodeId = null;
-      stateRef.current.isColliding = false;
-      setDragState(null, null, null, false);
+      setDragState(null, null, null, false, []);
 
       const controls = get().controls as unknown as { enabled: boolean } | null;
       if (controls) controls.enabled = true;

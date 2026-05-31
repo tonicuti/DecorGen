@@ -42,11 +42,13 @@ export interface SceneState {
   dragPosition: [number, number, number] | null;
   dragRotation: [number, number, number] | null;
   isColliding: boolean;
+  collidingWithIds: string[];
   setDragState: (
     nodeId: string | null,
     position: [number, number, number] | null,
     rotation: [number, number, number] | null,
-    isColliding: boolean
+    isColliding: boolean,
+    collidingWithIds: string[]
   ) => void;
   reparentNode: (
     id: string,

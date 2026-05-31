@@ -10,6 +10,7 @@ export interface CollisionResult {
   isColliding: boolean;
   isOutOfBounds: boolean;
   violatesClearance: boolean;
+  collidingWith: string[];
 }
 
 export interface NodeWithWorldMatrix {

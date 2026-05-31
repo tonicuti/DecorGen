@@ -49,6 +49,7 @@ export function validatePlacement(
     isColliding: false,
     isOutOfBounds: false,
     violatesClearance: false,
+    collidingWith: [],
   };
 
   const halfW = roomDimensions.width / 2;
@@ -108,7 +109,7 @@ export function validatePlacement(
     if (collisionAABB.intersectsBox(clearanceBox)) {
       result.violatesClearance = true;
       result.isValid = false;
-      break;
+      result.collidingWith.push(doorData.node.id);
     }
   }
 
@@ -116,15 +117,35 @@ export function validatePlacement(
     const node = nodeData.node;
     if (node.id === targetNode.id) continue;
     if (node.type !== "model") continue;
-    if (node.placementType === "opening" || node.placementType === "wall") continue;
+    if (node.placementType === "wall") continue;
 
     const nodeAABB = getBoundingBox(node, nodeData.worldMatrix);
 
     if (collisionAABB.intersectsBox(nodeAABB)) {
-      if (targetNode.placementType !== "tabletop" && node.placementType !== "tabletop") {
+      const isTargetDoor =
+        targetNode.placementType === "opening" &&
+        (targetNode.assetId?.includes("door") || targetNode.name.toLowerCase().includes("door"));
+      const isNodeDoor =
+        node.placementType === "opening" &&
+        (node.assetId?.includes("door") || node.name.toLowerCase().includes("door"));
+
+      const isTargetTabletopOnGround =
+        targetNode.placementType === "tabletop" && targetAABB.min.y < 0.1;
+      const isNodeTabletopOnGround = node.placementType === "tabletop" && nodeAABB.min.y < 0.1;
+
+      const isDoorTabletopCollisionOnGround =
+        (isTargetDoor && isNodeTabletopOnGround) || (isNodeDoor && isTargetTabletopOnGround);
+
+      if (
+        (targetNode.placementType !== "tabletop" && node.placementType !== "tabletop") ||
+        isDoorTabletopCollisionOnGround
+      ) {
         result.isColliding = true;
         result.isValid = false;
-        break;
+
+        if (!result.collidingWith.includes(node.id)) {
+          result.collidingWith.push(node.id);
+        }
       }
     }
   }

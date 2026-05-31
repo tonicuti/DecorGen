@@ -57,6 +57,7 @@ function SceneNodeMesh({
   const dragPosition = useSceneStore((state) => state.dragPosition);
   const dragRotation = useSceneStore((state) => state.dragRotation);
   const isColliding = useSceneStore((state) => state.isColliding);
+  const collidingWithIds = useSceneStore((state) => state.collidingWithIds);
   const isSelected = selectedIds.includes(node.id);
   const isBeingDragged = dragNodeId === node.id;
   const groupRef = useRef<THREE.Group>(null);
@@ -73,7 +74,14 @@ function SceneNodeMesh({
 
     const currentPos = isBeingDragged && dragPosition ? dragPosition : node.position;
     if ((node.placementType === "opening" || node.placementType === "wall") && currentPos) {
-      groupRef.current.visible = !isOpeningOnHiddenWall(node, walls, camera.position, currentPos as [number, number, number]);
+      const isHidden = isOpeningOnHiddenWall(
+        node,
+        walls,
+        camera.position,
+        currentPos as [number, number, number]
+      );
+      const isCollidingWithMe = useSceneStore.getState().collidingWithIds.includes(node.id);
+      groupRef.current.visible = !isHidden || isCollidingWithMe;
     } else {
       groupRef.current.visible = true;
     }
@@ -110,7 +118,7 @@ function SceneNodeMesh({
   const isDoor = node.assetId?.includes("door") || node.name.toLowerCase().includes("door");
   const currentPos = isBeingDragged && dragPosition ? dragPosition : node.position || [0, 0, 0];
   const currentRot = isBeingDragged && dragRotation ? dragRotation : node.rotation || [0, 0, 0];
-  const highlightColliding = isBeingDragged && isColliding;
+  const highlightColliding = (isBeingDragged && isColliding) || collidingWithIds.includes(node.id);
   const edgeColor = highlightColliding ? "#ff0000" : "#00ffff";
 
   return (
@@ -139,7 +147,8 @@ function SceneNodeMesh({
               node.id,
               node.position as [number, number, number],
               node.rotation as [number, number, number],
-              false
+              false,
+              []
             );
           }
         }}
@@ -155,7 +164,14 @@ function SceneNodeMesh({
           polygonOffsetFactor={node.placementType === "opening" ? -1 : 0}
           polygonOffsetUnits={node.placementType === "opening" ? -1 : 0}
         />
-        {isSelected && <Edges scale={1.02} threshold={15} color={edgeColor} depthTest={node.placementType === "opening"} />}
+        {isSelected && (
+          <Edges
+            scale={1.02}
+            threshold={15}
+            color={edgeColor}
+            depthTest={node.placementType === "opening"}
+          />
+        )}
       </mesh>
       {isSelected && isDoor && (
         <group position={[-w / 2, -h / 2 + 0.01, 0]} rotation={[Math.PI / 2, 0, 0]}>
