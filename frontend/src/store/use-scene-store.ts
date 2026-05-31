@@ -1,6 +1,53 @@
 import { create } from "zustand";
 import { INITIAL_TREE } from "@/api/mock-data";
-import type { SceneNode, SceneState } from "@/types";
+import type { SceneDimensions, SceneNode, SceneState } from "@/types";
+
+const updateTreeOnRoomResize = (
+  nodes: SceneNode[],
+  oldDims: SceneDimensions,
+  newDims: SceneDimensions
+): SceneNode[] => {
+  return nodes.map((node) => {
+    let updatedNode = { ...node };
+
+    if (node.position) {
+      const [x, y, z] = node.position;
+      let newX = x;
+      let newY = y;
+      let newZ = z;
+
+      if (node.placementType === "opening" || node.placementType === "wall") {
+        const wOldHalf = oldDims.width / 2;
+        const lOldHalf = oldDims.length / 2;
+        const dLeft = Math.abs(x - -wOldHalf);
+        const dRight = Math.abs(x - wOldHalf);
+        const dBack = Math.abs(z - -lOldHalf);
+        const dFront = Math.abs(z - lOldHalf);
+        const minDist = Math.min(dLeft, dRight, dBack, dFront);
+
+        if (minDist === dLeft) {
+          newX = x - (newDims.width - oldDims.width) / 2;
+        } else if (minDist === dRight) {
+          newX = x + (newDims.width - oldDims.width) / 2;
+        } else if (minDist === dBack) {
+          newZ = z - (newDims.length - oldDims.length) / 2;
+        } else if (minDist === dFront) {
+          newZ = z + (newDims.length - oldDims.length) / 2;
+        }
+      } else if (node.placementType === "ceiling") {
+        newY = y + (newDims.height - oldDims.height);
+      }
+
+      updatedNode.position = [newX, newY, newZ];
+    }
+
+    if (node.children && node.children.length > 0) {
+      updatedNode.children = updateTreeOnRoomResize(node.children, oldDims, newDims);
+    }
+
+    return updatedNode;
+  });
+};
 
 const updateNodeInTree = (
   nodes: SceneNode[],
@@ -95,9 +142,16 @@ export const useSceneStore = create<SceneState>((set) => ({
   isColliding: false,
 
   setRoomDimensions: (dimensions) =>
-    set((state) => ({
-      roomDimensions: { ...state.roomDimensions, ...dimensions },
-    })),
+    set((state) => {
+      const oldDims = state.roomDimensions;
+      const newDims = { ...oldDims, ...dimensions };
+      const newTree = updateTreeOnRoomResize(state.tree, oldDims, newDims);
+
+      return {
+        roomDimensions: newDims,
+        tree: newTree,
+      };
+    }),
 
   setRoomMaterials: (materials) =>
     set((state) => ({

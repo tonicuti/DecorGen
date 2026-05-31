@@ -128,7 +128,7 @@ function DragDropHandler() {
         }
 
         if (hitWallPos && hitWallNormal && hitWallAxis) {
-          const { w = 1 } = dragNode.dimensions || {};
+          const { w = 1, d = 0.1 } = dragNode.dimensions || {};
           const h = dragNode.dimensions?.h || 1;
           const isDoor =
             dragNode.assetId?.includes("door") || dragNode.name.toLowerCase().includes("door");
@@ -138,13 +138,13 @@ function DragDropHandler() {
           const halfRoomW = roomDimensions.width / 2;
           const halfRoomL = roomDimensions.length / 2;
           const roomH = roomDimensions.height;
-          const tMeters = 0.15;
+          const tMeters = roomDimensions.thickness / 100;
 
           if (hitWallAxis === "x") {
-            newX = hitWallPos[0] + hitWallNormal.x * (tMeters / 2);
+            newX = hitWallPos[0] + hitWallNormal.x * (tMeters / 2 + d / 2);
             newZ = Math.max(-halfRoomL + w / 2, Math.min(halfRoomL - w / 2, newZ));
           } else {
-            newZ = hitWallPos[2] + hitWallNormal.z * (tMeters / 2);
+            newZ = hitWallPos[2] + hitWallNormal.z * (tMeters / 2 + d / 2);
             newX = Math.max(-halfRoomW + w / 2, Math.min(halfRoomW - w / 2, newX));
           }
 
