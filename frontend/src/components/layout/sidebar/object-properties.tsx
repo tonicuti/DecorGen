@@ -122,6 +122,24 @@ function ObjectProperties() {
   const [roughness, setRoughness] = React.useState(30);
   const [metalness, setMetalness] = React.useState(10);
   const timeoutRef = React.useRef<number | null>(null);
+  const initialNodeRef = React.useRef<SceneNode | null>(null);
+  const prevSelectedIdRef = React.useRef<string | null>(null);
+
+  React.useEffect(() => {
+    if (selectedNodeId !== prevSelectedIdRef.current) {
+      prevSelectedIdRef.current = selectedNodeId || null;
+
+      if (selectedNodeId) {
+        const node = findNode(tree, selectedNodeId);
+
+        if (node) {
+          initialNodeRef.current = JSON.parse(JSON.stringify(node));
+        }
+      } else {
+        initialNodeRef.current = null;
+      }
+    }
+  }, [selectedNodeId, tree, findNode]);
 
   React.useEffect(() => {
     if (selectedNode) {
@@ -288,6 +306,11 @@ function ObjectProperties() {
           localPos.z,
         ]);
 
+        const { position: _pos, ...otherUpdates } = updates;
+        if (Object.keys(otherUpdates).length > 0) {
+          updateNode(selectedNode.id, otherUpdates);
+        }
+
         return;
       }
     }
@@ -312,15 +335,14 @@ function ObjectProperties() {
       }
     };
 
-    if (result.isOutOfBounds) {
+    const isInvalidPlacement =
+      result.isOutOfBounds || result.isColliding || result.violatesClearance;
+    if (isInvalidPlacement) {
       revertUI();
-      return;
-    }
+      const collidingIds = [selectedNode.id];
+      if (result.collidingWith) collidingIds.push(...result.collidingWith);
 
-    const isCollidingNow = result.isColliding || result.violatesClearance;
-    if (isCollidingNow) {
-      revertUI();
-      setDragState(null, null, null, false, [selectedNode.id, ...result.collidingWith]);
+      setDragState(null, null, null, false, collidingIds);
 
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
       timeoutRef.current = window.setTimeout(() => {
@@ -336,6 +358,11 @@ function ObjectProperties() {
         newGroup1LocalPos.y,
         newGroup1LocalPos.z,
       ]);
+
+      const { position: _pos, ...otherUpdates } = updates;
+      if (Object.keys(otherUpdates).length > 0) {
+        updateNode(selectedNode.id, otherUpdates);
+      }
 
       return;
     }
@@ -392,7 +419,21 @@ function ObjectProperties() {
     setDimensions(newDim);
 
     if (selectedNode) {
-      handleUpdate({ dimensions: newDim });
+      if (axis === "h") {
+        const diffH = val - dimensions.h;
+        const currentY = selectedNode.position ? selectedNode.position[1] : 0;
+        const newY = currentY + diffH / 2;
+
+        const newPos = { ...position, y: newY };
+        setPosition(newPos);
+
+        handleUpdate({
+          dimensions: newDim,
+          position: [selectedNode.position?.[0] || 0, newY, selectedNode.position?.[2] || 0],
+        });
+      } else {
+        handleUpdate({ dimensions: newDim });
+      }
     }
   };
 
@@ -435,14 +476,45 @@ function ObjectProperties() {
   };
 
   const handleReset = () => {
-    if (!selectedNode) return;
+    const initialNode = initialNodeRef.current;
+    if (!initialNode || !selectedNode) return;
 
-    setObjectName(SCENE_OBJECTS[0].name);
-    setSelectedPart(OBJECT_PARTS[0].id);
-    setSelectedMaterial(MATERIAL_PRESETS[0].id);
-    setColorHex(COLOR_SWATCHES[0].value);
-    setRoughness(30);
-    setMetalness(10);
+    setObjectName(initialNode.name);
+    if (initialNode.position) {
+      setPosition({
+        x: initialNode.position[0],
+        y: initialNode.position[1],
+        z: initialNode.position[2],
+      });
+    }
+    if (initialNode.rotation) {
+      setYaw(Math.round(THREE.MathUtils.radToDeg(initialNode.rotation[1])));
+    }
+    if (initialNode.dimensions) {
+      setDimensions(initialNode.dimensions);
+    }
+    if (initialNode.color) {
+      setColorHex(initialNode.color);
+    }
+    setRoughness(initialNode.roughness !== undefined ? initialNode.roughness : 50);
+    setMetalness(initialNode.metalness !== undefined ? initialNode.metalness : 50);
+
+    const matId =
+      initialNode.materials && initialNode.materials[selectedPart]
+        ? initialNode.materials[selectedPart]
+        : MATERIAL_PRESETS[0].id;
+    setSelectedMaterial(matId);
+
+    handleUpdate({
+      name: initialNode.name,
+      position: initialNode.position,
+      rotation: initialNode.rotation,
+      dimensions: initialNode.dimensions,
+      color: initialNode.color,
+      roughness: initialNode.roughness,
+      metalness: initialNode.metalness,
+      materials: initialNode.materials,
+    });
   };
 
   const filteredObjects = SCENE_OBJECTS.filter((obj) =>
