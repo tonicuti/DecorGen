@@ -1,4 +1,5 @@
 import {
+  ArrowRightLeft,
   Box,
   Component,
   Droplet,
@@ -405,14 +406,21 @@ function ObjectProperties() {
       removeNode(id);
     };
 
+    const handleRequestFlip = (_: Event) => {
+      const currentScaleX = selectedNode?.scale?.[0] ?? 1;
+      handleUpdate({ scale: [currentScaleX === 1 ? -1 : 1, 1, 1] });
+    };
+
     window.addEventListener("request-rotation", handleRequestRotation);
     window.addEventListener("request-delete", handleRequestDelete);
+    window.addEventListener("request-flip", handleRequestFlip);
 
     return () => {
       window.removeEventListener("request-rotation", handleRequestRotation);
       window.removeEventListener("request-delete", handleRequestDelete);
+      window.removeEventListener("request-flip", handleRequestFlip);
     };
-  }, [yaw, handleRotationChange, removeNode]);
+  }, [yaw, handleRotationChange, removeNode, selectedNode, handleUpdate]);
 
   const handleDimensionChange = (axis: "w" | "d" | "h", val: number) => {
     const newDim = { ...dimensions, [axis]: val };
@@ -711,6 +719,30 @@ function ObjectProperties() {
               >
                 <span>Right</span>
                 <RotateCw className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+        )}
+        {isDoor && (
+          <div className={cardClass}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-fuchsia-700 dark:text-fuchsia-400">
+                <RotateCw className="h-3.5 w-3.5 text-fuchsia-500" />
+                <span>Door Swing</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-center pt-1">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const currentScaleX = selectedNode?.scale?.[0] ?? 1;
+                  handleUpdate({ scale: [currentScaleX === 1 ? -1 : 1, 1, 1] });
+                }}
+                className="flex h-7 w-full items-center justify-center gap-1.5 rounded-lg border border-zinc-200 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                title="Flip Door Swing"
+              >
+                <ArrowRightLeft className="h-3.5 w-3.5" />
+                <span>Flip Left / Right</span>
               </Button>
             </div>
           </div>

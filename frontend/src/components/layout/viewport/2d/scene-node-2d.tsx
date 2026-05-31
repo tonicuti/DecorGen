@@ -24,7 +24,7 @@ function SceneNode2D({ node, parentVisible = true, legendMap }: SceneNode2DProps
 
   if (node.type === "group") {
     return (
-      <g transform={`translate(${x}, ${y}) rotate(${rotDeg})`}>
+      <g transform={`translate(${x}, ${y}) rotate(${rotDeg}) scale(${scaleX}, ${scaleY})`}>
         {node.children?.map((child) => (
           <SceneNode2D
             key={child.id}
@@ -121,7 +121,7 @@ function SceneNode2D({ node, parentVisible = true, legendMap }: SceneNode2DProps
       ))}
       {legendNumber && (
         <g pointerEvents="none" transform={`translate(0, ${isDoor ? h / 2 + w / 2 : 0})`}>
-          <g transform={`rotate(${-rotDeg})`}>
+          <g transform={`rotate(${-rotDeg * scaleX * scaleY}) scale(${scaleX}, ${scaleY})`}>
             <circle
               cx="0"
               cy="0"

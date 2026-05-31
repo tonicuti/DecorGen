@@ -1,6 +1,6 @@
 import { Edges, Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { MoreHorizontal, RotateCcw, RotateCw, Trash2 } from "lucide-react";
+import { ArrowRightLeft, MoreHorizontal, RotateCcw, RotateCw, Trash2 } from "lucide-react";
 import { useRef } from "react";
 import * as THREE from "three";
 import { checkWallVisibility } from "@/components/layout/viewport/3d/camera";
@@ -211,6 +211,25 @@ function SceneNodeMesh({
                     title="Rotate Right (90°)"
                   >
                     <RotateCw className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
+                  </button>
+                  <div className="my-1.5 w-px bg-zinc-200 dark:bg-zinc-700/80" />
+                </>
+              )}
+              {isDoor && (
+                <>
+                  <button
+                    type="button"
+                    className="group cursor-pointer rounded-full p-2 transition-all hover:bg-violet-100 active:scale-95 dark:hover:bg-violet-500/20"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.dispatchEvent(
+                        new CustomEvent("request-flip", { detail: { id: node.id } })
+                      );
+                    }}
+                    title="Flip Door Swing"
+                  >
+                    <ArrowRightLeft className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
                   </button>
                   <div className="my-1.5 w-px bg-zinc-200 dark:bg-zinc-700/80" />
                 </>
