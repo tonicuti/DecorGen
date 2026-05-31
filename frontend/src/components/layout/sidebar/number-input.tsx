@@ -10,6 +10,7 @@ function CustomNumberInput({
   max = 999,
   onChange,
   badgeColor,
+  disabled = false,
 }: NumberInputProps) {
   const [inputValue, setInputValue] = React.useState(value.toString());
 
@@ -17,7 +18,7 @@ function CustomNumberInput({
     const parsed = parseFloat(inputValue);
 
     if (isNaN(parsed) || parsed !== value) {
-      setInputValue(value.toString());
+      setInputValue(Number(value.toFixed(2)).toString());
     }
   }, [value]);
 
@@ -25,19 +26,22 @@ function CustomNumberInput({
     const nextVal = Math.max(min, value - step);
     const fixedVal = parseFloat(nextVal.toFixed(2));
     onChange(fixedVal);
-    setInputValue(fixedVal.toString());
   };
 
   const handleIncrease = () => {
     const nextVal = Math.min(max, value + step);
     const fixedVal = parseFloat(nextVal.toFixed(2));
     onChange(fixedVal);
-    setInputValue(fixedVal.toString());
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let rawVal = e.target.value;
-    rawVal = rawVal.replace(/[^0-9.]/g, "");
+    rawVal = rawVal.replace(/[^0-9.-]/g, "");
+
+    const minusParts = rawVal.split("-");
+    if (minusParts.length > 1) {
+      rawVal = (rawVal.startsWith("-") ? "-" : "") + minusParts.join("");
+    }
 
     const dotIndex = rawVal.indexOf(".");
     if (dotIndex !== -1) {
@@ -45,6 +49,8 @@ function CustomNumberInput({
     }
 
     setInputValue(rawVal);
+
+    if (rawVal === "-" || rawVal === "-.") return;
 
     const parsed = parseFloat(rawVal);
     if (!isNaN(parsed) && parsed >= min && parsed <= max) {
@@ -55,17 +61,19 @@ function CustomNumberInput({
   const handleBlur = () => {
     const parsed = parseFloat(inputValue);
 
-    if (isNaN(parsed)) {
-      setInputValue(value.toString());
-    } else {
+    if (!isNaN(parsed)) {
       const clamped = Math.min(max, Math.max(min, parsed));
-      onChange(clamped);
-      setInputValue(clamped.toString());
+      const rounded = parseFloat(clamped.toFixed(2));
+      onChange(rounded);
     }
+
+    setInputValue(Number(value.toFixed(2)).toString());
   };
 
   return (
-    <div className="flex w-full items-center overflow-hidden rounded-lg border border-zinc-200/80 bg-white shadow-2xs transition-all focus-within:ring-2 focus-within:ring-indigo-500/20 dark:border-zinc-800/80 dark:bg-zinc-950 dark:focus-within:ring-indigo-500/30">
+    <div
+      className={`flex w-full items-center overflow-hidden rounded-lg border border-zinc-200/80 bg-white shadow-2xs transition-all ${disabled ? "pointer-events-none cursor-not-allowed opacity-50" : "focus-within:ring-2 focus-within:ring-indigo-500/20"} dark:border-zinc-800/80 dark:bg-zinc-950 dark:focus-within:ring-indigo-500/30`}
+    >
       <span
         className={`flex h-7 w-5 shrink-0 items-center justify-center text-[10px] font-bold ${badgeColor}`}
       >
@@ -73,6 +81,7 @@ function CustomNumberInput({
       </span>
       <button
         type="button"
+        disabled={disabled}
         onClick={handleDecrease}
         className="flex h-7 w-4.5 shrink-0 items-center justify-center text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 active:bg-zinc-200 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 dark:active:bg-zinc-700"
       >
@@ -80,6 +89,7 @@ function CustomNumberInput({
       </button>
       <Input
         type="text"
+        disabled={disabled}
         value={inputValue}
         onChange={handleInputChange}
         onBlur={handleBlur}
@@ -87,6 +97,7 @@ function CustomNumberInput({
       />
       <button
         type="button"
+        disabled={disabled}
         onClick={handleIncrease}
         className="flex h-7 w-4.5 shrink-0 items-center justify-center text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 active:bg-zinc-200 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 dark:active:bg-zinc-700"
       >

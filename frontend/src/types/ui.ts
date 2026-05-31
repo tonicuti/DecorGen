@@ -95,6 +95,7 @@ export interface NumberInputProps {
   step?: number;
   min?: number;
   max?: number;
+  disabled?: boolean;
   onChange: (val: number) => void;
   badgeColor: string;
 }

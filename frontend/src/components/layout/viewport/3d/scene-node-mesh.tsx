@@ -1,5 +1,6 @@
-import { Edges } from "@react-three/drei";
+import { Edges, Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
+import { MoreHorizontal, RotateCcw, RotateCw, Trash2 } from "lucide-react";
 import { useRef } from "react";
 import * as THREE from "three";
 import { checkWallVisibility } from "@/components/layout/viewport/3d/camera";
@@ -158,6 +159,8 @@ function SceneNodeMesh({
         <boxGeometry args={[w, h, d]} />
         <meshStandardMaterial
           color={highlightColliding ? "#ffaaaa" : node.color || "#cccccc"}
+          roughness={node.roughness !== undefined ? node.roughness / 100 : 0.5}
+          metalness={node.metalness !== undefined ? node.metalness / 100 : 0.5}
           transparent={highlightColliding}
           opacity={highlightColliding ? 0.8 : 1}
           polygonOffset={node.placementType === "opening" ? true : false}
@@ -171,6 +174,76 @@ function SceneNodeMesh({
             color={edgeColor}
             depthTest={node.placementType === "opening"}
           />
+        )}
+        {isSelected && node.placementType !== "wall" && (
+          <Html position={[0, h / 2, 0]} center zIndexRange={[100, 0]}>
+            <div
+              style={{ marginTop: "-80px" }}
+              className="pointer-events-auto flex gap-1.5 rounded-full border border-zinc-200 bg-white/95 px-1.5 py-1 shadow-xl backdrop-blur-md dark:border-zinc-700/80 dark:bg-zinc-900/90"
+            >
+              {node.placementType !== "opening" && (
+                <>
+                  <button
+                    type="button"
+                    className="group cursor-pointer rounded-full p-2 transition-all hover:bg-violet-100 active:scale-95 dark:hover:bg-violet-500/20"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.dispatchEvent(
+                        new CustomEvent("request-rotation", { detail: { angle: -90 } })
+                      );
+                    }}
+                    title="Rotate Left (90°)"
+                  >
+                    <RotateCcw className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
+                  </button>
+                  <div className="my-1.5 w-px bg-zinc-200 dark:bg-zinc-700/80" />
+                  <button
+                    type="button"
+                    className="group cursor-pointer rounded-full p-2 transition-all hover:bg-violet-100 active:scale-95 dark:hover:bg-violet-500/20"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.dispatchEvent(
+                        new CustomEvent("request-rotation", { detail: { angle: 90 } })
+                      );
+                    }}
+                    title="Rotate Right (90°)"
+                  >
+                    <RotateCw className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
+                  </button>
+                  <div className="my-1.5 w-px bg-zinc-200 dark:bg-zinc-700/80" />
+                </>
+              )}
+              <button
+                type="button"
+                className="group cursor-pointer rounded-full p-2 transition-all hover:bg-red-100 active:scale-95 dark:hover:bg-red-500/20"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.dispatchEvent(
+                    new CustomEvent("request-delete", { detail: { id: node.id } })
+                  );
+                }}
+                title="Delete Object"
+              >
+                <Trash2 className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-red-600 dark:text-zinc-400 dark:group-hover:text-red-400" />
+              </button>
+              <div className="my-1.5 w-px bg-zinc-200 dark:bg-zinc-700/80" />
+              <button
+                type="button"
+                className="group cursor-pointer rounded-full p-2 transition-all hover:bg-blue-100 active:scale-95 dark:hover:bg-blue-500/20"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.dispatchEvent(new CustomEvent("open-inspector"));
+                }}
+                title="Object Properties"
+              >
+                <MoreHorizontal className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-blue-600 dark:text-zinc-400 dark:group-hover:text-blue-400" />
+              </button>
+            </div>
+          </Html>
         )}
       </mesh>
       {isSelected && isDoor && (

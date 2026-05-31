@@ -59,6 +59,8 @@ export interface SceneNode {
   color?: string;
   parentId?: string;
   materials?: Record<string, string>;
+  roughness?: number;
+  metalness?: number;
   assetId?: string;
   placementType?: "floor" | "wall" | "tabletop" | "ceiling" | "opening";
   defaultScale?: [number, number, number];

@@ -31,9 +31,17 @@ function Sidebar({}: SidebarProps) {
       }
     };
 
+    const handleOpenInspector = () => {
+      setActiveTab("inspector");
+      setIsCollapsed(false);
+    };
+
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("open-inspector", handleOpenInspector);
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("open-inspector", handleOpenInspector);
     };
   }, []);
 

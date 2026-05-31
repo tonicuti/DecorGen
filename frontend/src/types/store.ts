@@ -55,4 +55,5 @@ export interface SceneState {
     newParentId: string | null,
     newPosition: [number, number, number]
   ) => void;
+  removeNode: (id: string) => void;
 }

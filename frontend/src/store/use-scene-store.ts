@@ -206,4 +206,15 @@ export const useSceneStore = create<SceneState>((set) => ({
       const finalTree = insertNodeIntoTree(newTree, updatedNode, targetParentId);
       return { tree: finalTree };
     }),
+
+  removeNode: (id) =>
+    set((state) => {
+      const { newTree } = removeNodeFromTree(state.tree, id);
+      const isSelected = state.selectedIds.includes(id);
+
+      return {
+        tree: newTree,
+        selectedIds: isSelected ? [] : state.selectedIds,
+      };
+    }),
 }));
