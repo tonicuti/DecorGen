@@ -116,6 +116,12 @@ function SceneNodeMesh({
   const h = node.dimensions?.h || 1;
   const d = node.dimensions?.d || 1;
   const scale = node.scale || [1, 1, 1];
+  const flipX = scale[0] < 0 ? -1 : 1;
+  const absScale = [Math.abs(scale[0]), Math.abs(scale[1]), Math.abs(scale[2])] as [
+    number,
+    number,
+    number,
+  ];
   const isDoor = node.assetId?.includes("door") || node.name.toLowerCase().includes("door");
   const currentPos = isBeingDragged && dragPosition ? dragPosition : node.position || [0, 0, 0];
   const currentRot = isBeingDragged && dragRotation ? dragRotation : node.rotation || [0, 0, 0];
@@ -127,7 +133,7 @@ function SceneNodeMesh({
       ref={groupRef}
       position={currentPos}
       rotation={currentRot}
-      scale={scale}
+      scale={absScale}
       userData={{ nodeGroup: node.id }}
     >
       <mesh
@@ -266,7 +272,11 @@ function SceneNodeMesh({
         )}
       </mesh>
       {isSelected && isDoor && (
-        <group position={[-w / 2, -h / 2 + 0.01, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <group
+          position={[(-w / 2) * flipX, -h / 2 + 0.01, d / 2]}
+          rotation={[Math.PI / 2, 0, 0]}
+          scale={[flipX, 1, 1]}
+        >
           <mesh>
             <ringGeometry args={[0, w, 32, 1, 0, Math.PI / 2]} />
             <meshBasicMaterial color="#00ffff" transparent opacity={0.15} side={THREE.DoubleSide} />
@@ -275,7 +285,7 @@ function SceneNodeMesh({
             <ringGeometry args={[w - 0.015, w, 32, 1, 0, Math.PI / 2]} />
             <meshBasicMaterial color="#00ffff" transparent opacity={0.5} side={THREE.DoubleSide} />
           </mesh>
-          <mesh position={[w / 2, 0, 0]} rotation={[0, 0, 0]}>
+          <mesh position={[0, w / 2, 0]} rotation={[0, 0, Math.PI / 2]}>
             <boxGeometry args={[w, 0.01, 0.001]} />
             <meshBasicMaterial color="#00ffff" transparent opacity={0.5} />
           </mesh>
