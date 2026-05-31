@@ -54,8 +54,9 @@ function SceneNode2D({ node, parentVisible = true, legendMap }: SceneNode2DProps
     fill = "#ffffff";
     stroke = "#a1a1aa";
   } else if (node.placementType === "wall") {
-    fill = "#18181b";
-    stroke = "none";
+    fill = "transparent";
+    stroke = "#71717a";
+    strokeWidth = 1;
   }
 
   const legendNumber = legendMap?.get(node.id);

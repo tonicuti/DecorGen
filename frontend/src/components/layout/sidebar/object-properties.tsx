@@ -427,17 +427,33 @@ function ObjectProperties() {
     setDimensions(newDim);
 
     if (selectedNode) {
+      let newX = selectedNode.position?.[0] || 0;
+      let newY = selectedNode.position?.[1] || 0;
+      let newZ = selectedNode.position?.[2] || 0;
+      let isPosChanged = false;
+
       if (axis === "h") {
         const diffH = val - dimensions.h;
         const currentY = selectedNode.position ? selectedNode.position[1] : 0;
-        const newY = currentY + diffH / 2;
+        newY = currentY + diffH / 2;
+        isPosChanged = true;
+      } else if (axis === "d" && selectedNode.placementType === "wall") {
+        const diffD = val - dimensions.d;
+        const yaw = selectedNode.rotation?.[1] || 0;
 
-        const newPos = { ...position, y: newY };
-        setPosition(newPos);
+        const localZ = new THREE.Vector3(0, 0, 1);
+        localZ.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
 
+        newX += localZ.x * (diffD / 2);
+        newZ += localZ.z * (diffD / 2);
+        isPosChanged = true;
+      }
+
+      if (isPosChanged) {
+        setPosition((prev) => ({ ...prev, x: newX, y: newY, z: newZ }));
         handleUpdate({
           dimensions: newDim,
-          position: [selectedNode.position?.[0] || 0, newY, selectedNode.position?.[2] || 0],
+          position: [newX, newY, newZ],
         });
       } else {
         handleUpdate({ dimensions: newDim });
@@ -530,6 +546,7 @@ function ObjectProperties() {
   );
 
   const isOpening = selectedNode?.placementType === "opening";
+  const isWall = selectedNode?.placementType === "wall";
   const isDoor =
     isOpening &&
     (selectedNode?.assetId?.includes("door") || selectedNode?.name.toLowerCase().includes("door"));
@@ -548,7 +565,7 @@ function ObjectProperties() {
   let isXFixed = false;
   let isZFixed = false;
 
-  if (isOpening) {
+  if (isOpening || isWall) {
     const deg = Math.round(THREE.MathUtils.radToDeg(selectedNode?.rotation?.[1] || 0));
     if (deg === 0 || deg === 180 || deg === -180 || deg === 360) {
       isZFixed = true;
@@ -692,7 +709,7 @@ function ObjectProperties() {
             />
           </div>
         </div>
-        {!isOpening && (
+        {!isOpening && !isWall && (
           <div className={cardClass}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs font-medium text-fuchsia-700 dark:text-fuchsia-400">
@@ -723,12 +740,12 @@ function ObjectProperties() {
             </div>
           </div>
         )}
-        {isDoor && (
+        {(isDoor || isWall) && (
           <div className={cardClass}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs font-medium text-fuchsia-700 dark:text-fuchsia-400">
                 <RotateCw className="h-3.5 w-3.5 text-fuchsia-500" />
-                <span>Door Swing</span>
+                <span>{isWall ? "Flip Object" : "Door Swing"}</span>
               </div>
             </div>
             <div className="flex items-center justify-center pt-1">
@@ -739,7 +756,7 @@ function ObjectProperties() {
                   handleUpdate({ scale: [currentScaleX === 1 ? -1 : 1, 1, 1] });
                 }}
                 className="flex h-7 w-full items-center justify-center gap-1.5 rounded-lg border border-zinc-200 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-                title="Flip Door Swing"
+                title={isWall ? "Flip Object Left / Right" : "Flip Door Swing"}
               >
                 <ArrowRightLeft className="h-3.5 w-3.5" />
                 <span>Flip Left / Right</span>

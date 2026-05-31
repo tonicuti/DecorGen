@@ -94,7 +94,7 @@ function DragDropHandler() {
       let worldPos: THREE.Vector3 | null = null;
       let newRotation = dragNode.rotation || [0, 0, 0];
 
-      if (dragNode.placementType === "opening") {
+      if (dragNode.placementType === "opening" || dragNode.placementType === "wall") {
         const intersects = raycaster.intersectObjects(scene.children, true);
         const hit = intersects.find((h) => h.object.userData?.isWall && h.object.visible);
         let hitWallPos: number[] | null = null;

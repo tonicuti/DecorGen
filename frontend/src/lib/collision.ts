@@ -117,7 +117,6 @@ export function validatePlacement(
     const node = nodeData.node;
     if (node.id === targetNode.id) continue;
     if (node.type !== "model") continue;
-    if (node.placementType === "wall") continue;
 
     const nodeAABB = getBoundingBox(node, nodeData.worldMatrix);
 

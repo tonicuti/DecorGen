@@ -122,6 +122,8 @@ function SceneNodeMesh({
     number,
     number,
   ];
+  const isOpening = node.placementType === "opening";
+  const isWall = node.placementType === "wall";
   const isDoor = node.assetId?.includes("door") || node.name.toLowerCase().includes("door");
   const currentPos = isBeingDragged && dragPosition ? dragPosition : node.position || [0, 0, 0];
   const currentRot = isBeingDragged && dragRotation ? dragRotation : node.rotation || [0, 0, 0];
@@ -148,7 +150,7 @@ function SceneNodeMesh({
 
           e.stopPropagation();
 
-          if (isSelected && node.placementType !== "wall") {
+          if (isSelected) {
             const setDragState = useSceneStore.getState().setDragState;
             setDragState(
               node.id,
@@ -181,13 +183,13 @@ function SceneNodeMesh({
             depthTest={node.placementType === "opening"}
           />
         )}
-        {isSelected && node.placementType !== "wall" && (
+        {isSelected && (
           <Html position={[0, h / 2, 0]} center zIndexRange={[100, 0]}>
             <div
               style={{ marginTop: "-80px" }}
               className="pointer-events-auto flex gap-1.5 rounded-full border border-zinc-200 bg-white/95 px-1.5 py-1 shadow-xl backdrop-blur-md dark:border-zinc-700/80 dark:bg-zinc-900/90"
             >
-              {node.placementType !== "opening" && (
+              {!isOpening && !isWall && (
                 <>
                   <button
                     type="button"
@@ -221,7 +223,7 @@ function SceneNodeMesh({
                   <div className="my-1.5 w-px bg-zinc-200 dark:bg-zinc-700/80" />
                 </>
               )}
-              {isDoor && (
+              {(isDoor || isWall) && (
                 <>
                   <button
                     type="button"
@@ -233,7 +235,7 @@ function SceneNodeMesh({
                         new CustomEvent("request-flip", { detail: { id: node.id } })
                       );
                     }}
-                    title="Flip Door Swing"
+                    title={isDoor ? "Flip Door Swing" : "Flip Object"}
                   >
                     <ArrowRightLeft className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
                   </button>
