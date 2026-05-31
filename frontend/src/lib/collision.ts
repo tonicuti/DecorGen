@@ -119,32 +119,15 @@ export function validatePlacement(
     if (node.type !== "model") continue;
 
     const nodeAABB = getBoundingBox(node, nodeData.worldMatrix);
+    const shrunkCollisionAABB = collisionAABB.clone().expandByScalar(-0.001);
+    const shrunkNodeAABB = nodeAABB.clone().expandByScalar(-0.001);
 
-    if (collisionAABB.intersectsBox(nodeAABB)) {
-      const isTargetDoor =
-        targetNode.placementType === "opening" &&
-        (targetNode.assetId?.includes("door") || targetNode.name.toLowerCase().includes("door"));
-      const isNodeDoor =
-        node.placementType === "opening" &&
-        (node.assetId?.includes("door") || node.name.toLowerCase().includes("door"));
+    if (shrunkCollisionAABB.intersectsBox(shrunkNodeAABB)) {
+      result.isColliding = true;
+      result.isValid = false;
 
-      const isTargetTabletopOnGround =
-        targetNode.placementType === "tabletop" && targetAABB.min.y < 0.1;
-      const isNodeTabletopOnGround = node.placementType === "tabletop" && nodeAABB.min.y < 0.1;
-
-      const isDoorTabletopCollisionOnGround =
-        (isTargetDoor && isNodeTabletopOnGround) || (isNodeDoor && isTargetTabletopOnGround);
-
-      if (
-        (targetNode.placementType !== "tabletop" && node.placementType !== "tabletop") ||
-        isDoorTabletopCollisionOnGround
-      ) {
-        result.isColliding = true;
-        result.isValid = false;
-
-        if (!result.collidingWith.includes(node.id)) {
-          result.collidingWith.push(node.id);
-        }
+      if (!result.collidingWith.includes(node.id)) {
+        result.collidingWith.push(node.id);
       }
     }
   }
