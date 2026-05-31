@@ -13,9 +13,11 @@ import {
 } from "lucide-react";
 import { CameraRig } from "@/components/layout/viewport/3d/camera";
 import { Room3D } from "@/components/layout/viewport/3d/room-3d";
+import { useSceneStore } from "@/store/use-scene-store";
 import type { ViewportProps } from "@/types";
 
 function Viewport({ viewMode, setViewMode }: ViewportProps) {
+  const dragNodeId = useSceneStore((state) => state.dragNodeId);
   const handleZoomIn = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: 1 }));
   const handleZoomOut = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: -1 }));
   const handleHome = () => window.dispatchEvent(new CustomEvent("camera-home"));
@@ -52,6 +54,30 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
           <span>2D Plan</span>
         </button>
       </div>
+      {!!dragNodeId && (
+        <div className="animate-in fade-in slide-in-from-top-4 absolute top-20 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-50/90 px-4 py-2 text-xs font-medium text-indigo-700 shadow-md backdrop-blur-md dark:border-indigo-500/30 dark:bg-indigo-950/90 dark:text-indigo-300">
+          <svg
+            className="h-4 w-4 animate-pulse"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m5 12 7-7 7 7" />
+            <path d="M12 19V5" />
+          </svg>
+          <span>
+            Drag to place, press{" "}
+            <kbd className="mx-1 rounded border border-indigo-200 bg-white/50 px-1.5 py-0.5 font-sans font-bold dark:border-indigo-700 dark:bg-black/20">
+              Esc
+            </kbd>{" "}
+            or <span className="font-bold">Right-Click</span> to cancel
+          </span>
+        </div>
+      )}
       {viewMode === "3d" ? (
         <div className="absolute inset-0">
           <Canvas shadows>

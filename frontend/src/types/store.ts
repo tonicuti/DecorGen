@@ -55,5 +55,14 @@ export interface SceneState {
     newParentId: string | null,
     newPosition: [number, number, number]
   ) => void;
+  addNode: (node: SceneNode, parentId?: string | null) => void;
+  isAddingNode: boolean;
+  setIsAddingNode: (isAdding: boolean) => void;
   removeNode: (id: string) => void;
+  cancelDragNode: (
+    id: string,
+    isAdding: boolean,
+    originalPos: [number, number, number] | null,
+    originalRot: [number, number, number] | null
+  ) => void;
 }

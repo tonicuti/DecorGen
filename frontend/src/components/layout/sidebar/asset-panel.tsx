@@ -30,7 +30,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { generateModelThumbnail } from "@/lib/thumbnail-generator";
-import type { Asset, AssetCardProps } from "@/types";
+import { useSceneStore } from "@/store/use-scene-store";
+import type { Asset, AssetCardProps, SceneNode } from "@/types";
 
 function AssetCard({
   asset,
@@ -40,10 +41,90 @@ function AssetCard({
   handleDrop,
 }: AssetCardProps) {
   const [imageError, setImageError] = React.useState(false);
+  const addNode = useSceneStore((state) => state.addNode);
+  const setSelectedIds = useSceneStore((state) => state.setSelectedIds);
+  const setDragState = useSceneStore((state) => state.setDragState);
+
+  const setIsAddingNode = useSceneStore((state) => state.setIsAddingNode);
+  const currentDragNodeId = useSceneStore((state) => state.dragNodeId);
 
   React.useEffect(() => {
     setImageError(false);
   }, [asset.image]);
+
+  const handleAddClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (currentDragNodeId) return;
+
+    let placementType: "floor" | "wall" | "ceiling" | "opening" | "tabletop" = "floor";
+    let w = 1,
+      h = 1,
+      d = 1;
+
+    if (asset.name.toLowerCase().includes("door") || asset.category === "Doors") {
+      placementType = "opening";
+      w = 0.9;
+      h = 2.1;
+      d = 0.1;
+    } else if (asset.name.toLowerCase().includes("window") || asset.category === "Windows") {
+      placementType = "opening";
+      w = 1.2;
+      h = 1.2;
+      d = 0.1;
+    } else if (asset.category === "Beds") {
+      w = 1.6;
+      h = 0.5;
+      d = 2.0;
+    } else if (asset.category === "Tables" || asset.category === "Desks") {
+      w = 1.2;
+      h = 0.75;
+      d = 0.8;
+    } else if (asset.category === "Chairs" || asset.category === "Seating") {
+      w = 0.5;
+      h = 0.9;
+      d = 0.5;
+    } else if (asset.category === "Storage" || asset.category === "Cabinets") {
+      w = 0.8;
+      h = 2.0;
+      d = 0.5;
+    } else if (
+      asset.category === "Decor" ||
+      asset.category === "Lighting" ||
+      asset.category === "Plants"
+    ) {
+      placementType = "tabletop";
+      w = 0.3;
+      h = 0.4;
+      d = 0.3;
+    } else if (asset.category === "Rugs") {
+      w = 2.0;
+      h = 0.02;
+      d = 3.0;
+    }
+
+    const newNodeId = `${asset.id}-${Date.now()}`;
+    const initialPos: [number, number, number] = [0, -1000, 0];
+
+    const newNode: SceneNode = {
+      id: newNodeId,
+      name: asset.name,
+      type: "model",
+      assetId: asset.id,
+      placementType,
+      position: initialPos,
+      rotation: [0, 0, 0],
+      scale: [1, 1, 1],
+      dimensions: { w, h, d },
+      color: "#e2e8f0",
+      visible: true,
+      locked: false,
+    };
+
+    addNode(newNode, null);
+    setSelectedIds([newNodeId]);
+    setIsAddingNode(true);
+    setDragState(newNodeId, initialPos, [0, 0, 0], false, []);
+  };
 
   return (
     <div
@@ -74,10 +155,7 @@ function AssetCard({
         )}
         <button
           className="absolute top-1.5 right-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-zinc-900/80 text-white opacity-0 shadow-sm backdrop-blur-md transition-all duration-200 group-hover:opacity-100 hover:scale-105 hover:bg-zinc-800 dark:bg-black/60"
-          onClick={(e) => {
-            e.stopPropagation();
-            console.log("Adding asset:", asset.name);
-          }}
+          onClick={handleAddClick}
           title="Add Asset"
         >
           <Plus className="h-4 w-4" />

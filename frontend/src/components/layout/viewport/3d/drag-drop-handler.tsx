@@ -33,8 +33,10 @@ function DragDropHandler() {
     roomDimensions,
     dragNodeId,
     currentValidPos: null as [number, number, number] | null,
+    originalPos: null as [number, number, number] | null,
     currentValidWorldPos: null as THREE.Vector3 | null,
     currentValidRotation: null as [number, number, number] | null,
+    originalRot: null as [number, number, number] | null,
     isColliding: false,
     hasMoved: false,
   });
@@ -51,14 +53,18 @@ function DragDropHandler() {
 
         if (node && node.position) {
           stateRef.current.currentValidPos = [...node.position] as [number, number, number];
+          stateRef.current.originalPos = [...node.position] as [number, number, number];
           stateRef.current.currentValidWorldPos = new THREE.Vector3(...node.position);
           stateRef.current.currentValidRotation = node.rotation
             ? ([...node.rotation] as [number, number, number])
             : [0, 0, 0];
+          stateRef.current.originalRot = stateRef.current.currentValidRotation;
         } else {
           stateRef.current.currentValidPos = null;
+          stateRef.current.originalPos = null;
           stateRef.current.currentValidWorldPos = null;
           stateRef.current.currentValidRotation = null;
+          stateRef.current.originalRot = null;
         }
 
         stateRef.current.isColliding = false;
@@ -256,7 +262,9 @@ function DragDropHandler() {
       }
     };
 
-    const handlePointerUp = () => {
+    const handlePointerUp = (e: PointerEvent) => {
+      if (e.button === 2) return;
+
       const {
         dragNodeId,
         isColliding,
@@ -268,9 +276,14 @@ function DragDropHandler() {
       } = stateRef.current;
       if (!dragNodeId) return;
 
+      if (isColliding || !currentValidPos || !hasMoved) {
+        cancelDrag();
+        return;
+      }
+
       const dragNode = findNode(tree, dragNodeId);
 
-      if (dragNode && currentValidPos && !isColliding && hasMoved) {
+      if (dragNode) {
         if (dragNode.placementType === "tabletop" && currentValidWorldPos) {
           raycaster.setFromCamera(pointer, camera);
           const intersects = raycaster.intersectObjects(scene.children, true);
@@ -313,6 +326,7 @@ function DragDropHandler() {
         }
       }
 
+      useSceneStore.getState().setIsAddingNode(false);
       stateRef.current.dragNodeId = null;
       setDragState(null, null, null, false, []);
 
@@ -320,12 +334,43 @@ function DragDropHandler() {
       if (controls) controls.enabled = true;
     };
 
+    const cancelDrag = () => {
+      const { dragNodeId, originalPos, originalRot } = stateRef.current;
+      if (!dragNodeId) return;
+
+      const isAdding = useSceneStore.getState().isAddingNode;
+
+      useSceneStore.getState().cancelDragNode(dragNodeId, isAdding, originalPos, originalRot);
+
+      stateRef.current.dragNodeId = null;
+
+      const controls = get().controls as unknown as { enabled: boolean } | null;
+      if (controls) controls.enabled = true;
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && stateRef.current.dragNodeId) {
+        cancelDrag();
+      }
+    };
+
+    const handleContextMenu = (e: MouseEvent) => {
+      if (stateRef.current.dragNodeId) {
+        e.preventDefault();
+        cancelDrag();
+      }
+    };
+
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("contextmenu", handleContextMenu);
 
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("contextmenu", handleContextMenu);
     };
   }, [camera, scene, pointer, raycaster, setDragState, updateNode, reparentNode, get]);
 

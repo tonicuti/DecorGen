@@ -207,6 +207,10 @@ export const useSceneStore = create<SceneState>((set) => ({
       return { tree: finalTree };
     }),
 
+  isAddingNode: false,
+
+  setIsAddingNode: (isAdding) => set({ isAddingNode: isAdding }),
+
   removeNode: (id) =>
     set((state) => {
       const { newTree } = removeNodeFromTree(state.tree, id);
@@ -216,5 +220,45 @@ export const useSceneStore = create<SceneState>((set) => ({
         tree: newTree,
         selectedIds: isSelected ? [] : state.selectedIds,
       };
+    }),
+
+  cancelDragNode: (id, isAdding, originalPos, originalRot) =>
+    set((state) => {
+      let newTree = state.tree;
+      let newSelectedIds = state.selectedIds;
+
+      if (isAdding) {
+        newTree = removeNodeFromTree(state.tree, id).newTree;
+        newSelectedIds = state.selectedIds.filter((sId) => sId !== id);
+      } else if (originalPos) {
+        newTree = updateNodeInTree(state.tree, id, {
+          position: originalPos,
+          rotation: originalRot || undefined,
+        });
+      }
+
+      return {
+        tree: newTree,
+        selectedIds: newSelectedIds,
+        isAddingNode: false,
+        dragNodeId: null,
+        dragPosition: null,
+        dragRotation: null,
+        isColliding: false,
+        collidingWithIds: [],
+      };
+    }),
+
+  addNode: (node, parentId) =>
+    set((state) => {
+      let targetParentId: string | null = parentId ?? null;
+      if (!targetParentId) {
+        const hasGroup1 = state.tree.some((n) => n.id === "group-1");
+        if (hasGroup1) {
+          targetParentId = "group-1";
+        }
+      }
+
+      return { tree: insertNodeIntoTree(state.tree, node, targetParentId) };
     }),
 }));
