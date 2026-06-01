@@ -54,22 +54,26 @@ export function validatePlacement(
 
   const halfW = roomDimensions.width / 2;
   const halfL = roomDimensions.length / 2;
-  let tol = 0.01;
+  const roomH = roomDimensions.height;
 
-  if (targetNode.placementType === "opening" || targetNode.placementType === "wall") {
-    tol = roomDimensions.thickness + 0.01;
-  }
+  const isOutX = targetAABB.min.x < -halfW - 0.01 || targetAABB.max.x > halfW + 0.01;
+  const isOutZ = targetAABB.min.z < -halfL - 0.01 || targetAABB.max.z > halfL + 0.01;
+  const isOutY = targetAABB.min.y < -0.01 || targetAABB.max.y > roomH + 0.01;
 
-  if (
-    targetAABB.min.x < -halfW - tol ||
-    targetAABB.max.x > halfW + tol ||
-    targetAABB.min.z < -halfL - tol ||
-    targetAABB.max.z > halfL + tol ||
-    targetAABB.min.y < -0.01 ||
-    targetAABB.max.y > roomDimensions.height + 0.01
-  ) {
-    result.isOutOfBounds = true;
-    result.isValid = false;
+  if (targetNode.placementType === "opening") {
+    const wallTol = roomDimensions.thickness / 100 + 0.01;
+    const isDeepOutX = targetAABB.min.x < -halfW - wallTol || targetAABB.max.x > halfW + wallTol;
+    const isDeepOutZ = targetAABB.min.z < -halfL - wallTol || targetAABB.max.z > halfL + wallTol;
+
+    if (isDeepOutX || isDeepOutZ || isOutY || (isOutX && isOutZ)) {
+      result.isOutOfBounds = true;
+      result.isValid = false;
+    }
+  } else {
+    if (isOutX || isOutZ || isOutY) {
+      result.isOutOfBounds = true;
+      result.isValid = false;
+    }
   }
 
   const collisionAABB = targetAABB.clone();
