@@ -30,7 +30,13 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { validatePlacement } from "@/lib/collision";
-import { useSceneStore } from "@/store/use-scene-store";
+import { useSceneSliderHistory } from "@/hooks/use-scene-slider-history";
+import {
+  beginSceneHistoryGesture,
+  cancelSceneHistoryGesture,
+  endSceneHistoryGesture,
+  useSceneStore,
+} from "@/store/use-scene-store";
 import type { SceneNode, TransformValues } from "@/types";
 
 function ObjectProperties() {
@@ -123,8 +129,33 @@ function ObjectProperties() {
   const [roughness, setRoughness] = React.useState(30);
   const [metalness, setMetalness] = React.useState(10);
   const timeoutRef = React.useRef<number | null>(null);
+  const spatialHistoryTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sliderHistory = useSceneSliderHistory();
   const initialNodeRef = React.useRef<SceneNode | null>(null);
   const prevSelectedIdRef = React.useRef<string | null>(null);
+
+  const flushSpatialHistoryGesture = React.useCallback(() => {
+    if (spatialHistoryTimerRef.current) {
+      clearTimeout(spatialHistoryTimerRef.current);
+      spatialHistoryTimerRef.current = null;
+    }
+    endSceneHistoryGesture();
+  }, []);
+
+  const scheduleSpatialHistoryCommit = React.useCallback(() => {
+    if (spatialHistoryTimerRef.current) {
+      clearTimeout(spatialHistoryTimerRef.current);
+    }
+    spatialHistoryTimerRef.current = setTimeout(() => {
+      spatialHistoryTimerRef.current = null;
+      endSceneHistoryGesture();
+    }, 450);
+  }, []);
+
+  React.useEffect(() => {
+    flushSpatialHistoryGesture();
+    return () => flushSpatialHistoryGesture();
+  }, [selectedNodeId, flushSpatialHistoryGesture]);
 
   React.useEffect(() => {
     if (selectedNodeId !== prevSelectedIdRef.current) {
@@ -192,6 +223,8 @@ function ObjectProperties() {
       updateNode(selectedNode.id, updates);
       return;
     }
+
+    beginSceneHistoryGesture();
 
     const testNode = { ...selectedNode, ...updates };
     const matrix = new THREE.Matrix4();
@@ -312,6 +345,7 @@ function ObjectProperties() {
           updateNode(selectedNode.id, otherUpdates);
         }
 
+        scheduleSpatialHistoryCommit();
         return;
       }
     }
@@ -350,6 +384,7 @@ function ObjectProperties() {
         setDragState(null, null, null, false, []);
       }, 1500);
 
+      cancelSceneHistoryGesture();
       return;
     }
 
@@ -365,10 +400,12 @@ function ObjectProperties() {
         updateNode(selectedNode.id, otherUpdates);
       }
 
+      scheduleSpatialHistoryCommit();
       return;
     }
 
     updateNode(selectedNode.id, updates);
+    scheduleSpatialHistoryCommit();
   };
 
   const handlePositionChange = (axis: "x" | "y" | "z", val: number) => {
@@ -585,7 +622,7 @@ function ObjectProperties() {
       : "border-zinc-200/60 bg-zinc-50/30 dark:border-zinc-800/60 dark:bg-zinc-900/30"
   }`;
 
-  if (!selectedNode) {
+  if (!selectedNode || selectedNode.type === "camera" || selectedNode.type === "light") {
     return (
       <CollapsiblePanel
         key="no-node"
@@ -653,21 +690,22 @@ function ObjectProperties() {
               </div>
               {filteredObjects.length > 0 ? (
                 filteredObjects.map((obj) => (
-                  <button
+                  <Button
                     key={obj.id}
                     type="button"
+                    variant="ghost"
                     onClick={() => {
                       setObjectName(obj.name);
                       setShowSuggestions(false);
                       handleUpdate({ name: obj.name });
                     }}
-                    className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/60"
+                    className="h-auto w-full justify-between rounded-md px-2 py-1.5 text-xs font-normal text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/60"
                   >
                     <span className="font-medium">{obj.name}</span>
                     <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
                       {obj.category}
                     </span>
-                  </button>
+                  </Button>
                 ))
               ) : (
                 <div className="px-2 py-2 text-center text-xs text-zinc-500 dark:text-zinc-400">
@@ -689,6 +727,7 @@ function ObjectProperties() {
               min={-999}
               disabled={isXFixed}
               onChange={(val) => handlePositionChange("x", val)}
+              onCommit={flushSpatialHistoryGesture}
               badgeColor="bg-rose-500 text-white dark:bg-rose-600"
             />
             <CustomNumberInput
@@ -697,6 +736,7 @@ function ObjectProperties() {
               min={-999}
               disabled={isFloor || isDoor || isTabletop}
               onChange={(val) => handlePositionChange("y", val)}
+              onCommit={flushSpatialHistoryGesture}
               badgeColor="bg-rose-500 text-white dark:bg-rose-600"
             />
             <CustomNumberInput
@@ -705,6 +745,7 @@ function ObjectProperties() {
               min={-999}
               disabled={isZFixed}
               onChange={(val) => handlePositionChange("z", val)}
+              onCommit={flushSpatialHistoryGesture}
               badgeColor="bg-rose-500 text-white dark:bg-rose-600"
             />
           </div>
@@ -776,6 +817,7 @@ function ObjectProperties() {
               step={0.1}
               min={0.1}
               onChange={(val) => handleDisplayDimensionChange("w", val)}
+              onCommit={flushSpatialHistoryGesture}
               badgeColor="bg-pink-500 text-white dark:bg-pink-600"
             />
             <CustomNumberInput
@@ -785,6 +827,7 @@ function ObjectProperties() {
               min={0.1}
               disabled={isOpening}
               onChange={(val) => handleDisplayDimensionChange("d", val)}
+              onCommit={flushSpatialHistoryGesture}
               badgeColor="bg-pink-500 text-white dark:bg-pink-600"
             />
             <CustomNumberInput
@@ -793,6 +836,7 @@ function ObjectProperties() {
               step={0.1}
               min={0.1}
               onChange={(val) => handleDimensionChange("h", val)}
+              onCommit={flushSpatialHistoryGesture}
               badgeColor="bg-pink-500 text-white dark:bg-pink-600"
             />
           </div>
@@ -804,17 +848,20 @@ function ObjectProperties() {
           </div>
           <div className="flex flex-wrap gap-1.5">
             {OBJECT_PARTS.map((part) => (
-              <button
+              <Button
                 key={part.id}
+                type="button"
+                size="xs"
+                variant={selectedPart === part.id ? "default" : "secondary"}
                 onClick={() => setSelectedPart(part.id)}
-                className={`rounded-full px-3 py-1 text-[10px] font-semibold transition-colors ${
+                className={`rounded-full px-3 py-1 text-[10px] font-semibold ${
                   selectedPart === part.id
-                    ? "bg-violet-500 text-white shadow-xs"
+                    ? "bg-violet-500 text-white shadow-xs hover:bg-violet-500/90"
                     : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
                 }`}
               >
                 {part.name}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -865,10 +912,12 @@ function ObjectProperties() {
           </div>
           <div className="grid grid-cols-5 gap-2 pt-1">
             {COLOR_SWATCHES.map((swatch) => (
-              <button
+              <Button
                 key={swatch.name}
+                type="button"
+                variant="outline"
                 onClick={() => handleColorChange(swatch.value)}
-                className={`group relative h-7 w-full overflow-hidden rounded-lg border shadow-xs transition-transform active:scale-95 ${
+                className={`relative h-7 w-full overflow-hidden p-0 shadow-xs transition-transform active:scale-95 ${
                   colorHex.toLowerCase() === swatch.value.toLowerCase()
                     ? "border-pink-500 ring-2 ring-pink-500/30 dark:ring-pink-500/40"
                     : "border-black/10 hover:scale-105 dark:border-white/10"
@@ -884,7 +933,7 @@ function ObjectProperties() {
                     <Sparkles className="h-3 w-3 text-white" />
                   </div>
                 )}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -902,10 +951,16 @@ function ObjectProperties() {
             </div>
             <Slider
               value={[roughness]}
-              onValueChange={(val) => handleRoughnessChange(val[0])}
               max={100}
               step={1}
               className="py-1"
+              onPointerDown={sliderHistory.onSlideStart}
+              onValueChange={(val) => {
+                sliderHistory.onSlideStart();
+                handleRoughnessChange(val[0]);
+              }}
+              onValueCommit={sliderHistory.onSlideCommit}
+              onPointerCancel={sliderHistory.onSlideCancel}
             />
           </div>
           <div className="flex flex-col gap-1.5 pt-1">
@@ -917,10 +972,16 @@ function ObjectProperties() {
             </div>
             <Slider
               value={[metalness]}
-              onValueChange={(val) => handleMetalnessChange(val[0])}
               max={100}
               step={1}
               className="py-1"
+              onPointerDown={sliderHistory.onSlideStart}
+              onValueChange={(val) => {
+                sliderHistory.onSlideStart();
+                handleMetalnessChange(val[0]);
+              }}
+              onValueCommit={sliderHistory.onSlideCommit}
+              onPointerCancel={sliderHistory.onSlideCancel}
             />
           </div>
         </div>

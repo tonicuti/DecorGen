@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { NumberInputProps } from "@/types";
 
@@ -9,6 +10,7 @@ function CustomNumberInput({
   min = 0,
   max = 999,
   onChange,
+  onCommit,
   badgeColor,
   disabled = false,
 }: NumberInputProps) {
@@ -68,6 +70,7 @@ function CustomNumberInput({
     }
 
     setInputValue(Number(value.toFixed(2)).toString());
+    onCommit?.();
   };
 
   return (
@@ -79,14 +82,16 @@ function CustomNumberInput({
       >
         {label}
       </span>
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-xs"
         disabled={disabled}
         onClick={handleDecrease}
-        className="flex h-7 w-4.5 shrink-0 items-center justify-center text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 active:bg-zinc-200 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 dark:active:bg-zinc-700"
+        className="h-7 w-4.5 shrink-0 rounded-none text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
       >
         <span className="text-xs font-bold">-</span>
-      </button>
+      </Button>
       <Input
         type="text"
         disabled={disabled}
@@ -95,14 +100,16 @@ function CustomNumberInput({
         onBlur={handleBlur}
         className="h-7 w-full rounded-none border-0 bg-transparent px-0.5 text-center text-[11px] font-semibold text-zinc-800 shadow-none focus-visible:ring-0 dark:text-zinc-200"
       />
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-xs"
         disabled={disabled}
         onClick={handleIncrease}
-        className="flex h-7 w-4.5 shrink-0 items-center justify-center text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 active:bg-zinc-200 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 dark:active:bg-zinc-700"
+        className="h-7 w-4.5 shrink-0 rounded-none text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
       >
         <span className="text-xs font-bold">+</span>
-      </button>
+      </Button>
     </div>
   );
 }

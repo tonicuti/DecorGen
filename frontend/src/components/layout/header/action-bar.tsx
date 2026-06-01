@@ -9,13 +9,13 @@ import {
 import type { ActionBarProps } from "@/types";
 
 function ActionBar({
-  onSave = () => console.log("Save action"),
-  onDownload2D = () => console.log("Download 2D Plan action"),
-  onExport3D = () => console.log("Export 3D Model (.glb) action"),
-  onUndo = () => console.log("Undo action"),
-  onRedo = () => console.log("Redo action"),
-  canUndo = true,
-  canRedo = true,
+  onSave,
+  onDownload2D,
+  onExport3D,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false,
 }: ActionBarProps) {
   return (
     <div className="pointer-events-auto flex items-center gap-1">
@@ -63,20 +63,30 @@ function ActionBar({
       </DropdownMenu>
       <div className="flex items-center gap-0.5 rounded-md border border-zinc-200 bg-zinc-100 p-0.5 dark:border-zinc-800/80 dark:bg-zinc-900/50">
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           disabled={!canUndo}
-          onClick={onUndo}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onUndo?.();
+          }}
           className="h-7 w-7 rounded-sm text-zinc-600 transition-all hover:bg-zinc-200 hover:text-zinc-900 active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
           title="Undo (Ctrl+Z)"
         >
           <Undo2 className="h-3.5 w-3.5" />
         </Button>
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           disabled={!canRedo}
-          onClick={onRedo}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onRedo?.();
+          }}
           className="h-7 w-7 rounded-sm text-zinc-600 transition-all hover:bg-zinc-200 hover:text-zinc-900 active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
           title="Redo (Ctrl+Y)"
         >

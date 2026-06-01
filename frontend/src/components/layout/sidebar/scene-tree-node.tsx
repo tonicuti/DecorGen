@@ -106,6 +106,7 @@ export function SceneTreeNode({
             <span
               onDoubleClick={(e) => {
                 e.stopPropagation();
+                if (node.locked) return;
                 setRenamingId(node.id);
                 setRenameValue(node.name);
               }}
@@ -149,7 +150,7 @@ export function SceneTreeNode({
               <Unlock className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-600" />
             )}
           </Button>
-          {node.type !== "camera" && (
+          {node.type !== "camera" && !node.locked && (
             <Button
               variant="ghost"
               size="icon"
@@ -164,7 +165,7 @@ export function SceneTreeNode({
               <Pencil className="h-3.5 w-3.5 text-zinc-500 dark:text-zinc-400" />
             </Button>
           )}
-          {node.type !== "camera" && (
+          {node.type !== "camera" && !node.locked && (
             <Button
               variant="ghost"
               size="icon"

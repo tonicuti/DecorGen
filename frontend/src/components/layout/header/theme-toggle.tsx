@@ -1,4 +1,5 @@
 import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/theme-provider";
 
 function ThemeToggle() {
@@ -6,9 +7,12 @@ function ThemeToggle() {
   const isDark = theme === "dark";
 
   return (
-    <button
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="relative flex h-8 w-8 items-center justify-center rounded-full text-zinc-600 transition-all duration-300 hover:bg-zinc-100 hover:text-zinc-900 active:scale-95 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+      className="h-8 w-8 rounded-full text-zinc-600 transition-all duration-300 hover:bg-zinc-100 hover:text-zinc-900 active:scale-95 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
       title={isDark ? "Light Mode" : "Dark Mode"}
     >
       <div
@@ -23,7 +27,7 @@ function ThemeToggle() {
         )}
       </div>
       <span className="sr-only">Toggle Theme</span>
-    </button>
+    </Button>
   );
 }
 

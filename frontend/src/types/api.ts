@@ -68,6 +68,10 @@ export interface SceneNode {
   glbUrl?: string;
   swingDirection?: "left" | "right" | "both" | "none";
   defaultElevation?: number;
+  fov?: number;
+  lightKind?: "directional" | "ambient" | "hemisphere";
+  intensity?: number;
+  castShadow?: boolean;
 }
 
 export interface SceneObject {
@@ -99,4 +103,19 @@ export interface ColorSwatch {
 export interface EnvironmentPreset {
   id: string;
   name: string;
+  dreiPreset?: string;
+  /** Target scene.environmentIntensity; studio HDRI is very bright by default. */
+  intensity?: number;
+}
+
+export type RenderQualityId = "low" | "medium" | "high";
+
+export interface RenderQualityOption {
+  id: RenderQualityId;
+  label: string;
+}
+
+export interface WorkspaceShortcut {
+  keys: string;
+  description: string;
 }

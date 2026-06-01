@@ -11,14 +11,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { deleteNode, expandParentsOfNode, renameNodeInTree } from "@/lib/node-hierarchy";
-import { useSceneStore } from "@/store/use-scene-store";
+import {
+  countSceneNodes,
+  expandParentsOfNode,
+  filterSceneTree,
+  renameNodeInTree,
+} from "@/lib/node-hierarchy";
+import { pauseSceneHistory, resumeSceneHistory, useSceneStore } from "@/store/use-scene-store";
 import type { SceneNode } from "@/types";
 
 function SceneTreePanel() {
   const [search, setSearch] = React.useState("");
   const tree = useSceneStore((state) => state.tree);
   const setTree = useSceneStore((state) => state.setTree);
+  const removeNode = useSceneStore((state) => state.removeNode);
   const selectedIds = useSceneStore((state) => state.selectedIds);
   const setSelectedIds = useSceneStore((state) => state.setSelectedIds);
   const [nodeToDelete, setNodeToDelete] = React.useState<SceneNode | null>(null);
@@ -38,7 +44,9 @@ function SceneTreePanel() {
       const { updated, found, changed } = expandParentsOfNode(activeId, tree);
 
       if (found && changed) {
+        pauseSceneHistory();
         setTree(updated);
+        resumeSceneHistory();
       }
     }
   }, [selectedIds, tree, setTree]);
@@ -54,13 +62,13 @@ function SceneTreePanel() {
     setRenamingId(null);
   };
 
-  const totalObjectsCount = React.useMemo(() => {
-    const count = (nodes: SceneNode[]): number => {
-      return nodes.reduce((acc, node) => acc + 1 + (node.children ? count(node.children) : 0), 0);
-    };
+  const totalObjectsCount = React.useMemo(() => countSceneNodes(tree), [tree]);
 
-    return count(tree);
-  }, [tree]);
+  const filteredTree = React.useMemo(() => filterSceneTree(tree, search), [tree, search]);
+
+  const filteredObjectsCount = React.useMemo(() => countSceneNodes(filteredTree), [filteredTree]);
+
+  const isFiltering = search.trim().length > 0;
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -73,7 +81,10 @@ function SceneTreePanel() {
         </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
-            {totalObjectsCount} objects
+            {isFiltering
+              ? `${filteredObjectsCount} / ${totalObjectsCount}`
+              : totalObjectsCount}{" "}
+            objects
           </span>
         </div>
       </div>
@@ -81,7 +92,6 @@ function SceneTreePanel() {
         <div className="relative">
           <Search className="absolute top-2.5 left-3 h-4 w-4 text-zinc-400 dark:text-zinc-500" />
           <Input
-            autoFocus
             placeholder="Filter scene objects..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -94,23 +104,29 @@ function SceneTreePanel() {
         className="flex-1 scrollbar-none overflow-y-auto p-4 pt-2 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         <div className="flex flex-col gap-1">
-          {tree.map((node) => (
-            <SceneTreeNode
-              key={node.id}
-              node={node}
-              depth={0}
-              selectedIds={selectedIds}
-              setSelectedIds={setSelectedIds}
-              tree={tree}
-              setTree={setTree}
-              renamingId={renamingId}
-              renameValue={renameValue}
-              setRenameValue={setRenameValue}
-              setRenamingId={setRenamingId}
-              handleRenameConfirm={handleRenameConfirm}
-              setNodeToDelete={setNodeToDelete}
-            />
-          ))}
+          {filteredTree.length === 0 ? (
+            <p className="px-2 py-6 text-center text-xs text-zinc-500 dark:text-zinc-400">
+              No objects match &ldquo;{search.trim()}&rdquo;
+            </p>
+          ) : (
+            filteredTree.map((node) => (
+              <SceneTreeNode
+                key={node.id}
+                node={node}
+                depth={0}
+                selectedIds={selectedIds}
+                setSelectedIds={setSelectedIds}
+                tree={tree}
+                setTree={setTree}
+                renamingId={renamingId}
+                renameValue={renameValue}
+                setRenameValue={setRenameValue}
+                setRenamingId={setRenamingId}
+                handleRenameConfirm={handleRenameConfirm}
+                setNodeToDelete={setNodeToDelete}
+              />
+            ))
+          )}
         </div>
       </div>
       <Dialog
@@ -139,8 +155,8 @@ function SceneTreePanel() {
               variant="destructive"
               className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500"
               onClick={() => {
-                if (nodeToDelete) {
-                  setTree(deleteNode(nodeToDelete.id, tree));
+                if (nodeToDelete && !nodeToDelete.locked) {
+                  removeNode(nodeToDelete.id);
                   setNodeToDelete(null);
                 }
               }}

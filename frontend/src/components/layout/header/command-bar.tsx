@@ -21,18 +21,19 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/theme-provider";
 import type { CommandBarProps } from "@/types";
 
 function CommandBar({
-  onSwitchTo2D = () => console.log("Switch to 2D Mode"),
-  onSwitchTo3D = () => console.log("Switch to 3D Mode"),
-  onSave = () => console.log("Save Bedroom Layout"),
-  onExport2D = () => console.log("Export 2D Blueprint"),
-  onExport3D = () => console.log("Export 3D Model"),
-  onClearScene = () => console.log("Clear Scene"),
-  onUndo = () => console.log("Undo"),
-  onRedo = () => console.log("Redo"),
+  onSwitchTo2D,
+  onSwitchTo3D,
+  onSave,
+  onExport2D,
+  onExport3D,
+  onClearScene,
+  onUndo,
+  onRedo,
 }: CommandBarProps) {
   const [open, setOpen] = React.useState(false);
   const { theme, setTheme } = useTheme();
@@ -49,23 +50,25 @@ function CommandBar({
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const handleSelect = (action: () => void) => {
-    action();
+  const handleSelect = (action?: () => void) => {
+    action?.();
     setOpen(false);
   };
 
   return (
     <div className="pointer-events-auto mx-4 hidden max-w-md flex-1 items-center md:flex">
-      <button
+      <Button
+        type="button"
+        variant="outline"
         onClick={() => setOpen(true)}
-        className="group flex w-full cursor-pointer items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-100/80 px-3 py-1.5 text-sm text-zinc-500 shadow-sm transition-all duration-200 hover:border-zinc-300 hover:bg-zinc-200/60 hover:text-zinc-700 hover:shadow focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-300"
+        className="group h-auto w-full justify-start gap-2 rounded-lg border-zinc-200 bg-zinc-100/80 px-3 py-1.5 text-sm font-normal text-zinc-500 shadow-sm hover:border-zinc-300 hover:bg-zinc-200/60 hover:text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-300"
       >
         <Search className="h-4 w-4 opacity-70 transition-transform duration-200 group-hover:scale-110 group-hover:text-zinc-700 dark:group-hover:text-zinc-300" />
         <span className="flex-1 text-left transition-colors">Search commands...</span>
         <kbd className="pointer-events-none hidden h-5 items-center gap-1 rounded border border-zinc-300 bg-zinc-200/50 px-1.5 font-mono text-[10px] font-medium text-zinc-500 transition-colors select-none group-hover:border-zinc-400 sm:flex dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-400 dark:group-hover:border-zinc-600">
           <span className="text-xs">⌘</span>K
         </kbd>
-      </button>
+      </Button>
       <CommandDialog
         open={open}
         onOpenChange={setOpen}

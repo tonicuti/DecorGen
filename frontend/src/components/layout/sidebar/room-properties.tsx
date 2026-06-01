@@ -110,10 +110,12 @@ function RoomProperties() {
             </div>
             <div className="grid grid-cols-5 gap-2">
               {WALL_COLORS.map((swatch) => (
-                <button
+                <Button
                   key={swatch.name}
+                  type="button"
+                  variant="outline"
                   onClick={() => setRoomMaterials({ wallColor: swatch.value })}
-                  className={`group relative h-7 w-full overflow-hidden rounded-lg border shadow-2xs transition-all active:scale-95 ${
+                  className={`relative h-7 w-full overflow-hidden p-0 shadow-2xs transition-all active:scale-95 ${
                     wallColor.toLowerCase() === swatch.value.toLowerCase()
                       ? "border-teal-500 ring-2 ring-teal-500/30 dark:ring-teal-500/40"
                       : "border-black/10 hover:scale-105 dark:border-white/10"
@@ -129,7 +131,7 @@ function RoomProperties() {
                       <Sparkles className="h-3 w-3 text-white" />
                     </div>
                   )}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -157,10 +159,12 @@ function RoomProperties() {
             </div>
             <div className="grid grid-cols-5 gap-2">
               {FLOOR_COLORS.map((swatch) => (
-                <button
+                <Button
                   key={swatch.name}
+                  type="button"
+                  variant="outline"
                   onClick={() => setRoomMaterials({ floorColor: swatch.value })}
-                  className={`group relative h-7 w-full overflow-hidden rounded-lg border shadow-2xs transition-all active:scale-95 ${
+                  className={`relative h-7 w-full overflow-hidden p-0 shadow-2xs transition-all active:scale-95 ${
                     floorColor.toLowerCase() === swatch.value.toLowerCase()
                       ? "border-amber-600 ring-2 ring-amber-600/30 dark:ring-amber-600/40"
                       : "border-black/10 hover:scale-105 dark:border-white/10"
@@ -176,7 +180,7 @@ function RoomProperties() {
                       <Sparkles className="h-3 w-3 text-white" />
                     </div>
                   )}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

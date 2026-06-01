@@ -281,6 +281,43 @@ export const SAMPLE_ASSETS: Asset[] = [
   },
 ];
 
+// --- Workspace & scene settings defaults ---
+export const RENDER_QUALITY_OPTIONS = [
+  { id: "low" as const, label: "Low" },
+  { id: "medium" as const, label: "Medium" },
+  { id: "high" as const, label: "High" },
+];
+
+export const DEFAULT_WORKSPACE_SETTINGS = {
+  renderQuality: "high" as const,
+  showFloorGrid: true,
+  gridSnapping: true,
+};
+
+export const DEFAULT_SCENE_SETTINGS = {
+  environmentId: "hdri-studio",
+  gridOverlay: true,
+  realisticLighting: true,
+  softShadows: true,
+  cameraFov: 50,
+};
+
+export const WORKSPACE_SHORTCUTS = [
+  { keys: "Ctrl+K", description: "Open command palette" },
+  { keys: "Ctrl+Z", description: "Undo" },
+  { keys: "Ctrl+Y", description: "Redo" },
+  { keys: "Ctrl+S", description: "Save bedroom layout (coming soon)" },
+  { keys: "Ctrl+Shift+E", description: "Export 2D blueprint" },
+  { keys: "G", description: "Toggle 3D floor grid" },
+  { keys: "S", description: "Toggle grid snapping" },
+];
+
+export const ABOUT_DECORGEN = {
+  tagline: "AI-powered bedroom layout designer",
+  description:
+    "DecorGen helps you plan and visualize bedroom layouts in 2D and 3D before committing to furniture purchases.",
+};
+
 // --- Initial Scene Node Tree (R3F Hierarchy) ---
 export const INITIAL_TREE: SceneNode[] = [
   {
@@ -289,6 +326,7 @@ export const INITIAL_TREE: SceneNode[] = [
     type: "camera",
     visible: true,
     locked: true,
+    fov: 50,
   },
   {
     id: "light-1",
@@ -296,6 +334,10 @@ export const INITIAL_TREE: SceneNode[] = [
     type: "light",
     visible: true,
     locked: false,
+    lightKind: "directional",
+    intensity: 1.35,
+    castShadow: true,
+    position: [5, 12, 5],
   },
   {
     id: "light-2",
@@ -303,6 +345,8 @@ export const INITIAL_TREE: SceneNode[] = [
     type: "light",
     visible: true,
     locked: false,
+    lightKind: "ambient",
+    intensity: 0.65,
   },
   {
     id: "group-1",
@@ -513,14 +557,27 @@ export const SCENE_OBJECTS: SceneObject[] = [
   { id: "10", name: "Panoramic Glass Window", category: "Openings" },
 ];
 
+/** HDRI crossfade duration when switching environment presets (seconds). */
+export const ENV_TRANSITION_SEC = 0.45;
+
+/** Default scene.environmentIntensity when a preset omits `intensity`. */
+export const ENVIRONMENT_INTENSITY = 0.45;
+
 // --- 3D Environment Map Lighting Presets ---
 export const ENVIRONMENT_PRESETS: EnvironmentPreset[] = [
-  { id: "hdri-studio", name: "Studio Light (Neutral)" },
-  { id: "hdri-sunset", name: "Warm Sunset" },
-  { id: "hdri-daylight", name: "Bright Daylight" },
-  { id: "hdri-interior", name: "Cozy Interior" },
-  { id: "hdri-forest", name: "Moody Forest" },
+  {
+    id: "hdri-studio",
+    name: "Studio Light (Neutral)",
+    dreiPreset: "studio",
+    intensity: 0.22,
+  },
+  { id: "hdri-sunset", name: "Warm Sunset", dreiPreset: "sunset", intensity: 0.5 },
+  { id: "hdri-daylight", name: "Bright Daylight", dreiPreset: "city", intensity: 0.48 },
+  { id: "hdri-interior", name: "Cozy Interior", dreiPreset: "apartment", intensity: 0.58 },
+  { id: "hdri-forest", name: "Moody Forest", dreiPreset: "forest", intensity: 0.42 },
 ];
+
+export const SYSTEM_NODE_IDS = ["cam-1", "light-1", "light-2"] as const;
 
 // ============================================================================
 // AI Detection Blueprint Mock Data

@@ -1,13 +1,22 @@
 import { Canvas } from "@react-three/fiber";
-import { Cuboid, Grid3X3, Home, Move, Rotate3D, ZoomIn, ZoomOut } from "lucide-react";
+import { ArrowUp, Cuboid, Grid3X3, Home, Move, Rotate3D, ZoomIn, ZoomOut } from "lucide-react";
 import { Plan2D } from "@/components/layout/viewport/2d/plan-2d";
 import { CameraRig } from "@/components/layout/viewport/3d/camera";
+import { FloorGrid3D } from "@/components/layout/viewport/3d/floor-grid-3d";
 import { Room3D } from "@/components/layout/viewport/3d/room-3d";
+import { SceneEnvironment } from "@/components/layout/viewport/3d/scene-environment";
+import { SceneLights } from "@/components/layout/viewport/3d/scene-lights";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSceneStore } from "@/store/use-scene-store";
 import type { ViewportProps } from "@/types";
 
+const viewportToolBtnClass =
+  "h-8 w-8 rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50";
+
 function Viewport({ viewMode, setViewMode }: ViewportProps) {
   const dragNodeId = useSceneStore((state) => state.dragNodeId);
+  const softShadows = useSceneStore((state) => state.sceneSettings.softShadows);
   const handleZoomIn = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: 1 }));
   const handleZoomOut = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: -1 }));
   const handleHome = () => window.dispatchEvent(new CustomEvent("camera-home"));
@@ -20,67 +29,50 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
           : "bg-zinc-50 dark:bg-zinc-900/50"
       }`}
     >
-      <div className="absolute top-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full border border-zinc-200/80 bg-white/80 p-1 shadow-sm backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-950/80">
-        <button
-          onClick={() => setViewMode("3d")}
-          className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
-            viewMode === "3d"
-              ? "bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900"
-              : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-          }`}
-        >
-          <Cuboid className="h-4 w-4" />
-          <span>3D View</span>
-        </button>
-        <button
-          onClick={() => setViewMode("2d")}
-          className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
-            viewMode === "2d"
-              ? "bg-indigo-600 text-white shadow-sm dark:bg-indigo-500 dark:text-white"
-              : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-          }`}
-        >
-          <Grid3X3 className="h-4 w-4" />
-          <span>2D Plan</span>
-        </button>
-      </div>
-      {!!dragNodeId && (
-        <div className="animate-in fade-in slide-in-from-top-4 absolute top-20 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-50/90 px-4 py-2 text-xs font-medium text-indigo-700 shadow-md backdrop-blur-md dark:border-indigo-500/30 dark:bg-indigo-950/90 dark:text-indigo-300">
-          <svg
-            className="h-4 w-4 animate-pulse"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+      <Tabs
+        value={viewMode}
+        onValueChange={(value) => setViewMode(value as "2d" | "3d")}
+        className="absolute top-6 left-1/2 z-20 -translate-x-1/2 gap-0"
+      >
+        <TabsList className="h-auto gap-1 rounded-full border border-zinc-200/80 bg-white/80 p-1 shadow-sm backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-950/80">
+          <TabsTrigger
+            value="3d"
+            className="gap-2 rounded-full px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-zinc-900 data-[state=active]:text-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-zinc-100 dark:data-[state=active]:text-zinc-900"
           >
-            <path d="m5 12 7-7 7 7" />
-            <path d="M12 19V5" />
-          </svg>
+            <Cuboid className="h-4 w-4" />
+            <span>3D View</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="2d"
+            className="gap-2 rounded-full px-4 py-1.5 text-xs font-semibold data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-indigo-500"
+          >
+            <Grid3X3 className="h-4 w-4" />
+            <span>2D Plan</span>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+      {!!dragNodeId && (
+        <div
+          role="status"
+          className="animate-in fade-in slide-in-from-top-4 absolute top-20 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-indigo-500/40 bg-indigo-950/95 px-4 py-2 text-xs font-medium text-indigo-100 shadow-lg backdrop-blur-sm"
+        >
+          <ArrowUp className="h-3.5 w-3.5 shrink-0 text-indigo-300" />
           <span>
             Drag to place, press{" "}
-            <kbd className="mx-1 rounded border border-indigo-200 bg-white/50 px-1.5 py-0.5 font-sans font-bold dark:border-indigo-700 dark:bg-black/20">
+            <kbd className="mx-0.5 rounded border border-indigo-400/60 bg-indigo-900 px-1.5 py-0.5 font-sans text-[10px] font-semibold text-white">
               Esc
             </kbd>{" "}
-            or <span className="font-bold">Right-Click</span> to cancel
+            or <span className="font-semibold text-white">Right-Click</span> to cancel
           </span>
         </div>
       )}
       {viewMode === "3d" ? (
         <div className="absolute inset-0">
-          <Canvas shadows>
+          <Canvas shadows={softShadows}>
             <CameraRig />
-            <ambientLight intensity={1.2} />
-            <hemisphereLight intensity={0.8} color="#ffffff" groundColor="#eeddbb" />
-            <directionalLight
-              position={[5, 12, 5]}
-              intensity={2.0}
-              castShadow
-              shadow-mapSize={[1024, 1024]}
-            />
-            <directionalLight position={[-5, 8, -5]} intensity={1.0} />
+            <SceneLights />
+            <SceneEnvironment />
+            <FloorGrid3D />
             <Room3D />
           </Canvas>
         </div>
@@ -88,38 +80,51 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
         <Plan2D />
       )}
       <div className="animate-in fade-in slide-in-from-bottom-4 absolute right-6 bottom-6 z-20 flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white/90 p-1.5 shadow-sm backdrop-blur-md duration-300 dark:border-zinc-800/80 dark:bg-zinc-950/80">
-        <button
-          className="flex items-center justify-center rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className={viewportToolBtnClass}
           title={viewMode === "2d" ? "Pan" : "Orbit"}
         >
           {viewMode === "2d" ? <Move className="h-4 w-4" /> : <Rotate3D className="h-4 w-4" />}
-        </button>
-        <div className="mx-1 h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
-        <button
-          onClick={handleZoomOut}
-          className="flex items-center justify-center rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
+        </Button>
+        <div className="mx-1 h-4 w-px bg-zinc-200 dark:bg-zinc-800" />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className={viewportToolBtnClass}
           title="Zoom Out"
+          onClick={handleZoomOut}
         >
           <ZoomOut className="h-4 w-4" />
-        </button>
-        <button
-          onClick={handleZoomIn}
-          className="flex items-center justify-center rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className={viewportToolBtnClass}
           title="Zoom In"
+          onClick={handleZoomIn}
         >
           <ZoomIn className="h-4 w-4" />
-        </button>
-        <div className="mx-1 h-4 w-px bg-zinc-200 dark:bg-zinc-800"></div>
-        <button
-          onClick={handleHome}
-          className="flex items-center justify-center rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
+        </Button>
+        <div className="mx-1 h-4 w-px bg-zinc-200 dark:bg-zinc-800" />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className={viewportToolBtnClass}
           title="Home View"
+          onClick={handleHome}
         >
           <Home className="h-4 w-4" />
-        </button>
+        </Button>
       </div>
     </main>
   );
 }
 
 export { Viewport };
+

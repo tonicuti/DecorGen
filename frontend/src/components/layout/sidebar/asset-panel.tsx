@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { generateModelThumbnail } from "@/lib/thumbnail-generator";
-import { useSceneStore } from "@/store/use-scene-store";
+import { beginSceneHistoryGesture, useSceneStore } from "@/store/use-scene-store";
 import type { Asset, AssetCardProps, SceneNode } from "@/types";
 
 function AssetCard({
@@ -120,6 +120,7 @@ function AssetCard({
       locked: false,
     };
 
+    beginSceneHistoryGesture();
     addNode(newNode, null);
     setSelectedIds([newNodeId]);
     setIsAddingNode(true);
@@ -153,13 +154,15 @@ function AssetCard({
             <span>Pro</span>
           </div>
         )}
-        <button
-          className="absolute top-1.5 right-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-zinc-900/80 text-white opacity-0 shadow-sm backdrop-blur-md transition-all duration-200 group-hover:opacity-100 hover:scale-105 hover:bg-zinc-800 dark:bg-black/60"
+        <Button
+          type="button"
+          size="icon-sm"
+          className="absolute top-1.5 right-1.5 h-7 w-7 rounded-full bg-zinc-900/80 text-white opacity-0 shadow-sm backdrop-blur-md transition-all duration-200 group-hover:opacity-100 hover:scale-105 hover:bg-zinc-800 dark:bg-black/60"
           onClick={handleAddClick}
           title="Add Asset"
         >
           <Plus className="h-4 w-4" />
-        </button>
+        </Button>
       </div>
       <div className="flex items-start justify-between gap-1">
         <div className="flex min-w-0 flex-1 flex-col">

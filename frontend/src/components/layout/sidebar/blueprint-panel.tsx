@@ -181,13 +181,15 @@ function BlueprintPanel() {
                       alt="2D Blueprint Preview"
                       className="h-full w-full object-contain"
                     />
-                    <button
+                    <Button
+                      type="button"
+                      size="icon-xs"
                       onClick={() => setUploadedImage(null)}
-                      className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-xs text-white transition-colors hover:bg-black/80"
+                      className="absolute top-2 right-2 h-5 w-5 rounded-full bg-black/60 text-xs text-white hover:bg-black/80"
                       title="Remove Image"
                     >
                       ×
-                    </button>
+                    </Button>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
@@ -218,12 +220,15 @@ function BlueprintPanel() {
                   <Layers className="h-3.5 w-3.5 text-indigo-500" />
                   <span>Detected Layout Elements</span>
                 </div>
-                <button
+                <Button
+                  type="button"
+                  size="xs"
+                  variant="secondary"
                   onClick={() => setShowRawJson(!showRawJson)}
-                  className="rounded-md bg-zinc-100 px-2 py-0.5 text-[9px] font-semibold text-zinc-600 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                  className="h-auto rounded-md px-2 py-0.5 text-[9px] font-semibold"
                 >
                   {showRawJson ? "Hide JSON" : "Raw JSON"}
-                </button>
+                </Button>
               </div>
               {showRawJson && (
                 <div className="animate-in fade-in slide-in-from-top-2 max-h-40 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2.5 font-mono text-[9px] text-zinc-600 duration-200 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-800/80 [&::-webkit-scrollbar-track]:bg-transparent">

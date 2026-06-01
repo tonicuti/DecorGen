@@ -107,3 +107,36 @@ export function expandParentsOfNode(
 
   return { updated: anyChanged ? updatedNodes : nodes, found: anyFound, changed: anyChanged };
 }
+
+/** Filter hierarchy by node name; expands branches that contain matches. */
+export function filterSceneTree(nodes: SceneNode[], query: string): SceneNode[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return nodes;
+
+  const filterNode = (node: SceneNode): SceneNode | null => {
+    const nameMatch = node.name.toLowerCase().includes(q);
+    const filteredChildren =
+      node.children
+        ?.map(filterNode)
+        .filter((child): child is SceneNode => child !== null) ?? [];
+
+    if (nameMatch) {
+      return { ...node, expanded: node.children?.length ? true : node.expanded };
+    }
+
+    if (filteredChildren.length > 0) {
+      return { ...node, expanded: true, children: filteredChildren };
+    }
+
+    return null;
+  };
+
+  return nodes.map(filterNode).filter((node): node is SceneNode => node !== null);
+}
+
+export function countSceneNodes(nodes: SceneNode[]): number {
+  return nodes.reduce(
+    (acc, node) => acc + 1 + (node.children ? countSceneNodes(node.children) : 0),
+    0
+  );
+}

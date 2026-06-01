@@ -22,7 +22,8 @@ function checkWallVisibility(
 }
 
 function CameraRig() {
-  const { cameraState, setCameraState } = useSceneStore();
+  const { cameraState, setCameraState, sceneSettings } = useSceneStore();
+  const cameraFov = sceneSettings.cameraFov;
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const [animatingHome, setAnimatingHome] = useState(false);
@@ -95,7 +96,7 @@ function CameraRig() {
 
   return (
     <>
-      <PerspectiveCamera ref={cameraRef} makeDefault position={cameraState.position} fov={60} />
+      <PerspectiveCamera ref={cameraRef} makeDefault position={cameraState.position} fov={cameraFov} />
       <OrbitControls
         ref={controlsRef}
         target={cameraState.target}

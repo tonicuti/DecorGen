@@ -1,66 +1,25 @@
 import { MoreHorizontal } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { PlanGrid2D } from "@/components/layout/viewport/2d/plan-grid-2d";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Room2D } from "@/components/layout/viewport/2d/room-2d";
 import { SceneNode2D } from "@/components/layout/viewport/2d/scene-node-2d";
+import { buildLegendItems, buildLegendMap } from "@/lib/plan-legend";
 import { useSceneStore } from "@/store/use-scene-store";
-import type { SceneNode } from "@/types";
 
 export const PIXELS_PER_METER = 100;
-
-const flattenNodes = (nodes: SceneNode[]): SceneNode[] => {
-  return nodes.reduce((acc, node) => {
-    acc.push(node);
-    if (node.children) acc.push(...flattenNodes(node.children));
-    return acc;
-  }, [] as SceneNode[]);
-};
 
 function Plan2D() {
   const tree = useSceneStore((state) => state.tree);
   const roomDimensions = useSceneStore((state) => state.roomDimensions);
   const selectedIds = useSceneStore((state) => state.selectedIds);
   const setSelectedIds = useSceneStore((state) => state.setSelectedIds);
+  const gridOverlay = useSceneStore((state) => state.sceneSettings.gridOverlay);
 
-  const getAngle = (node: SceneNode) => {
-    const x = node.position?.[0] || 0;
-    const y = node.position?.[2] || 0;
-    let angle = Math.atan2(-y, x);
-
-    if (angle < 0) angle += 2 * Math.PI;
-
-    return angle;
-  };
-
-  const getDistance = (node: SceneNode) => {
-    const x = node.position?.[0] || 0;
-    const y = node.position?.[2] || 0;
-
-    return x * x + y * y;
-  };
-
-  const legendItems = flattenNodes(tree)
-    .filter((n) => {
-      if (!n.dimensions || n.type === "camera" || n.type === "light") return false;
-
-      const isOpening = n.placementType === "opening";
-      if (n.placementType === "tabletop" || n.placementType === "ceiling") return false;
-
-      if (isOpening || n.placementType === "floor" || n.placementType === "wall") return true;
-
-      return false;
-    })
-    .sort((a, b) => {
-      const angleA = getAngle(a);
-      const angleB = getAngle(b);
-
-      if (Math.abs(angleA - angleB) < 0.0001) {
-        return getDistance(a) - getDistance(b);
-      }
-
-      return angleA - angleB;
-    });
-
-  const legendMap = new Map(legendItems.map((item, index) => [item.id, index + 1]));
+  const legendItems = useMemo(() => buildLegendItems(tree), [tree]);
+  const legendMap = useMemo(() => buildLegendMap(tree), [tree]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
   const isDragging = useRef(false);
@@ -172,29 +131,22 @@ function Plan2D() {
       onPointerLeave={handlePointerLeave}
       onWheel={handleWheel}
     >
-      <svg
-        width="100%"
-        height="100%"
-        className="pointer-events-none absolute inset-0 opacity-20 dark:opacity-10"
-      >
-        <defs>
-          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="1" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-      </svg>
       <svg className="h-full w-full" style={{ touchAction: "none" }}>
         <g transform={`translate(${transform.x}, ${transform.y}) scale(${transform.scale})`}>
           <Room2D dimensions={roomDimensions} />
+          {gridOverlay && <PlanGrid2D dimensions={roomDimensions} />}
           {tree.map((node) => (
             <SceneNode2D key={node.id} node={node} legendMap={legendMap} />
           ))}
         </g>
       </svg>
-      <div className="pointer-events-auto absolute top-6 right-6 z-20 flex max-h-[80vh] w-64 flex-col gap-2 overflow-y-auto rounded-xl border border-zinc-200 bg-white/90 p-4 shadow-sm backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-950/90">
-        <h3 className="mb-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">Legend</h3>
-        <div className="flex flex-col gap-3">
+      <Card className="pointer-events-auto absolute top-6 right-6 z-20 max-h-[80vh] w-64 gap-3 border-zinc-200/80 bg-white/90 py-4 shadow-sm backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-950/90">
+        <CardHeader className="px-4 pb-0">
+          <CardTitle className="text-sm text-zinc-900 dark:text-zinc-100">Legend</CardTitle>
+        </CardHeader>
+        <CardContent className="px-4 pt-0">
+          <ScrollArea className="max-h-[calc(80vh-4rem)] pr-2">
+            <div className="flex flex-col gap-3">
           {legendItems.map((item, index) => {
             const isSelected = selectedIds.includes(item.id);
             return (
@@ -235,8 +187,11 @@ function Plan2D() {
                     &times; {item.dimensions?.h.toFixed(2)}H
                   </span>
                 </div>
-                <button
-                  className={`rounded-md p-1.5 transition-opacity ${
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  className={`shrink-0 transition-opacity ${
                     isSelected
                       ? "text-indigo-600 opacity-100 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:bg-indigo-800/50"
                       : "text-zinc-400 opacity-0 group-hover:opacity-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -249,12 +204,14 @@ function Plan2D() {
                   title="View in Inspector"
                 >
                   <MoreHorizontal size={14} />
-                </button>
+                </Button>
               </div>
             );
           })}
-        </div>
-      </div>
+            </div>
+          </ScrollArea>
+        </CardContent>
+      </Card>
     </div>
   );
 }

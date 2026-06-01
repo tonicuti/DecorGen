@@ -2,8 +2,22 @@ import { useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { validatePlacement } from "@/lib/collision";
-import { useSceneStore } from "@/store/use-scene-store";
+import {
+  beginSceneHistoryGesture,
+  cancelSceneHistoryGesture,
+  endSceneHistoryGesture,
+  isSceneHistoryGestureActive,
+  useSceneStore,
+} from "@/store/use-scene-store";
+import { useWorkspaceStore } from "@/store/use-workspace-store";
 import type { SceneNode } from "@/types";
+
+const GRID_SNAP_STEP = 0.25;
+
+function snapValue(value: number, enabled: boolean): number {
+  if (!enabled) return value;
+  return Math.round(value / GRID_SNAP_STEP) * GRID_SNAP_STEP;
+}
 
 const findNode = (nodes: SceneNode[], id: string): SceneNode | null => {
   for (const node of nodes) {
@@ -25,8 +39,8 @@ function DragDropHandler() {
   const roomDimensions = useSceneStore((state) => state.roomDimensions);
   const dragNodeId = useSceneStore((state) => state.dragNodeId);
   const setDragState = useSceneStore((state) => state.setDragState);
-  const updateNode = useSceneStore((state) => state.updateNode);
-  const reparentNode = useSceneStore((state) => state.reparentNode);
+  const finalizeDragPlacement = useSceneStore((state) => state.finalizeDragPlacement);
+  const cancelDragNode = useSceneStore((state) => state.cancelDragNode);
 
   const stateRef = useRef({
     tree,
@@ -45,11 +59,25 @@ function DragDropHandler() {
     stateRef.current.tree = tree;
     stateRef.current.roomDimensions = roomDimensions;
 
-    if (stateRef.current.dragNodeId !== dragNodeId) {
+      if (stateRef.current.dragNodeId !== dragNodeId) {
       stateRef.current.dragNodeId = dragNodeId;
 
       if (dragNodeId) {
+        if (!isSceneHistoryGestureActive()) {
+          beginSceneHistoryGesture();
+        }
+
         const node = findNode(tree, dragNodeId);
+
+        if (node?.locked) {
+          cancelDragNode(
+            dragNodeId,
+            useSceneStore.getState().isAddingNode,
+            node.position ?? null,
+            node.rotation ?? null
+          );
+          return;
+        }
 
         if (node && node.position) {
           stateRef.current.currentValidPos = [...node.position] as [number, number, number];
@@ -218,7 +246,15 @@ function DragDropHandler() {
           (parentSpace as THREE.Object3D).worldToLocal(localPos);
         }
 
-        const newPosArray: [number, number, number] = [localPos.x, localPos.y, localPos.z];
+        const gridSnapping = useWorkspaceStore.getState().gridSnapping;
+        let newPosArray: [number, number, number] = [localPos.x, localPos.y, localPos.z];
+        if (gridSnapping && dragNode.placementType === "floor") {
+          newPosArray = [
+            snapValue(newPosArray[0], true),
+            newPosArray[1],
+            snapValue(newPosArray[2], true),
+          ];
+        }
         const newRotArray: [number, number, number] = [
           newRotation[0],
           newRotation[1],
@@ -317,18 +353,23 @@ function DragDropHandler() {
           }
 
           const finalPosArray: [number, number, number] = [localPos.x, localPos.y, localPos.z];
-          reparentNode(dragNodeId, targetParentId, finalPosArray);
+          finalizeDragPlacement({
+            nodeId: dragNodeId,
+            position: finalPosArray,
+            rotation: currentValidRotation || undefined,
+            parentId: targetParentId,
+          });
         } else {
-          updateNode(dragNodeId, {
+          finalizeDragPlacement({
+            nodeId: dragNodeId,
             position: currentValidPos,
             rotation: currentValidRotation || undefined,
           });
         }
       }
 
-      useSceneStore.getState().setIsAddingNode(false);
       stateRef.current.dragNodeId = null;
-      setDragState(null, null, null, false, []);
+      endSceneHistoryGesture();
 
       const controls = get().controls as unknown as { enabled: boolean } | null;
       if (controls) controls.enabled = true;
@@ -343,6 +384,7 @@ function DragDropHandler() {
       useSceneStore.getState().cancelDragNode(dragNodeId, isAdding, originalPos, originalRot);
 
       stateRef.current.dragNodeId = null;
+      cancelSceneHistoryGesture();
 
       const controls = get().controls as unknown as { enabled: boolean } | null;
       if (controls) controls.enabled = true;
@@ -372,7 +414,7 @@ function DragDropHandler() {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("contextmenu", handleContextMenu);
     };
-  }, [camera, scene, pointer, raycaster, setDragState, updateNode, reparentNode, get]);
+  }, [camera, scene, pointer, raycaster, setDragState, finalizeDragPlacement, get]);
 
   return null;
 }

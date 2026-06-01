@@ -4,7 +4,8 @@ import { ArrowRightLeft, MoreHorizontal, RotateCcw, RotateCw, Trash2 } from "luc
 import { useRef } from "react";
 import * as THREE from "three";
 import { checkWallVisibility } from "@/components/layout/viewport/3d/camera";
-import { useSceneStore } from "@/store/use-scene-store";
+import { Button } from "@/components/ui/button";
+import { beginSceneHistoryGesture, useSceneStore } from "@/store/use-scene-store";
 import type { SceneNode, WallDef } from "@/types";
 
 function isOpeningOnHiddenWall(
@@ -151,6 +152,7 @@ function SceneNodeMesh({
           e.stopPropagation();
 
           if (isSelected) {
+            beginSceneHistoryGesture();
             const setDragState = useSceneStore.getState().setDragState;
             setDragState(
               node.id,
@@ -191,9 +193,11 @@ function SceneNodeMesh({
             >
               {!isOpening && !isWall && (
                 <>
-                  <button
+                  <Button
                     type="button"
-                    className="group cursor-pointer rounded-full p-2 transition-all hover:bg-violet-100 active:scale-95 dark:hover:bg-violet-500/20"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="group rounded-full hover:bg-violet-100 dark:hover:bg-violet-500/20"
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -203,12 +207,14 @@ function SceneNodeMesh({
                     }}
                     title="Rotate Left (90°)"
                   >
-                    <RotateCcw className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
-                  </button>
+                    <RotateCcw className="h-4 w-4 text-zinc-600 group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
+                  </Button>
                   <div className="my-1.5 w-px bg-zinc-200 dark:bg-zinc-700/80" />
-                  <button
+                  <Button
                     type="button"
-                    className="group cursor-pointer rounded-full p-2 transition-all hover:bg-violet-100 active:scale-95 dark:hover:bg-violet-500/20"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="group rounded-full hover:bg-violet-100 dark:hover:bg-violet-500/20"
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -218,16 +224,18 @@ function SceneNodeMesh({
                     }}
                     title="Rotate Right (90°)"
                   >
-                    <RotateCw className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
-                  </button>
+                    <RotateCw className="h-4 w-4 text-zinc-600 group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
+                  </Button>
                   <div className="my-1.5 w-px bg-zinc-200 dark:bg-zinc-700/80" />
                 </>
               )}
               {(isDoor || isWall) && (
                 <>
-                  <button
+                  <Button
                     type="button"
-                    className="group cursor-pointer rounded-full p-2 transition-all hover:bg-violet-100 active:scale-95 dark:hover:bg-violet-500/20"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="group rounded-full hover:bg-violet-100 dark:hover:bg-violet-500/20"
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -237,14 +245,16 @@ function SceneNodeMesh({
                     }}
                     title={isDoor ? "Flip Door Swing" : "Flip Object"}
                   >
-                    <ArrowRightLeft className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
-                  </button>
+                    <ArrowRightLeft className="h-4 w-4 text-zinc-600 group-hover:text-violet-600 dark:text-zinc-400 dark:group-hover:text-violet-400" />
+                  </Button>
                   <div className="my-1.5 w-px bg-zinc-200 dark:bg-zinc-700/80" />
                 </>
               )}
-              <button
+              <Button
                 type="button"
-                className="group cursor-pointer rounded-full p-2 transition-all hover:bg-red-100 active:scale-95 dark:hover:bg-red-500/20"
+                variant="ghost"
+                size="icon-sm"
+                className="group rounded-full hover:bg-red-100 dark:hover:bg-red-500/20"
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -254,12 +264,14 @@ function SceneNodeMesh({
                 }}
                 title="Delete Object"
               >
-                <Trash2 className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-red-600 dark:text-zinc-400 dark:group-hover:text-red-400" />
-              </button>
+                <Trash2 className="h-4 w-4 text-zinc-600 group-hover:text-red-600 dark:text-zinc-400 dark:group-hover:text-red-400" />
+              </Button>
               <div className="my-1.5 w-px bg-zinc-200 dark:bg-zinc-700/80" />
-              <button
+              <Button
                 type="button"
-                className="group cursor-pointer rounded-full p-2 transition-all hover:bg-blue-100 active:scale-95 dark:hover:bg-blue-500/20"
+                variant="ghost"
+                size="icon-sm"
+                className="group rounded-full hover:bg-blue-100 dark:hover:bg-blue-500/20"
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -267,8 +279,8 @@ function SceneNodeMesh({
                 }}
                 title="Object Properties"
               >
-                <MoreHorizontal className="h-4 w-4 text-zinc-600 transition-colors group-hover:text-blue-600 dark:text-zinc-400 dark:group-hover:text-blue-400" />
-              </button>
+                <MoreHorizontal className="h-4 w-4 text-zinc-600 group-hover:text-blue-600 dark:text-zinc-400 dark:group-hover:text-blue-400" />
+              </Button>
             </div>
           </Html>
         )}

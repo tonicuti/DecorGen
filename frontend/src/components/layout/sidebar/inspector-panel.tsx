@@ -1,4 +1,6 @@
 import { SlidersHorizontal } from "lucide-react";
+import { CameraProperties } from "@/components/layout/sidebar/camera-properties";
+import { LightProperties } from "@/components/layout/sidebar/light-properties";
 import { ObjectProperties } from "@/components/layout/sidebar/object-properties";
 import { RoomProperties } from "@/components/layout/sidebar/room-properties";
 
@@ -13,6 +15,8 @@ function InspectorPanel() {
       </div>
       <div className="flex-1 scrollbar-none divide-y divide-zinc-100 overflow-y-auto [-ms-overflow-style:none] dark:divide-zinc-800/60 [&::-webkit-scrollbar]:hidden">
         <RoomProperties />
+        <CameraProperties />
+        <LightProperties />
         <ObjectProperties />
       </div>
     </div>

@@ -1,5 +1,4 @@
 import { Camera, Eye, Grid, Settings, Sun } from "lucide-react";
-import * as React from "react";
 import { ENVIRONMENT_PRESETS } from "@/api/mock-data";
 import {
   Select,
@@ -10,13 +9,18 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { useSceneSliderHistory } from "@/hooks/use-scene-slider-history";
+import { useSceneStore } from "@/store/use-scene-store";
 
 function SceneSettingsPanel() {
-  const [gridOverlay, setGridOverlay] = React.useState(true);
-  const [realisticLighting, setRealisticLighting] = React.useState(true);
-  const [softShadows, setSoftShadows] = React.useState(true);
-  const [environment, setEnvironment] = React.useState("hdri-studio");
-  const [cameraFov, setCameraFov] = React.useState(50);
+  const sliderHistory = useSceneSliderHistory();
+  const environmentId = useSceneStore((s) => s.sceneSettings.environmentId);
+  const gridOverlay = useSceneStore((s) => s.sceneSettings.gridOverlay);
+  const realisticLighting = useSceneStore((s) => s.sceneSettings.realisticLighting);
+  const softShadows = useSceneStore((s) => s.sceneSettings.softShadows);
+  const cameraFov = useSceneStore((s) => s.sceneSettings.cameraFov);
+  const setSceneSettings = useSceneStore((s) => s.setSceneSettings);
+  const updateNode = useSceneStore((s) => s.updateNode);
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -31,7 +35,10 @@ function SceneSettingsPanel() {
           <label className="text-[10px] font-medium text-zinc-600 dark:text-zinc-400">
             Environment Lighting
           </label>
-          <Select value={environment} onValueChange={setEnvironment}>
+          <Select
+            value={environmentId}
+            onValueChange={(value) => setSceneSettings({ environmentId: value })}
+          >
             <SelectTrigger className="h-8 w-full border-zinc-200 bg-zinc-50/50 text-xs font-medium text-zinc-900 focus:ring-indigo-500 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-100">
               <SelectValue placeholder="Select environment" />
             </SelectTrigger>
@@ -60,8 +67,15 @@ function SceneSettingsPanel() {
                 Grid Overlay
               </span>
             </div>
-            <Switch checked={gridOverlay} onCheckedChange={setGridOverlay} />
+            <Switch
+              checked={gridOverlay}
+              onCheckedChange={(checked) => setSceneSettings({ gridOverlay: checked })}
+              aria-label="Toggle grid overlay on 2D plan"
+            />
           </div>
+          <p className="text-[10px] leading-snug text-zinc-500 dark:text-zinc-500">
+            Floor grid in 2D plan and 3D view (0.5 m spacing). Shortcut: G
+          </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sun className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500" />
@@ -69,7 +83,10 @@ function SceneSettingsPanel() {
                 Realistic Lighting
               </span>
             </div>
-            <Switch checked={realisticLighting} onCheckedChange={setRealisticLighting} />
+            <Switch
+              checked={realisticLighting}
+              onCheckedChange={(checked) => setSceneSettings({ realisticLighting: checked })}
+            />
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -78,29 +95,36 @@ function SceneSettingsPanel() {
                 Soft Shadows
               </span>
             </div>
-            <Switch checked={softShadows} onCheckedChange={setSoftShadows} />
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 rounded-xl border border-zinc-200/60 bg-zinc-50/30 p-3 dark:border-zinc-800/60 dark:bg-zinc-900/30">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300">
-              <Camera className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500" />
-              <span>Camera FOV</span>
-            </div>
-            <span className="font-mono text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
-              {cameraFov}°
-            </span>
-          </div>
-          <div className="pt-1">
-            <Slider
-              value={[cameraFov]}
-              onValueChange={(val) => setCameraFov(val[0])}
-              min={30}
-              max={90}
-              step={1}
-              className="py-1"
+            <Switch
+              checked={softShadows}
+              onCheckedChange={(checked) => setSceneSettings({ softShadows: checked })}
             />
           </div>
+        </div>
+        <div className="flex flex-col gap-3 rounded-xl border border-zinc-200/60 bg-zinc-50/30 p-3 dark:border-zinc-800/60 dark:bg-zinc-900/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Camera className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500" />
+              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                Camera FOV
+              </span>
+            </div>
+            <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">{cameraFov}°</span>
+          </div>
+          <Slider
+            value={[cameraFov]}
+            min={30}
+            max={90}
+            step={1}
+            onPointerDown={sliderHistory.onSlideStart}
+            onValueChange={([value]) => {
+              sliderHistory.onSlideStart();
+              setSceneSettings({ cameraFov: value });
+              updateNode("cam-1", { fov: value });
+            }}
+            onValueCommit={sliderHistory.onSlideCommit}
+            onPointerCancel={sliderHistory.onSlideCancel}
+          />
         </div>
       </div>
     </div>

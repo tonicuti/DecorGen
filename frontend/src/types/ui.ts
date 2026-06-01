@@ -7,7 +7,22 @@ import type { SceneDimensions } from "@/types/store";
 // Header & Navigation Action Bar Types
 // ==========================================
 
-export interface HeaderProps {
+export interface EditorActionsProps {
+  onSave: () => void;
+  onDownload2D: () => void;
+  onExport3D: () => void;
+  onExport2D: () => void;
+  onClearScene: () => void;
+  confirmClearScene: () => void;
+  clearDialogOpen: boolean;
+  setClearDialogOpen: (open: boolean) => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+}
+
+export interface HeaderProps extends EditorActionsProps {
   setViewMode: (mode: "3d" | "2d") => void;
 }
 
@@ -98,6 +113,8 @@ export interface NumberInputProps {
   max?: number;
   disabled?: boolean;
   onChange: (val: number) => void;
+  /** Fired on blur after editing (commit spatial undo gesture). */
+  onCommit?: () => void;
   badgeColor: string;
 }
 
