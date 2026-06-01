@@ -162,6 +162,42 @@ function DropdownMenuShortcut({ className, ...props }: React.ComponentProps<"spa
   );
 }
 
+/** Fixed trailing columns so ✓ and shortcuts align across menu rows. */
+function DropdownMenuTrailing({
+  className,
+  indicator,
+  shortcut,
+  end,
+}: {
+  className?: string;
+  indicator?: React.ReactNode;
+  shortcut?: React.ReactNode;
+  end?: React.ReactNode;
+}) {
+  return (
+    <span
+      data-slot="dropdown-menu-trailing"
+      className={cn("ml-auto flex shrink-0 items-center gap-1", className)}
+    >
+      <span className="flex size-4 shrink-0 items-center justify-center">{indicator}</span>
+      <span className="flex w-7 shrink-0 items-center justify-end text-xs tracking-widest text-zinc-500 tabular-nums dark:text-zinc-400">
+        {shortcut}
+      </span>
+      {end}
+    </span>
+  );
+}
+
+function DropdownMenuItemIndicator({ className }: { className?: string }) {
+  return (
+    <span className="flex size-4 items-center justify-center">
+      <DropdownMenuPrimitive.ItemIndicator>
+        <CheckIcon className={cn("size-4 text-zinc-900 dark:text-white", className)} />
+      </DropdownMenuPrimitive.ItemIndicator>
+    </span>
+  );
+}
+
 function DropdownMenuSub({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) {
   return <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props} />;
 }
@@ -219,6 +255,8 @@ export {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
+  DropdownMenuTrailing,
+  DropdownMenuItemIndicator,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,

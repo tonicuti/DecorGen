@@ -80,6 +80,8 @@ type AppInfoDialogProps = {
   children?: ReactNode;
   closeLabel?: string;
   contentClassName?: string;
+  /** Footer Close button; default false — use dialog X only. */
+  showFooterClose?: boolean;
 };
 
 function AppInfoDialog({
@@ -90,6 +92,7 @@ function AppInfoDialog({
   children,
   closeLabel = "Close",
   contentClassName,
+  showFooterClose = false,
 }: AppInfoDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -103,16 +106,18 @@ function AppInfoDialog({
           ) : null}
         </DialogHeader>
         {children ? <div className="flex flex-col gap-3">{children}</div> : null}
-        <DialogFooter className="mt-4 gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="border-zinc-200 dark:border-zinc-800"
-          >
-            {closeLabel}
-          </Button>
-        </DialogFooter>
+        {showFooterClose ? (
+          <DialogFooter className="mt-4 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="border-zinc-200 dark:border-zinc-800"
+            >
+              {closeLabel}
+            </Button>
+          </DialogFooter>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

@@ -1,4 +1,4 @@
-import { Grid3X3, Info, Keyboard, MousePointer2, Settings, Sliders } from "lucide-react";
+import { CheckIcon, ChevronRight, Grid3X3, Info, Keyboard, MousePointer2, Settings, Sliders } from "lucide-react";
 import { useState } from "react";
 import { RENDER_QUALITY_OPTIONS } from "@/api/mock-data";
 import { AboutDialog } from "@/components/layout/header/about-dialog";
@@ -10,9 +10,10 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuItemIndicator,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
+  DropdownMenuTrailing,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -20,6 +21,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSceneStore } from "@/store/use-scene-store";
 import { useWorkspaceStore } from "@/store/use-workspace-store";
+
+const settingsItemClass =
+  "cursor-pointer pl-2 focus:bg-zinc-100 dark:focus:bg-zinc-800";
 
 function SettingsNav() {
   const renderQuality = useWorkspaceStore((s) => s.renderQuality);
@@ -60,23 +64,32 @@ function SettingsNav() {
           <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
           <DropdownMenuGroup>
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-zinc-800">
-                <Sliders className="mr-2 h-4 w-4" />
-                <span>Render Quality</span>
-                <DropdownMenuShortcut>{qualityLabel}</DropdownMenuShortcut>
+              <DropdownMenuSubTrigger
+                className={`${settingsItemClass} [&>svg:last-child]:hidden`}
+              >
+                <Sliders className="h-4 w-4 shrink-0" />
+                <span className="min-w-0 flex-1">Render Quality</span>
+                <DropdownMenuTrailing
+                  shortcut={qualityLabel}
+                  end={<ChevronRight className="size-4 shrink-0 opacity-70" />}
+                />
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
                 {RENDER_QUALITY_OPTIONS.map((option) => (
                   <DropdownMenuItem
                     key={option.id}
-                    className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-zinc-800"
+                    className={settingsItemClass}
                     onSelect={(e) => e.preventDefault()}
                     onClick={() => setRenderQuality(option.id)}
                   >
-                    {option.label}
-                    {renderQuality === option.id && (
-                      <span className="ml-auto text-xs text-indigo-500">✓</span>
-                    )}
+                    <span className="min-w-0 flex-1">{option.label}</span>
+                    <DropdownMenuTrailing
+                      indicator={
+                        renderQuality === option.id ? (
+                          <CheckIcon className="size-4 text-zinc-900 dark:text-white" />
+                        ) : null
+                      }
+                    />
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuSubContent>
@@ -85,39 +98,43 @@ function SettingsNav() {
               checked={gridOverlay}
               onSelect={(e) => e.preventDefault()}
               onCheckedChange={(checked) => setSceneSettings({ gridOverlay: checked })}
-              className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-zinc-800"
+              className={`${settingsItemClass} [&>span:first-child]:hidden`}
             >
-              <Grid3X3 className="mr-2 h-4 w-4" />
-              <span>Show Floor Grid</span>
-              <DropdownMenuShortcut>G</DropdownMenuShortcut>
+              <Grid3X3 className="h-4 w-4 shrink-0" />
+              <span className="min-w-0 flex-1">Show Floor Grid</span>
+              <DropdownMenuTrailing
+                indicator={<DropdownMenuItemIndicator />}
+                shortcut="G"
+              />
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={gridSnapping}
               onSelect={(e) => e.preventDefault()}
               onCheckedChange={() => toggleGridSnapping()}
-              className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-zinc-800"
+              className={`${settingsItemClass} [&>span:first-child]:hidden`}
             >
-              <MousePointer2 className="mr-2 h-4 w-4" />
-              <span>Grid Snapping</span>
-              <DropdownMenuShortcut>S</DropdownMenuShortcut>
+              <MousePointer2 className="h-4 w-4 shrink-0" />
+              <span className="min-w-0 flex-1">Grid Snapping</span>
+              <DropdownMenuTrailing
+                indicator={<DropdownMenuItemIndicator />}
+                shortcut="S"
+              />
             </DropdownMenuCheckboxItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
           <DropdownMenuGroup>
             <DropdownMenuItem
-              className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-zinc-800"
+              className={settingsItemClass}
               onClick={() => setShortcutsOpen(true)}
             >
-              <Keyboard className="mr-2 h-4 w-4" />
-              <span>Keyboard Shortcuts</span>
-              <DropdownMenuShortcut>⌘/</DropdownMenuShortcut>
+              <Keyboard className="h-4 w-4 shrink-0" />
+              <span className="min-w-0 flex-1">Keyboard Shortcuts</span>
+              <DropdownMenuTrailing shortcut="⌘/" />
             </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-zinc-800"
-              onClick={() => setAboutOpen(true)}
-            >
-              <Info className="mr-2 h-4 w-4" />
-              <span>About DecorGen</span>
+            <DropdownMenuItem className={settingsItemClass} onClick={() => setAboutOpen(true)}>
+              <Info className="h-4 w-4 shrink-0" />
+              <span className="min-w-0 flex-1">About DecorGen</span>
+              <DropdownMenuTrailing />
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
