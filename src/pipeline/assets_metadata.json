@@ -1,0 +1,82 @@
+{
+  "brass_pan": {
+    "category": "kitchenware",
+    "description": "An antique-style brass cooking pan featuring a long, polished wooden handle and realistic hammered metal textures. Ideal for rustic kitchen scenes, traditional cooking setups, or vintage decorative displays.",
+    "aliases": ["brass pan", "cooking pan", "pan", "chảo", "chảo đồng", "chảo cán gỗ", "chảo cổ điển"],
+    "tags": ["kitchen", "cookware", "decor", "metal", "vintage", "antique", "rustic", "traditional", "realistic"],
+    "materials": ["brass", "metal", "wood"],
+    "placements": ["tabletop", "countertop", "stove", "shelf", "wall"]
+  },
+  "brass_pot_02": {
+    "category": "kitchenware",
+    "description": "A traditional brass cooking pot featuring two integrated side handles and a realistic hammered metal surface finish. Perfect for rustic kitchens, classic culinary setups, or vintage background styling.",
+    "aliases": ["brass pot", "cooking pot", "pot", "nồi", "nồi đồng", "nồi hai quai", "nồi cổ điển"],
+    "tags": ["kitchen", "cookware", "decor", "metal", "vintage", "rustic", "antique", "traditional", "realistic"],
+    "materials": ["brass", "metal"],
+    "placements": ["tabletop", "countertop", "stove", "shelf"]
+  },
+  "chandelier_lamp_01": {
+    "category": "lamp",
+    "description": "An elegant, classic European-style 6-arm chandelier lamp featuring white fabric shades with gold metallic trim and hanging crystal bead accents. Perfect for luxurious living rooms, grand dining areas, or hotel lobbies.",
+    "aliases": ["chandelier", "ceiling lamp", "pendant light", "đèn chùm", "đèn trần", "đèn chùm cổ điển", "đèn chùm phòng khách"],
+    "tags": ["lighting", "decor", "ceiling", "indoor", "luxury", "classic", "vintage", "elegant"],
+    "materials": ["metal", "fabric", "glass", "crystal"],
+    "placements": ["ceiling"]
+  },
+  "dartboard": {
+    "category": "decor",
+    "description": "A classic, worn-out dartboard wall decoration featuring realistic scratches and grunge textures. Ideal for game rooms, bars, entertainment spaces, or vintage casual interiors.",
+    "aliases": ["dartboard", "dart board", "bảng ném phi tiêu", "bia phi tiêu", "bảng phi tiêu"],
+    "tags": ["game", "sport", "wall", "decor", "vintage", "grunge", "old", "realistic", "pub"],
+    "materials": ["wood", "metal", "cork"],
+    "placements": ["wall", "left_wall", "right_wall", "back_wall"]
+  },
+  "fancy_picture_frame": {
+    "category": "decor",
+    "description": "An antique oil painting depicting a classic European landscape, enclosed in an elegantly carved wooden frame with ornate beaded detailing. Ideal for vintage living rooms, classic studies, museums, or luxury traditional interiors.",
+    "aliases": ["picture frame", "oil painting", "framed art", "khung tranh", "tranh treo tường", "tranh sơn dầu", "tranh cổ điển"],
+    "tags": ["wall", "decor", "art", "interior", "vintage", "antique", "classic", "oil_painting", "landscape"],
+    "materials": ["wood", "canvas"],
+    "placements": ["wall", "left_wall", "right_wall", "back_wall"]
+  },
+  "ornate_mirror": {
+    "category": "mirror",
+    "description": "An elegant arched wall mirror featuring a classic ornate golden frame with sophisticated crown carvings. The glass includes realistic aged textures and subtle smudges, perfect for vintage dressing rooms, luxury bathrooms, or classic hallways.",
+    "aliases": ["ornate mirror", "arched mirror", "wall mirror", "gương", "gương treo tường", "gương vòm", "gương cổ điển"],
+    "tags": ["wall", "decor", "reflective", "interior", "vintage", "antique", "classic", "luxury", "arched"],
+    "materials": ["glass", "metal"],
+    "placements": ["wall", "left_wall", "right_wall", "back_wall"]
+  },  
+  "sofa_01": {
+    "category": "sofa",
+    "description": "An elegant antique-style 3-seater sofa featuring a dark, gracefully curved wooden frame and cabriole legs, upholstered in premium light gray fabric. Perfect for classic living rooms, vintage lounges, or luxurious traditional interiors.",
+    "aliases": ["sofa", "couch", "classic sofa", "vintage couch", "ghế sofa", "ghế sofa cổ điển", "ghế băng dài", "ghế phòng khách"],
+    "tags": ["furniture", "seating", "living_room", "indoor", "classic", "vintage", "antique", "luxury", "french_style"],
+    "materials": ["wood", "fabric"],
+    "placements": ["floor", "center", "against_wall"]
+  },
+  "steel_frame_shelves": {
+    "category": "shelving",
+    "description": "A large industrial-style shelving unit featuring staggered wooden display shelves and a bottom 3-drawer storage cabinet, supported by a black powder-coated metal frame. Perfect for modern living rooms, home offices, or studio apartments.",
+    "aliases": ["bookshelf", "storage unit", "display shelf", "bookcase", "kệ sách", "kệ trưng bày", "tủ kệ công nghiệp", "kệ khung sắt"],
+    "tags": ["furniture", "storage", "living_room", "office", "indoor", "industrial", "modern", "loft"],
+    "materials": ["wood", "metal"],
+    "placements": ["floor", "against_wall", "corner"]
+  },
+  "wooden_picnic_table": {
+    "category": "table",
+    "description": "A classic wooden picnic table with integrated bench seating on both sides, featuring realistic wood grain textures and weathered detailing. Ideal for outdoor parks, backyards, rustic gardens, or casual dining areas.",
+    "aliases": ["picnic table", "wooden picnic table", "outdoor table", "bàn picnic", "bàn gỗ ngoài trời", "bàn liền ghế", "bàn công viên"],
+    "tags": ["furniture", "dining", "outdoor", "wood", "rustic", "garden", "backyard", "camping"],
+    "materials": ["wood"],
+    "placements": ["floor", "center", "yard"]
+  },
+  "potted_plant_04": {
+    "category": "plant",
+    "description": "A realistic potted zebra succulent (Haworthia) plant featuring distinctive white-striped leaves, set in a white ceramic pot with decorative small pebbles on the soil surface. Ideal for modern desks, windowsills, offices, or interior staging.",
+    "aliases": ["zebra plant", "haworthia", "succulent", "potted plant", "cây móng rồng", "sen đá móng rồng", "chậu cây cảnh", "cây để bàn"],
+    "tags": ["nature", "indoor", "decor", "tabletop", "realistic", "modern", "greenery", "office"],
+    "materials": ["ceramic", "organic", "stone"],
+    "placements": ["tabletop", "countertop", "desk", "shelf", "windowsill"]
+  }
+}
