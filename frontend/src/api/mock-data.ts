@@ -290,7 +290,6 @@ export const RENDER_QUALITY_OPTIONS = [
 
 export const DEFAULT_WORKSPACE_SETTINGS = {
   renderQuality: "high" as const,
-  showFloorGrid: true,
   gridSnapping: true,
 };
 

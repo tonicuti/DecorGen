@@ -73,9 +73,6 @@ function SceneSettingsPanel() {
               aria-label="Toggle grid overlay on 2D plan"
             />
           </div>
-          <p className="text-[10px] leading-snug text-zinc-500 dark:text-zinc-500">
-            Floor grid in 2D plan and 3D view (0.5 m spacing). Shortcut: G
-          </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sun className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500" />

@@ -70,6 +70,7 @@ function SettingsNav() {
                   <DropdownMenuItem
                     key={option.id}
                     className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-zinc-800"
+                    onSelect={(e) => e.preventDefault()}
                     onClick={() => setRenderQuality(option.id)}
                   >
                     {option.label}
@@ -82,6 +83,7 @@ function SettingsNav() {
             </DropdownMenuSub>
             <DropdownMenuCheckboxItem
               checked={gridOverlay}
+              onSelect={(e) => e.preventDefault()}
               onCheckedChange={(checked) => setSceneSettings({ gridOverlay: checked })}
               className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-zinc-800"
             >
@@ -91,6 +93,7 @@ function SettingsNav() {
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={gridSnapping}
+              onSelect={(e) => e.preventDefault()}
               onCheckedChange={() => toggleGridSnapping()}
               className="cursor-pointer focus:bg-zinc-100 dark:focus:bg-zinc-800"
             >
