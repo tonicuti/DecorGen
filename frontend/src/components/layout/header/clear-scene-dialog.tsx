@@ -1,12 +1,4 @@
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { AppConfirmDialog } from "@/components/ui/app-dialog";
 
 interface ClearSceneDialogProps {
   open: boolean;
@@ -16,30 +8,19 @@ interface ClearSceneDialogProps {
 
 function ClearSceneDialog({ open, onOpenChange, onConfirm }: ClearSceneDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <DialogHeader>
-          <DialogTitle>Clear scene?</DialogTitle>
-          <DialogDescription>
-            This removes all furniture and groups. Camera and lights are kept.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              onConfirm();
-              onOpenChange(false);
-            }}
-          >
-            Clear
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <AppConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Clear scene?"
+      description={
+        <>
+          This removes all furniture and groups. Camera and lights are kept. This action cannot be
+          undone.
+        </>
+      }
+      confirmLabel="Clear"
+      onConfirm={onConfirm}
+    />
   );
 }
 

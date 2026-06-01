@@ -1,15 +1,7 @@
 import { Layers2, Search } from "lucide-react";
 import * as React from "react";
 import { SceneTreeNode } from "@/components/layout/sidebar/scene-tree-node";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { AppConfirmDialog } from "@/components/ui/app-dialog";
 import { Input } from "@/components/ui/input";
 import {
   countSceneNodes,
@@ -129,43 +121,28 @@ function SceneTreePanel() {
           )}
         </div>
       </div>
-      <Dialog
+      <AppConfirmDialog
         open={nodeToDelete !== null}
         onOpenChange={(open) => {
           if (!open) setNodeToDelete(null);
         }}
-      >
-        <DialogContent className="max-w-md border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100">
-          <DialogHeader>
-            <DialogTitle>Delete Object</DialogTitle>
-            <DialogDescription className="text-zinc-500 dark:text-zinc-400">
-              Are you sure you want to delete "{nodeToDelete?.name || lastNodeToDelete?.name || ""}
-              "? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-4 gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setNodeToDelete(null)}
-              className="border-zinc-200 dark:border-zinc-800"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500"
-              onClick={() => {
-                if (nodeToDelete && !nodeToDelete.locked) {
-                  removeNode(nodeToDelete.id);
-                  setNodeToDelete(null);
-                }
-              }}
-            >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        title="Delete Object"
+        description={
+          <>
+            Are you sure you want to delete &quot;
+            {nodeToDelete?.name || lastNodeToDelete?.name || ""}&quot;? This action cannot be
+            undone.
+          </>
+        }
+        confirmLabel="Delete"
+        confirmDisabled={!nodeToDelete || nodeToDelete.locked}
+        onConfirm={() => {
+          if (nodeToDelete && !nodeToDelete.locked) {
+            removeNode(nodeToDelete.id);
+            setNodeToDelete(null);
+          }
+        }}
+      />
     </div>
   );
 }
