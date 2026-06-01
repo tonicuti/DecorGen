@@ -1,0 +1,13 @@
+# No Python package is required for the default offline pipeline.
+# Optional semantic-search upgrade:
+# sentence-transformers
+# Optional local DistilBERT upgrade:
+# transformers
+# torch
+
+opencv-python
+numpy
+pytesseract
+fastapi
+uvicorn
+python-multipart

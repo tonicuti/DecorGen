@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+outputs/
+inputs/
+
+venv/
+cs105/
