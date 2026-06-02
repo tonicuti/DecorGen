@@ -1061,5 +1061,14 @@
     "materials": ["wood", "glass"],
     "placements": ["wall", "left_wall", "right_wall", "back_wall"],
     "dimensions": { "w": 0.9, "d": 0.005, "h": 2 }  
+  },
+  "hanging_tv": {
+    "category": "furniture",
+    "description": "A modern flat-screen TV with a sleek design, perfect for a contemporary living room. This TV is designed to be wall-mounted, providing a clean and space-saving entertainment solution.",
+    "aliases": ["hanging TV", "wall-mounted TV", "tivi treo tường", "điện tử treo tường"],
+    "tags": ["electronics", "TV", "modern", "wall-mounted"],
+    "materials": ["plastic", "glass", "metal"],
+    "placements": ["wall", "left_wall", "right_wall", "back_wall"],
+    "dimensions": { "w": 1.2, "d": 0.05, "h": 0.67 }
   }
 }
