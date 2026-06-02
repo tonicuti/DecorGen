@@ -183,16 +183,18 @@ function toScenePosition(
       ? Math.min(roomDimensions.height - spec.dimensions.h / 2, 1.4)
       : spec.dimensions.h / 2;
 
+    const wallInset = spec.dimensions.d / 2;
+
     return nearLeftRight
       ? [
-          x >= 0 ? halfRoomW : -halfRoomW,
+          x >= 0 ? halfRoomW - wallInset : -halfRoomW + wallInset,
           y,
           clamp(z, -halfRoomL + halfW, halfRoomL - halfW),
         ]
       : [
           clamp(x, -halfRoomW + halfW, halfRoomW - halfW),
           y,
-          z >= 0 ? halfRoomL : -halfRoomL,
+          z >= 0 ? halfRoomL - wallInset : -halfRoomL + wallInset,
         ];
   }
 
@@ -418,8 +420,6 @@ function BlueprintPanel() {
       );
       const assetResults = await Promise.all(
         selectedObjects.map(async (object) => {
-          if (object.category === "opening") return undefined;
-
           try {
             const matches = await searchBedroomAssets(cleanSearchLabel(object), 1);
             return matches[0];
