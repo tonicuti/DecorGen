@@ -1,6 +1,13 @@
 import * as THREE from "three";
 import type { CollisionResult, NodeWithWorldMatrix, SceneDimensions, SceneNode } from "@/types";
 
+const getWallClearance = (node: SceneNode) => {
+  if (node.placementType !== "floor") return 0;
+  if (node.wallClearance !== undefined) return Math.max(0, node.wallClearance);
+  if (node.assetId === "wooden_display_shelves_01") return 0.02;
+  return 0;
+};
+
 const getBoundingBox = (node: SceneNode, worldMatrix: THREE.Matrix4) => {
   const w = node.dimensions?.w || 1;
   const h = node.dimensions?.h || 1;
@@ -55,9 +62,14 @@ export function validatePlacement(
   const halfW = roomDimensions.width / 2;
   const halfL = roomDimensions.length / 2;
   const roomH = roomDimensions.height;
+  const wallClearance = getWallClearance(targetNode);
 
-  const isOutX = targetAABB.min.x < -halfW - 0.01 || targetAABB.max.x > halfW + 0.01;
-  const isOutZ = targetAABB.min.z < -halfL - 0.01 || targetAABB.max.z > halfL + 0.01;
+  const isOutX =
+    targetAABB.min.x < -halfW + wallClearance - 0.01 ||
+    targetAABB.max.x > halfW - wallClearance + 0.01;
+  const isOutZ =
+    targetAABB.min.z < -halfL + wallClearance - 0.01 ||
+    targetAABB.max.z > halfL - wallClearance + 0.01;
   const isOutY = targetAABB.min.y < -0.01 || targetAABB.max.y > roomH + 0.01;
 
   if (targetNode.placementType === "opening") {

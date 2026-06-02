@@ -1,82 +1,981 @@
 {
-  "brass_pan": {
-    "category": "kitchenware",
-    "description": "An antique-style brass cooking pan featuring a long, polished wooden handle and realistic hammered metal textures. Ideal for rustic kitchen scenes, traditional cooking setups, or vintage decorative displays.",
-    "aliases": ["brass pan", "cooking pan", "pan", "chảo", "chảo đồng", "chảo cán gỗ", "chảo cổ điển"],
-    "tags": ["kitchen", "cookware", "decor", "metal", "vintage", "antique", "rustic", "traditional", "realistic"],
-    "materials": ["brass", "metal", "wood"],
-    "placements": ["tabletop", "countertop", "stove", "shelf", "wall"]
+  "armchair_01": {
+    "category": "chair",
+    "description": "A compact armchair model with a modern design, suitable for living rooms, reading nooks, and cozy seating areas.",
+    "aliases": [
+      "armchair",
+      "recliner",
+      "lounge chair",
+      "ghế ngồi",
+      "ghế thư giãn",
+      "ghế sofa đơn"
+    ],
+    "tags": [
+      "furniture",
+      "seating",
+      "chair"
+    ],
+    "materials": [
+      "wood",
+      "leather",
+      "cushion"
+    ],
+    "placements": [
+      "floor",
+      "against_wall",
+      "corner"
+    ],
+    "dimensions": {
+      "w": 0.848,
+      "d": 0.766,
+      "h": 1.065
+    }
   },
-  "brass_pot_02": {
-    "category": "kitchenware",
-    "description": "A traditional brass cooking pot featuring two integrated side handles and a realistic hammered metal surface finish. Perfect for rustic kitchens, classic culinary setups, or vintage background styling.",
-    "aliases": ["brass pot", "cooking pot", "pot", "nồi", "nồi đồng", "nồi hai quai", "nồi cổ điển"],
-    "tags": ["kitchen", "cookware", "decor", "metal", "vintage", "rustic", "antique", "traditional", "realistic"],
-    "materials": ["brass", "metal"],
-    "placements": ["tabletop", "countertop", "stove", "shelf"]
+  "books_1": {
+    "category": "shelving",
+    "description": "A compact bookshelf/display shelf model suitable for bedrooms, home offices, and small storage corners.",
+    "aliases": [
+      "bookshelf",
+      "bookcase",
+      "display shelf",
+      "kệ sách",
+      "kệ trưng bày"
+    ],
+    "tags": [
+      "furniture",
+      "storage",
+      "shelf",
+      "bookshelf",
+      "indoor"
+    ],
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "placements": [
+      "floor",
+      "against_wall",
+      "corner"
+    ],
+    "dimensions": {
+      "w": 0.5513,
+      "d": 0.1631,
+      "h": 0.2374
+    }
   },
-  "chandelier_lamp_01": {
-    "category": "lamp",
-    "description": "An elegant, classic European-style 6-arm chandelier lamp featuring white fabric shades with gold metallic trim and hanging crystal bead accents. Perfect for luxurious living rooms, grand dining areas, or hotel lobbies.",
-    "aliases": ["chandelier", "ceiling lamp", "pendant light", "đèn chùm", "đèn trần", "đèn chùm cổ điển", "đèn chùm phòng khách"],
-    "tags": ["lighting", "decor", "ceiling", "indoor", "luxury", "classic", "vintage", "elegant"],
-    "materials": ["metal", "fabric", "glass", "crystal"],
-    "placements": ["ceiling"]
+  "chess_set": {
+    "category": "decor",
+    "description": "A compact chess set model suitable for bedroom desks, coffee tables, and game rooms. The set includes a chessboard with alternating wood textures and intricately designed chess pieces in classic black and white.",
+    "aliases": [
+      "chess set",
+      "chess board",
+      "kệ cờ vua",
+      "bảng cờ vua",
+      "vật trang trí nhỏ gọn trên bàn"
+    ],
+    "tags": [
+      "furniture",
+      "decor",
+      "board game",
+      "tabletop"
+    ],
+    "materials": [
+      "wood",
+      "plastic"
+    ],
+    "placements": [
+      "floor",
+      "against_wall",
+      "corner"
+    ],
+    "dimensions": {
+      "w": 0.553,
+      "d": 0.553,
+      "h": 0.112
+    }
+  },
+  "coffee_table_round_01": {
+    "category": "table",
+    "description": "A round coffee table model with a modern design, suitable for living rooms, seating areas, and as a centerpiece for bedroom lounges.",
+    "aliases": [
+      "coffee table",
+      "round table",
+      "table"
+    ],
+    "tags": [
+      "furniture",
+      "table",
+      "coffee table",
+      "coffee tea table"
+    ],
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 1.301,
+      "d": 1.301,
+      "h": 0.491
+    }
   },
   "dartboard": {
     "category": "decor",
     "description": "A classic, worn-out dartboard wall decoration featuring realistic scratches and grunge textures. Ideal for game rooms, bars, entertainment spaces, or vintage casual interiors.",
-    "aliases": ["dartboard", "dart board", "bảng ném phi tiêu", "bia phi tiêu", "bảng phi tiêu"],
-    "tags": ["game", "sport", "wall", "decor", "vintage", "grunge", "old", "realistic", "pub"],
-    "materials": ["wood", "metal", "cork"],
-    "placements": ["wall", "left_wall", "right_wall", "back_wall"]
+    "aliases": [
+      "dartboard",
+      "dart board",
+      "bảng ném phi tiêu",
+      "bia phi tiêu",
+      "bảng phi tiêu"
+    ],
+    "tags": [
+      "game",
+      "sport",
+      "wall",
+      "decor",
+      "vintage",
+      "grunge",
+      "old",
+      "realistic",
+      "pub"
+    ],
+    "materials": [
+      "wood",
+      "metal",
+      "cork"
+    ],
+    "placements": [
+      "wall",
+      "left_wall",
+      "right_wall",
+      "back_wall"
+    ],
+    "dimensions": {
+      "w": 0.4507,
+      "d": 0.0398,
+      "h": 0.4507
+    }
+  },
+  "drawer_cabinet": {
+    "category": "shelving",
+    "description": "A modern-style tall drawer cabinet featuring a sleek design with multiple spacious drawers, ideal for bedroom storage. The cabinet has a minimalist aesthetic with clean lines and a neutral color palette.",
+    "aliases": [
+      "drawer cabinet",
+      "tall dresser",
+      "storage cabinet",
+      "tủ ngăn kéo",
+      "tủ cao",
+      "tủ gỗ"
+    ],
+    "tags": [
+      "furniture",
+      "storage",
+      "cabinet",
+      "dresser",
+      "tall storage"
+    ],
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "placements": [
+      "floor",
+      "against_wall",
+      "corner"
+    ],
+    "dimensions": {
+      "w": 1.141,
+      "d": 0.488,
+      "h": 1.881
+    }
   },
   "fancy_picture_frame": {
     "category": "decor",
     "description": "An antique oil painting depicting a classic European landscape, enclosed in an elegantly carved wooden frame with ornate beaded detailing. Ideal for vintage living rooms, classic studies, museums, or luxury traditional interiors.",
-    "aliases": ["picture frame", "oil painting", "framed art", "khung tranh", "tranh treo tường", "tranh sơn dầu", "tranh cổ điển"],
-    "tags": ["wall", "decor", "art", "interior", "vintage", "antique", "classic", "oil_painting", "landscape"],
-    "materials": ["wood", "canvas"],
-    "placements": ["wall", "left_wall", "right_wall", "back_wall"]
+    "aliases": [
+      "picture frame",
+      "oil painting",
+      "framed art",
+      "khung tranh",
+      "tranh treo tường",
+      "tranh sơn dầu",
+      "tranh cổ điển"
+    ],
+    "tags": [
+      "wall",
+      "decor",
+      "art",
+      "interior",
+      "vintage painting",
+      "antique",
+      "classic",
+      "oil painting",
+      "landscape painting"
+    ],
+    "materials": [
+      "wood",
+      "canvas"
+    ],
+    "placements": [
+      "wall",
+      "left_wall",
+      "right_wall",
+      "back_wall"
+    ],
+    "dimensions": {
+      "w": 0.603,
+      "d": 0.02,
+      "h": 0.4641
+    }
+  },
+  "gothicbed_01": {
+    "category": "furniture",
+    "description": "A majestic gothic-style bed featuring intricate wooden carvings and a sturdy frame, perfect for creating a dramatic focal point in any bedroom.",
+    "aliases": [
+      "gothic bed",
+      "medieval bed",
+      "vintage bed",
+      "giường cổ điển",
+      "giường cỡ lớn"
+    ],
+    "tags": [
+      "furniture",
+      "bed",
+      "vintage",
+      "antique",
+      "medieval",
+      "luxury",
+      "classic"
+    ],
+    "materials": [
+      "wood",
+      "metal",
+      "cushion"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 1.494,
+      "d": 2.04,
+      "h": 1.534
+    }
+  },
+  "greenchair_01": {
+    "category": "chair",
+    "description": "A comfortable green chair with a modern design, perfect for adding a pop of color to any living space.",
+    "aliases": [
+      "green chair",
+      "modern chair",
+      "living room chair",
+      "ghế xanh",
+      "ghế hiện đại"
+    ],
+    "tags": [
+      "furniture",
+      "chair",
+      "modern",
+      "living_room",
+      "colorful"
+    ],
+    "materials": [
+      "fabric",
+      "wood"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 0.673,
+      "d": 0.664,
+      "h": 1.059
+    }
+  },
+  "metal_office_desk": {
+    "category": "desk",
+    "description": "A sleek metal office desk with a modern design, perfect for a professional workspace.",
+    "aliases": [
+      "office desk",
+      "metal desk",
+      "modern desk",
+      "văn phòng",
+      "bàn làm việc"
+    ],
+    "tags": [
+      "furniture",
+      "desk",
+      "office",
+      "modern",
+      "professional"
+    ],
+    "materials": [
+      "metal",
+      "wood"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 2,
+      "d": 0.947,
+      "h": 0.788
+    }
+  },
+  "mid_century_lounge_chair": {
+    "category": "chair",
+    "description": "A stylish mid-century lounge chair with a distinctive design, perfect for adding a touch of retro flair to any living space.",
+    "aliases": [
+      "lounge chair",
+      "mid-century chair",
+      "vintage chair",
+      "ghế thư giãn",
+      "ghế cổ điển"
+    ],
+    "tags": [
+      "furniture",
+      "chair",
+      "mid_century",
+      "vintage",
+      "retro"
+    ],
+    "materials": [
+      "wood",
+      "leather"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 1.009,
+      "d": 1.19,
+      "h": 1.169
+    }
+  },
+  "modern_arm_chair_01": {
+    "category": "chair",
+    "description": "A sleek modern arm chair with a contemporary design, perfect for a stylish living space.",
+    "aliases": [
+      "modern chair",
+      "arm chair",
+      "living room chair",
+      "ghế hiện đại",
+      "ghế tay"
+    ],
+    "tags": [
+      "furniture",
+      "chair",
+      "modern",
+      "living_room",
+      "contemporary"
+    ],
+    "materials": [
+      "leather",
+      "metal",
+      "cushion"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 0.82,
+      "d": 0.987,
+      "h": 1.023
+    }
+  },
+  "modern_coffee_table_01": {
+    "category": "table",
+    "description": "A rough modern coffee table with a minimalist design, perfect for a contemporary living space.",
+    "aliases": [
+      "modern coffee table",
+      "coffee table",
+      "stone table",
+      "bàn cà phê hiện đại",
+      "bàn thấp"
+    ],
+    "tags": [
+      "furniture",
+      "table",
+      "modern",
+      "minimalist"
+    ],
+    "materials": [
+      "stone",
+      "wood"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 1.202,
+      "d": 0.6,
+      "h": 0.39
+    }
   },
   "ornate_mirror": {
     "category": "mirror",
     "description": "An elegant arched wall mirror featuring a classic ornate golden frame with sophisticated crown carvings. The glass includes realistic aged textures and subtle smudges, perfect for vintage dressing rooms, luxury bathrooms, or classic hallways.",
-    "aliases": ["ornate mirror", "arched mirror", "wall mirror", "gương", "gương treo tường", "gương vòm", "gương cổ điển"],
-    "tags": ["wall", "decor", "reflective", "interior", "vintage", "antique", "classic", "luxury", "arched"],
-    "materials": ["glass", "metal"],
-    "placements": ["wall", "left_wall", "right_wall", "back_wall"]
-  },  
-  "sofa_01": {
-    "category": "sofa",
-    "description": "An elegant antique-style 3-seater sofa featuring a dark, gracefully curved wooden frame and cabriole legs, upholstered in premium light gray fabric. Perfect for classic living rooms, vintage lounges, or luxurious traditional interiors.",
-    "aliases": ["sofa", "couch", "classic sofa", "vintage couch", "ghế sofa", "ghế sofa cổ điển", "ghế băng dài", "ghế phòng khách"],
-    "tags": ["furniture", "seating", "living_room", "indoor", "classic", "vintage", "antique", "luxury", "french_style"],
-    "materials": ["wood", "fabric"],
-    "placements": ["floor", "center", "against_wall"]
+    "aliases": [
+      "ornate mirror",
+      "arched mirror",
+      "wall mirror",
+      "gương",
+      "gương treo tường",
+      "gương vòm",
+      "gương cổ điển"
+    ],
+    "tags": [
+      "wall",
+      "decor",
+      "reflective",
+      "interior",
+      "vintage",
+      "antique",
+      "classic",
+      "luxury",
+      "arched"
+    ],
+    "materials": [
+      "glass",
+      "metal"
+    ],
+    "placements": [
+      "wall",
+      "left_wall",
+      "right_wall",
+      "back_wall"
+    ],
+    "dimensions": {
+      "w": 0.4865,
+      "d": 0.026,
+      "h": 0.7442
+    }
   },
-  "steel_frame_shelves": {
-    "category": "shelving",
-    "description": "A large industrial-style shelving unit featuring staggered wooden display shelves and a bottom 3-drawer storage cabinet, supported by a black powder-coated metal frame. Perfect for modern living rooms, home offices, or studio apartments.",
-    "aliases": ["bookshelf", "storage unit", "display shelf", "bookcase", "kệ sách", "kệ trưng bày", "tủ kệ công nghiệp", "kệ khung sắt"],
-    "tags": ["furniture", "storage", "living_room", "office", "indoor", "industrial", "modern", "loft"],
-    "materials": ["wood", "metal"],
-    "placements": ["floor", "against_wall", "corner"]
+  "ottoman_01": {
+    "category": "chair",
+    "description": "A black versatile ottoman chair with a modern design, perfect for additional seating or as a footrest in any living space.",
+    "aliases": [
+      "ottoman",
+      "ottoman chair",
+      "footstool",
+      "ghế đôn",
+      "ghế bành nhỏ"
+    ],
+    "tags": [
+      "furniture",
+      "chair",
+      "ottoman",
+      "footrest"
+    ],
+    "materials": [
+      "wood",
+      "leather"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 0.885,
+      "d": 0.621,
+      "h": 0.624
+    }
   },
-  "wooden_picnic_table": {
-    "category": "table",
-    "description": "A classic wooden picnic table with integrated bench seating on both sides, featuring realistic wood grain textures and weathered detailing. Ideal for outdoor parks, backyards, rustic gardens, or casual dining areas.",
-    "aliases": ["picnic table", "wooden picnic table", "outdoor table", "bàn picnic", "bàn gỗ ngoài trời", "bàn liền ghế", "bàn công viên"],
-    "tags": ["furniture", "dining", "outdoor", "wood", "rustic", "garden", "backyard", "camping"],
-    "materials": ["wood"],
-    "placements": ["floor", "center", "yard"]
+  "painted_wooden_chair_01": {
+    "category": "chair",
+    "description": "A white painted wooden chair with a minimal design",
+    "aliases": [
+      "painted chair",
+      "wooden chair",
+      "ghế sơn màu",
+      "ghế gỗ màu"
+    ],
+    "tags": [
+      "furniture",
+      "chair",
+      "painting"
+    ],
+    "materials": [
+      "wood",
+      "paint"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 0.432,
+      "d": 0.54,
+      "h": 0.957
+    }
   },
   "potted_plant_04": {
     "category": "plant",
     "description": "A realistic potted zebra succulent (Haworthia) plant featuring distinctive white-striped leaves, set in a white ceramic pot with decorative small pebbles on the soil surface. Ideal for modern desks, windowsills, offices, or interior staging.",
-    "aliases": ["zebra plant", "haworthia", "succulent", "potted plant", "cây móng rồng", "sen đá móng rồng", "chậu cây cảnh", "cây để bàn"],
-    "tags": ["nature", "indoor", "decor", "tabletop", "realistic", "modern", "greenery", "office"],
-    "materials": ["ceramic", "organic", "stone"],
-    "placements": ["tabletop", "countertop", "desk", "shelf", "windowsill"]
+    "aliases": [
+      "zebra plant",
+      "haworthia",
+      "succulent",
+      "potted plant",
+      "cây móng rồng",
+      "sen đá móng rồng",
+      "chậu cây cảnh",
+      "cây để bàn"
+    ],
+    "tags": [
+      "nature",
+      "indoor",
+      "decor",
+      "tabletop",
+      "realistic",
+      "modern",
+      "greenery",
+      "office"
+    ],
+    "materials": [
+      "ceramic",
+      "organic",
+      "stone"
+    ],
+    "placements": [
+      "tabletop",
+      "countertop",
+      "desk",
+      "shelf",
+      "windowsill"
+    ],
+    "dimensions": {
+      "w": 0.1703,
+      "d": 0.1859,
+      "h": 0.2676
+    }
+  },
+  "rockingchair_01": {
+    "category": "chair",
+    "description": "A classic wooden rocking chair with a vintage design, perfect for a cozy corner in any living space.",
+    "aliases": [
+      "rocking chair",
+      "wooden rocking chair",
+      "ghế bập bênh",
+      "ghế gỗ bập bênh"
+    ],
+    "tags": [
+      "furniture",
+      "chair",
+      "rocking chair",
+      "vintage"
+    ],
+    "materials": [
+      "wood"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 0.708,
+      "d": 0.834,
+      "h": 0.995
+    }
+  },
+  "small_wooden_table_01": {
+    "category": "table",
+    "description": "A small wooden table with a rustic design, perfect for a cozy corner in any living space.",
+    "aliases": [
+      "small table",
+      "wooden table",
+      "bàn gỗ nhỏ",
+      "bàn phụ"
+    ],
+    "tags": [
+      "furniture",
+      "table",
+      "wooden",
+      "rustic"
+    ],
+    "materials": [
+      "wood"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 0.916,
+      "d": 0.44,
+      "h": 0.533
+    }
+  },
+  "sofa_02": {
+    "category": "sofa",
+    "description": "A black sleek modern sofa with a retro design, featuring a low-profile silhouette, clean lines, and plush cushions upholstered in a neutral gray fabric.",
+    "aliases": [
+      "sofa",
+      "couch",
+      "modern sofa",
+      "ghế sofa",
+      "ghế sofa hiện đại",
+      "ghế băng dài",
+      "ghế phòng khách"
+    ],
+    "tags": [
+      "seating",
+      "sofa",
+      "retro"
+    ],
+    "materials": [
+      "wood",
+      "leather",
+      "cushion"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 1.807,
+      "d": 0.818,
+      "h": 0.71
+    }
+  },
+  "sofa_01": {
+    "category": "sofa",
+    "description": "An antique-style 2-seater sofa featuring a light, gracefully curved wooden frame and cabriole legs, upholstered in premium light gray fabric. ",
+    "aliases": [
+      "sofa",
+      "couch",
+      "classic sofa",
+      "vintage couch",
+      "ghế sofa",
+      "ghế sofa cổ điển",
+      "ghế băng dài",
+      "ghế phòng khách"
+    ],
+    "tags": [
+      "seating",
+      "classic",
+      "vintage",
+      "antique",
+      "luxury",
+      "french_style"
+    ],
+    "materials": [
+      "wood",
+      "fabric"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 1.5715,
+      "d": 0.658,
+      "h": 0.7965
+    }
+  },
+  "sofa_03": {
+    "category": "sofa",
+    "description": "A brown retro sofa with a mid-century modern design, featuring a low-profile silhouette, clean lines, and plush cushions upholstered in a warm brown fabric.",
+    "aliases": [
+      "sofa",
+      "couch",
+      "retro sofa",
+      "ghế sofa",
+      "ghế sofa retro",
+      "ghế băng dài",
+      "ghế phòng khách"
+    ],
+    "tags": [
+      "seating",
+      "sofa",
+      "retro"
+    ],
+    "materials": [
+      "wood",
+      "leather",
+      "cushion"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 2.731,
+      "d": 0.925,
+      "h": 1.118
+    }
+  },
+  "steel_frame_shelves_01": {
+    "category": "shelving",
+    "description": "A minimalist-style shelving with 5 tiers, ideal for displaying books, decor, and storage baskets in bedrooms, living rooms, or home offices.",
+    "aliases": [
+      "bookshelf",
+      "storage unit",
+      "display shelf",
+      "bookcase",
+      "kệ sách",
+      "kệ trưng bày",
+      "tủ kệ công nghiệp",
+      "kệ khung sắt"
+    ],
+    "tags": [
+      "furniture",
+      "storage",
+      "modern",
+      "industrial"
+    ],
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "placements": [
+      "floor",
+      "against_wall",
+      "corner"
+    ],
+    "dimensions": {
+      "w": 1.097,
+      "d": 0.502,
+      "h": 2.142
+    }
+  },
+  "steel_frame_shelves_02": {
+    "category": "shelving",
+    "description": "A compact minimalist-style shelving with 5 tiers, ideal for displaying books, decor, and storage baskets in bedrooms, living rooms, or home offices.",
+    "aliases": [
+      "bookshelf",
+      "storage unit",
+      "display shelf",
+      "bookcase",
+      "kệ sách",
+      "kệ trưng bày",
+      "tủ kệ công nghiệp",
+      "kệ khung sắt"
+    ],
+    "tags": [
+      "furniture",
+      "storage",
+      "modern",
+      "industrial"
+    ],
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "placements": [
+      "floor",
+      "against_wall",
+      "corner"
+    ],
+    "dimensions": {
+      "w": 0.7212,
+      "d": 0.502,
+      "h": 1.8118
+    }
+  },
+  "steel_frame_shelves_03": {
+    "category": "shelving",
+    "description": "A large industrial-style shelving unit featuring staggered wooden display shelves and a bottom 3-drawer storage cabinet, supported by a black powder-coated metal frame. Perfect for modern living rooms, home offices, or studio apartments.",
+    "aliases": [
+      "bookshelf",
+      "storage unit",
+      "display shelf",
+      "bookcase",
+      "kệ sách",
+      "kệ trưng bày",
+      "tủ kệ công nghiệp",
+      "kệ khung sắt"
+    ],
+    "tags": [
+      "furniture",
+      "storage",
+      "industrial",
+      "modern",
+      "loft"
+    ],
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "placements": [
+      "floor",
+      "against_wall",
+      "corner"
+    ],
+    "dimensions": {
+      "w": 2.3511,
+      "d": 0.7212,
+      "h": 2.3118
+    }
+  },
+  "treasure_chest": {
+    "category": "chest",
+    "description": "A vintage-style treasure chest with a rustic design, perfect for storing keepsakes or as a decorative piece in any living space.",
+    "aliases": [
+      "treasure chest",
+      "storage chest",
+      "vintage chest",
+      "rương kho báu",
+      "hòm đựng đồ"
+    ],
+    "tags": [
+      "furniture",
+      "storage",
+      "vintage"
+    ],
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 0.959,
+      "d": 0.523,
+      "h": 0.619
+    }
+  },
+  "vintage_suitcase": {
+    "category": "storage",
+    "description": "A vintage-style suitcase with a classic design, perfect for storing clothes or as a decorative piece in any living space.",
+    "aliases": [
+      "vintage suitcase",
+      "storage suitcase",
+      "classic suitcase",
+      "rương vali",
+      "hòm hành lý"
+    ],
+    "tags": [
+      "furniture",
+      "storage",
+      "vintage"
+    ],
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 1.608,
+      "d": 0.239,
+      "h": 0.568
+    }
+  },
+  "vintage_wooden_drawer_01": {
+    "category": "drawer",
+    "description": "A vintage-style wooden drawer with a rustic design, perfect for storing clothes or as a decorative piece in any living space.",
+    "aliases": [
+      "vintage drawer",
+      "wooden drawer",
+      "storage drawer",
+      "ngăn kéo gỗ",
+      "tủ ngăn kéo"
+    ],
+    "tags": [
+      "furniture",
+      "storage",
+      "vintage"
+    ],
+    "materials": [
+      "wood",
+      "metal"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 0.858,
+      "d": 0.457,
+      "h": 0.545
+    }
+  },
+  "wooden_display_shelves_01": {
+    "category": "shelving",
+    "description": "A rustic-style wooden display shelf with a simple design, perfect for displaying books or decorative items in any living space.",
+    "aliases": [
+      "display shelves",
+      "wooden shelves",
+      "kệ trưng bày gỗ",
+      "kệ gỗ"
+    ],
+    "tags": [
+      "furniture",
+      "storage",
+      "wooden"
+    ],
+    "materials": [
+      "wood"
+    ],
+    "placements": [
+      "floor",
+      "against_wall",
+      "corner"
+    ],
+    "dimensions": {
+      "w": 1.08,
+      "d": 0.372,
+      "h": 1.556
+    }
+  },
+  "wooden_table_02": {
+    "category": "table",
+    "description": "A square wooden table with a rustic design, perfect for a cozy corner in any living space.",
+    "aliases": [
+      "square table",
+      "wooden table",
+      "bàn gỗ vuông",
+      "bàn phụ"
+    ],
+    "tags": [
+      "furniture",
+      "table",
+      "wooden",
+      "rustic"
+    ],
+    "materials": [
+      "wood"
+    ],
+    "placements": [
+      "floor",
+      "center",
+      "against_wall"
+    ],
+    "dimensions": {
+      "w": 1.134,
+      "d": 0.706,
+      "h": 0.799
+    }
   }
 }

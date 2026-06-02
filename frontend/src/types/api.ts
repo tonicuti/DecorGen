@@ -8,6 +8,17 @@ export interface DetectedObject {
   selected: boolean;
   details?: string;
   category?: "room" | "opening" | "furniture";
+  floorPlan?: {
+    label: string;
+    coordinates?: {
+      x: number;
+      y: number;
+      width?: number;
+      height?: number;
+    };
+    rotate?: number;
+    ocrConfidence?: number;
+  };
 }
 
 // ==========================================
@@ -32,9 +43,16 @@ export interface Asset {
   category: string;
   image: string;
   premium?: boolean;
+  description?: string;
+  aliases?: string[];
+  tags?: string[];
+  materials?: string[];
+  placements?: string[];
+  metadataCategory?: string;
   placementType?: "floor" | "wall" | "tabletop" | "ceiling" | "opening";
   defaultScale?: [number, number, number];
   dimensions?: { w: number; d: number; h: number };
+  wallClearance?: number;
   glbUrl?: string;
   defaultMaterials?: Record<string, string>;
   swingDirection?: "left" | "right" | "both" | "none";
@@ -65,6 +83,7 @@ export interface SceneNode {
   placementType?: "floor" | "wall" | "tabletop" | "ceiling" | "opening";
   defaultScale?: [number, number, number];
   dimensions?: { w: number; d: number; h: number };
+  wallClearance?: number;
   glbUrl?: string;
   swingDirection?: "left" | "right" | "both" | "none";
   defaultElevation?: number;

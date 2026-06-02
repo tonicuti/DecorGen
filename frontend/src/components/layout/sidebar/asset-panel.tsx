@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import * as React from "react";
+import { searchBedroomAssets } from "@/api/assets";
 import { CATEGORIES, DEFAULT_ASSET_SVG, SAMPLE_ASSETS } from "@/api/mock-data";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +33,34 @@ import { Textarea } from "@/components/ui/textarea";
 import { generateModelThumbnail } from "@/lib/thumbnail-generator";
 import { beginSceneHistoryGesture, useSceneStore } from "@/store/use-scene-store";
 import type { Asset, AssetCardProps, SceneNode } from "@/types";
+
+function normalizeSearchText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function assetMatchesSearch(asset: Asset, query: string) {
+  const normalizedQuery = normalizeSearchText(query.trim());
+  if (!normalizedQuery) return true;
+
+  const searchableValues = [
+    asset.id,
+    asset.name,
+    asset.category,
+    asset.description,
+    asset.metadataCategory,
+    ...(asset.aliases || []),
+    ...(asset.tags || []),
+    ...(asset.materials || []),
+    ...(asset.placements || []),
+  ];
+
+  return searchableValues.some(
+    (value) => value && normalizeSearchText(value).includes(normalizedQuery)
+  );
+}
 
 function AssetCard({
   asset,
@@ -110,11 +139,13 @@ function AssetCard({
       name: asset.name,
       type: "model",
       assetId: asset.id,
-      placementType,
+      glbUrl: asset.glbUrl,
+      placementType: asset.placementType || placementType,
       position: initialPos,
       rotation: [0, 0, 0],
-      scale: [1, 1, 1],
-      dimensions: { w, h, d },
+      scale: asset.defaultScale || [1, 1, 1],
+      dimensions: asset.dimensions || { w, h, d },
+      wallClearance: asset.wallClearance,
       color: "#e2e8f0",
       visible: true,
       locked: false,
@@ -210,6 +241,30 @@ function AssetPanel() {
   const [uploadCategory, setUploadCategory] = React.useState("Decor");
   const [uploadThumbnail, setUploadThumbnail] = React.useState<string | null>(null);
   const [isGeneratingThumbnail, setIsGeneratingThumbnail] = React.useState(false);
+  const [isSearchingAssets, setIsSearchingAssets] = React.useState(false);
+
+  const handleAiSearchAssets = async () => {
+    const prompt = search.trim();
+    if (!prompt) return;
+
+    setIsSearchingAssets(true);
+    try {
+      const results = await searchBedroomAssets(prompt, 12);
+      setAssets(results);
+      setSelectedCategory("All");
+      setSearch("");
+    } catch (err) {
+      console.error("Failed to search backend assets:", err);
+    } finally {
+      setIsSearchingAssets(false);
+    }
+  };
+
+  const handleSearchSubmit = () => {
+    if (isAiSearch) {
+      void handleAiSearchAssets();
+    }
+  };
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -271,9 +326,9 @@ function AssetPanel() {
   };
 
   const filteredAssets = assets.filter((asset) => {
-    const matchesSearch = asset.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = selectedCategory === "All" || asset.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesSearch = isAiSearch || assetMatchesSearch(asset, search);
+    return matchesCategory && matchesSearch;
   });
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -360,6 +415,12 @@ function AssetPanel() {
                   placeholder="Search bedroom models..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSearchSubmit();
+                    }
+                  }}
                   className="h-full w-full border-0! bg-transparent! pr-3 pl-9 text-sm text-zinc-900 shadow-none! placeholder:text-zinc-400 focus-visible:ring-0! focus-visible:ring-offset-0! dark:text-zinc-100 dark:placeholder:text-zinc-500"
                 />
               </div>
@@ -377,6 +438,12 @@ function AssetPanel() {
                   placeholder="Describe bedroom styles with AI prompt..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                      e.preventDefault();
+                      void handleAiSearchAssets();
+                    }
+                  }}
                   className="h-28 w-full resize-none overflow-y-auto rounded-none! border-0! bg-transparent! p-0! pr-1 text-sm text-zinc-900 shadow-none! placeholder:text-xs placeholder:text-zinc-400 focus-visible:ring-0! focus-visible:ring-offset-0! dark:text-zinc-100 dark:placeholder:text-zinc-500 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-800/80 [&::-webkit-scrollbar-track]:bg-transparent"
                 />
               </div>
@@ -385,15 +452,29 @@ function AssetPanel() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setIsAiSearch((prev) => !prev)}
+            disabled={isSearchingAssets}
+            onClick={() => {
+              if (search.trim()) {
+                handleSearchSubmit();
+                return;
+              }
+
+              setIsAiSearch((prev) => !prev);
+            }}
             className={`h-9 w-9 rounded-lg border transition-all ${
               isAiSearch
                 ? "border-indigo-500 bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 dark:border-indigo-500 dark:bg-indigo-950/20"
                 : "border-zinc-200 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"
             }`}
-            title={isAiSearch ? "Switch to Regular Search" : "Use AI Prompt Search"}
+            title={
+              search.trim()
+                ? "Search Assets"
+                : isAiSearch
+                  ? "Switch to Regular Search"
+                  : "Use AI Prompt Search"
+            }
           >
-            <Sparkles className="h-4 w-4" />
+            <Sparkles className={`h-4 w-4 ${isSearchingAssets ? "animate-pulse" : ""}`} />
           </Button>
         </div>
         <div className="flex w-full items-center justify-between gap-1 rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-1 dark:border-zinc-800/80 dark:bg-zinc-900/50">

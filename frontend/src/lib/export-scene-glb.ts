@@ -39,6 +39,33 @@ function addPlaceholderMesh(group: THREE.Group, node: SceneNode) {
   group.add(mesh);
 }
 
+function fitGlbToNodeDimensions(model: THREE.Object3D, node: SceneNode) {
+  const w = node.dimensions?.w ?? 1;
+  const d = node.dimensions?.d ?? 1;
+  const h = node.dimensions?.h ?? 1;
+
+  model.updateWorldMatrix(true, true);
+
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+
+  const fitted = new THREE.Group();
+  fitted.add(model);
+  model.scale.set(
+    w / (size.x > 0 ? size.x : 1),
+    h / (size.y > 0 ? size.y : 1),
+    d / (size.z > 0 ? size.z : 1)
+  );
+  model.position.set(
+    -center.x * model.scale.x,
+    -center.y * model.scale.y,
+    -center.z * model.scale.z
+  );
+
+  return fitted;
+}
+
 async function buildExportScene(): Promise<THREE.Group> {
   const { tree, roomDimensions } = useSceneStore.getState();
   const root = new THREE.Group();
@@ -77,7 +104,7 @@ async function buildExportScene(): Promise<THREE.Group> {
     if (node.glbUrl) {
       try {
         const model = await loadGlb(node.glbUrl);
-        nodeGroup.add(model);
+        nodeGroup.add(fitGlbToNodeDimensions(model, node));
       } catch {
         addPlaceholderMesh(nodeGroup, node);
       }

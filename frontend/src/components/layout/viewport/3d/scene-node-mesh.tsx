@@ -1,12 +1,24 @@
-import { Edges, Html } from "@react-three/drei";
+import { Edges, Html, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { ArrowRightLeft, MoreHorizontal, RotateCcw, RotateCw, Trash2 } from "lucide-react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { checkWallVisibility } from "@/components/layout/viewport/3d/camera";
 import { Button } from "@/components/ui/button";
 import { beginSceneHistoryGesture, useSceneStore } from "@/store/use-scene-store";
 import type { SceneNode, WallDef } from "@/types";
+
+type Dimensions = NonNullable<SceneNode["dimensions"]>;
+
+function canLoadGlbUrl(url?: string): url is string {
+  if (!url) return false;
+  if (!url.toLowerCase().endsWith(".glb")) return false;
+
+  // The mock data still points to /models/..., which is not served by this app.
+  // Backend search results point to /inputs/... or http://127.0.0.1:8000/inputs/....
+  return url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/inputs/");
+}
 
 function isOpeningOnHiddenWall(
   node: SceneNode,
@@ -42,6 +54,51 @@ function isOpeningOnHiddenWall(
   }
 
   return false;
+}
+
+function getModelFitTransform(model: THREE.Object3D, dimensions: Dimensions) {
+  model.updateWorldMatrix(true, true);
+
+  const box = new THREE.Box3().setFromObject(model);
+  const sourceSize = box.getSize(new THREE.Vector3());
+  const sourceCenter = box.getCenter(new THREE.Vector3());
+
+  const safeSize = {
+    x: sourceSize.x > 0 ? sourceSize.x : 1,
+    y: sourceSize.y > 0 ? sourceSize.y : 1,
+    z: sourceSize.z > 0 ? sourceSize.z : 1,
+  };
+
+  const scale = new THREE.Vector3(
+    dimensions.w / safeSize.x,
+    dimensions.h / safeSize.y,
+    dimensions.d / safeSize.z
+  );
+  const offset = sourceCenter.multiply(scale).multiplyScalar(-1);
+
+  return {
+    offset,
+    scale: [scale.x, scale.y, scale.z] as [number, number, number],
+  };
+}
+
+function GlbModel({ url, dimensions }: { url: string; dimensions: Dimensions }) {
+  const gltf = useGLTF(url);
+
+  const { scene, offset, scale } = useMemo(() => {
+    const cloned = clone(gltf.scene);
+
+    cloned.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        object.castShadow = true;
+        object.receiveShadow = true;
+      }
+    });
+
+    return { scene: cloned, ...getModelFitTransform(cloned, dimensions) };
+  }, [gltf.scene, dimensions.d, dimensions.h, dimensions.w]);
+
+  return <primitive object={scene} position={offset} scale={scale} />;
 }
 
 function SceneNodeMesh({
@@ -130,6 +187,8 @@ function SceneNodeMesh({
   const currentRot = isBeingDragged && dragRotation ? dragRotation : node.rotation || [0, 0, 0];
   const highlightColliding = (isBeingDragged && isColliding) || collidingWithIds.includes(node.id);
   const edgeColor = highlightColliding ? "#ff0000" : "#00ffff";
+  const glbUrl = canLoadGlbUrl(node.glbUrl) ? node.glbUrl : null;
+  const showPlaceholder = !glbUrl || highlightColliding;
 
   return (
     <group
@@ -171,8 +230,9 @@ function SceneNodeMesh({
           color={highlightColliding ? "#ffaaaa" : node.color || "#cccccc"}
           roughness={node.roughness !== undefined ? node.roughness / 100 : 0.5}
           metalness={node.metalness !== undefined ? node.metalness / 100 : 0.5}
-          transparent={highlightColliding}
-          opacity={highlightColliding ? 0.8 : 1}
+          transparent={!showPlaceholder || highlightColliding}
+          opacity={showPlaceholder ? (highlightColliding ? 0.35 : 1) : 0}
+          depthWrite={showPlaceholder}
           polygonOffset={node.placementType === "opening" ? true : false}
           polygonOffsetFactor={node.placementType === "opening" ? -1 : 0}
           polygonOffsetUnits={node.placementType === "opening" ? -1 : 0}
@@ -285,6 +345,7 @@ function SceneNodeMesh({
           </Html>
         )}
       </mesh>
+      {glbUrl && <GlbModel url={glbUrl} dimensions={{ w, h, d }} />}
       {isSelected && isDoor && (
         <group
           position={[(-w / 2) * flipX, -h / 2 + 0.01, d / 2]}

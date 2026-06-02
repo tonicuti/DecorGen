@@ -19,6 +19,41 @@ function snapValue(value: number, enabled: boolean): number {
   return Math.round(value / GRID_SNAP_STEP) * GRID_SNAP_STEP;
 }
 
+const getWallClearance = (node: SceneNode) => {
+  if (node.placementType !== "floor") return 0;
+  if (node.wallClearance !== undefined) return Math.max(0, node.wallClearance);
+  if (node.assetId === "wooden_display_shelves_01") return 0.02;
+  return 0;
+};
+
+const clampFloorPositionToRoom = (
+  node: SceneNode,
+  position: [number, number, number],
+  rotation: [number, number, number],
+  roomDimensions: { width: number; length: number }
+): [number, number, number] => {
+  if (node.placementType !== "floor") return position;
+
+  const w = node.dimensions?.w || 1;
+  const d = node.dimensions?.d || 1;
+  const yaw = rotation[1] ?? 0;
+  const cos = Math.abs(Math.cos(yaw));
+  const sin = Math.abs(Math.sin(yaw));
+  const extentX = (w * cos + d * sin) / 2;
+  const extentZ = (w * sin + d * cos) / 2;
+  const clearance = getWallClearance(node);
+  const maxX = roomDimensions.width / 2 - extentX - clearance;
+  const maxZ = roomDimensions.length / 2 - extentZ - clearance;
+
+  if (maxX < 0 || maxZ < 0) return position;
+
+  return [
+    Math.max(-maxX, Math.min(maxX, position[0])),
+    position[1],
+    Math.max(-maxZ, Math.min(maxZ, position[2])),
+  ];
+};
+
 const findNode = (nodes: SceneNode[], id: string): SceneNode | null => {
   for (const node of nodes) {
     if (node.id === id) return node;
@@ -261,11 +296,19 @@ function DragDropHandler() {
           newRotation[2],
         ];
 
+        newPosArray = clampFloorPositionToRoom(
+          dragNode,
+          newPosArray,
+          newRotArray,
+          roomDimensions
+        );
+        const validatedLocalPos = new THREE.Vector3(...newPosArray);
+
         const targetWorldMatrix = new THREE.Matrix4();
         const euler = new THREE.Euler(...newRotArray);
         const quaternion = new THREE.Quaternion().setFromEuler(euler);
         const localMatrix = new THREE.Matrix4().compose(
-          localPos,
+          validatedLocalPos,
           quaternion,
           new THREE.Vector3(...(dragNode.scale || [1, 1, 1]))
         );
@@ -285,7 +328,11 @@ function DragDropHandler() {
         if (validation.isValid) {
           stateRef.current.currentValidPos = newPosArray;
           stateRef.current.currentValidRotation = newRotArray;
-          stateRef.current.currentValidWorldPos = worldPos.clone();
+          const validWorldPos = validatedLocalPos.clone();
+          if (parentSpace) {
+            (parentSpace as THREE.Object3D).localToWorld(validWorldPos);
+          }
+          stateRef.current.currentValidWorldPos = validWorldPos;
         }
 
         setDragState(

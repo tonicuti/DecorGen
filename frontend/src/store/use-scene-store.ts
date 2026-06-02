@@ -138,6 +138,41 @@ const insertNodeIntoTree = (
   });
 };
 
+const getWallClearance = (node: SceneNode) => {
+  if (node.placementType !== "floor") return 0;
+  if (node.wallClearance !== undefined) return Math.max(0, node.wallClearance);
+  if (node.assetId === "wooden_display_shelves_01") return 0.02;
+  return 0;
+};
+
+const clampFloorPositionToRoom = (
+  node: SceneNode,
+  position: [number, number, number],
+  rotation: [number, number, number] | undefined,
+  roomDimensions: SceneDimensions
+): [number, number, number] => {
+  if (node.placementType !== "floor") return position;
+
+  const w = node.dimensions?.w || 1;
+  const d = node.dimensions?.d || 1;
+  const yaw = rotation?.[1] ?? node.rotation?.[1] ?? 0;
+  const cos = Math.abs(Math.cos(yaw));
+  const sin = Math.abs(Math.sin(yaw));
+  const extentX = (w * cos + d * sin) / 2;
+  const extentZ = (w * sin + d * cos) / 2;
+  const clearance = getWallClearance(node);
+  const maxX = roomDimensions.width / 2 - extentX - clearance;
+  const maxZ = roomDimensions.length / 2 - extentZ - clearance;
+
+  if (maxX < 0 || maxZ < 0) return position;
+
+  return [
+    Math.max(-maxX, Math.min(maxX, position[0])),
+    position[1],
+    Math.max(-maxZ, Math.min(maxZ, position[2])),
+  ];
+};
+
 const isSystemNode = (node: SceneNode) => node.type === "camera" || node.type === "light";
 
 const isValidSnapshot = (snapshot: Partial<SceneHistorySnapshot> | undefined): snapshot is SceneHistorySnapshot =>
@@ -323,10 +358,17 @@ const sceneStoreCreator: StateCreator<SceneState> = (set) => ({
       if (parentId !== undefined) {
         const { newTree: without, extractedNode } = removeNodeFromTree(state.tree, nodeId);
         if (extractedNode) {
+          const nextRotation = rotation ?? extractedNode.rotation;
+          const nextPosition = clampFloorPositionToRoom(
+            extractedNode,
+            position,
+            nextRotation,
+            state.roomDimensions
+          );
           const updatedNode = {
             ...extractedNode,
-            position,
-            rotation: rotation ?? extractedNode.rotation,
+            position: nextPosition,
+            rotation: nextRotation,
           };
           let targetParentId = parentId;
           if (!targetParentId) {
@@ -336,8 +378,12 @@ const sceneStoreCreator: StateCreator<SceneState> = (set) => ({
           newTree = insertNodeIntoTree(without, updatedNode, targetParentId);
         }
       } else {
+        const node = findNodeInTree(state.tree, nodeId);
+        const nextPosition = node
+          ? clampFloorPositionToRoom(node, position, rotation, state.roomDimensions)
+          : position;
         newTree = updateNodeInTree(state.tree, nodeId, {
-          position,
+          position: nextPosition,
           rotation: rotation ?? undefined,
         });
       }
