@@ -1,7 +1,13 @@
 import { useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { validatePlacement } from "@/lib/collision";
+import {
+  clampSubtreePlanarToRoom,
+  clampWorldPlanarToRoom,
+  resolveTabletopFloorSupport,
+  validatePlacement,
+} from "@/lib/collision";
+import { rotateYaw } from "@/lib/placement-rotate";
 import {
   beginSceneHistoryGesture,
   cancelSceneHistoryGesture,
@@ -18,41 +24,6 @@ function snapValue(value: number, enabled: boolean): number {
   if (!enabled) return value;
   return Math.round(value / GRID_SNAP_STEP) * GRID_SNAP_STEP;
 }
-
-const getWallClearance = (node: SceneNode) => {
-  if (node.placementType !== "floor") return 0;
-  if (node.wallClearance !== undefined) return Math.max(0, node.wallClearance);
-  if (node.assetId === "wooden_display_shelves_01") return 0.02;
-  return 0;
-};
-
-const clampFloorPositionToRoom = (
-  node: SceneNode,
-  position: [number, number, number],
-  rotation: [number, number, number],
-  roomDimensions: { width: number; length: number }
-): [number, number, number] => {
-  if (node.placementType !== "floor") return position;
-
-  const w = node.dimensions?.w || 1;
-  const d = node.dimensions?.d || 1;
-  const yaw = rotation[1] ?? 0;
-  const cos = Math.abs(Math.cos(yaw));
-  const sin = Math.abs(Math.sin(yaw));
-  const extentX = (w * cos + d * sin) / 2;
-  const extentZ = (w * sin + d * cos) / 2;
-  const clearance = getWallClearance(node);
-  const maxX = roomDimensions.width / 2 - extentX - clearance;
-  const maxZ = roomDimensions.length / 2 - extentZ - clearance;
-
-  if (maxX < 0 || maxZ < 0) return position;
-
-  return [
-    Math.max(-maxX, Math.min(maxX, position[0])),
-    position[1],
-    Math.max(-maxZ, Math.min(maxZ, position[2])),
-  ];
-};
 
 const findNode = (nodes: SceneNode[], id: string): SceneNode | null => {
   for (const node of nodes) {
@@ -115,13 +86,40 @@ function DragDropHandler() {
         }
 
         if (node && node.position) {
-          stateRef.current.currentValidPos = [...node.position] as [number, number, number];
-          stateRef.current.originalPos = [...node.position] as [number, number, number];
-          stateRef.current.currentValidWorldPos = new THREE.Vector3(...node.position);
-          stateRef.current.currentValidRotation = node.rotation
-            ? ([...node.rotation] as [number, number, number])
+          const spawnPos: [number, number, number] = [
+            node.position[0],
+            node.position[1],
+            node.position[2],
+          ];
+          const spawnRot: [number, number, number] = node.rotation
+            ? [node.rotation[0], node.rotation[1], node.rotation[2]]
             : [0, 0, 0];
-          stateRef.current.originalRot = stateRef.current.currentValidRotation;
+
+          stateRef.current.currentValidPos = spawnPos;
+          stateRef.current.originalPos = spawnPos;
+          stateRef.current.currentValidWorldPos = new THREE.Vector3(...spawnPos);
+          stateRef.current.currentValidRotation = spawnRot;
+          stateRef.current.originalRot = spawnRot;
+
+          const spawnMatrix = new THREE.Matrix4().compose(
+            new THREE.Vector3(...spawnPos),
+            new THREE.Quaternion().setFromEuler(new THREE.Euler(...spawnRot)),
+            new THREE.Vector3(...(node.scale || [1, 1, 1]))
+          );
+          const spawnValidation = validatePlacement(
+            node,
+            spawnMatrix,
+            tree,
+            roomDimensions
+          );
+          stateRef.current.isColliding = !spawnValidation.isValid;
+          useSceneStore.getState().setDragState(
+            dragNodeId,
+            spawnPos,
+            spawnRot,
+            !spawnValidation.isValid,
+            spawnValidation.collidingWith
+          );
         } else {
           stateRef.current.currentValidPos = null;
           stateRef.current.originalPos = null;
@@ -155,7 +153,8 @@ function DragDropHandler() {
       raycaster.setFromCamera(pointer, camera);
 
       let worldPos: THREE.Vector3 | null = null;
-      let newRotation = dragNode.rotation || [0, 0, 0];
+      let newRotation =
+        stateRef.current.currentValidRotation ?? dragNode.rotation ?? [0, 0, 0];
 
       if (dragNode.placementType === "opening" || dragNode.placementType === "wall") {
         const intersects = raycaster.intersectObjects(scene.children, true);
@@ -235,33 +234,15 @@ function DragDropHandler() {
           let newY = h / 2;
 
           if (dragNode.placementType === "tabletop") {
-            const intersects = raycaster.intersectObjects(scene.children, true);
-            let hoverTarget: SceneNode | null = null;
-            let highestY = 0;
-
-            for (const hit of intersects) {
-              const hitNodeId = hit.object.userData?.nodeId;
-
-              if (hitNodeId && hitNodeId !== dragNodeId) {
-                const hoverNode = findNode(tree, hitNodeId);
-
-                if (hoverNode && hoverNode.placementType === "floor") {
-                  hoverTarget = hoverNode;
-                  const hoverWorldMatrix = new THREE.Matrix4();
-                  hoverWorldMatrix.copy(hit.object.matrixWorld);
-                  const hoverBox = new THREE.Box3();
-                  hoverBox.setFromObject(hit.object);
-                  highestY = hoverBox.max.y + h / 2;
-                  break;
-                }
-              }
-            }
-
-            if (hoverTarget) {
-              newY = highestY;
-            } else {
-              newY = h / 2;
-            }
+            const support = resolveTabletopFloorSupport(
+              dragNode,
+              dragNodeId,
+              intersectPoint.x,
+              intersectPoint.z,
+              [newRotation[0], newRotation[1], newRotation[2]],
+              tree
+            );
+            newY = support.centerY;
           }
 
           worldPos = new THREE.Vector3(intersectPoint.x, newY, intersectPoint.z);
@@ -296,12 +277,6 @@ function DragDropHandler() {
           newRotation[2],
         ];
 
-        newPosArray = clampFloorPositionToRoom(
-          dragNode,
-          newPosArray,
-          newRotArray,
-          roomDimensions
-        );
         const validatedLocalPos = new THREE.Vector3(...newPosArray);
 
         const targetWorldMatrix = new THREE.Matrix4();
@@ -322,17 +297,35 @@ function DragDropHandler() {
           targetWorldMatrix.copy(localMatrix);
         }
 
-        const validation = validatePlacement(dragNode, targetWorldMatrix, tree, roomDimensions);
+        let clampedWorldMatrix = targetWorldMatrix;
+        if (dragNode.placementType === "floor" || dragNode.placementType === "tabletop") {
+          clampedWorldMatrix = clampSubtreePlanarToRoom(
+            dragNode,
+            targetWorldMatrix,
+            roomDimensions
+          );
+        }
+
+        const clampedWorldPos = new THREE.Vector3();
+        clampedWorldMatrix.decompose(
+          clampedWorldPos,
+          new THREE.Quaternion(),
+          new THREE.Vector3()
+        );
+
+        const localAfterClamp = clampedWorldPos.clone();
+        if (parentSpace) {
+          (parentSpace as THREE.Object3D).worldToLocal(localAfterClamp);
+        }
+        newPosArray = [localAfterClamp.x, localAfterClamp.y, localAfterClamp.z];
+
+        const validation = validatePlacement(dragNode, clampedWorldMatrix, tree, roomDimensions);
 
         stateRef.current.isColliding = !validation.isValid;
         if (validation.isValid) {
           stateRef.current.currentValidPos = newPosArray;
           stateRef.current.currentValidRotation = newRotArray;
-          const validWorldPos = validatedLocalPos.clone();
-          if (parentSpace) {
-            (parentSpace as THREE.Object3D).localToWorld(validWorldPos);
-          }
-          stateRef.current.currentValidWorldPos = validWorldPos;
+          stateRef.current.currentValidWorldPos = clampedWorldPos;
         }
 
         setDragState(
@@ -359,7 +352,15 @@ function DragDropHandler() {
       } = stateRef.current;
       if (!dragNodeId) return;
 
-      if (isColliding || !currentValidPos || !hasMoved) {
+      const isAdding = useSceneStore.getState().isAddingNode;
+
+      if (isColliding || !currentValidPos) {
+        cancelDrag();
+        return;
+      }
+
+      // Allow click-to-place at spawn (center) without moving the pointer first.
+      if (!hasMoved && !isAdding) {
         cancelDrag();
         return;
       }
@@ -367,25 +368,44 @@ function DragDropHandler() {
       const dragNode = findNode(tree, dragNodeId);
 
       if (dragNode) {
-        if (dragNode.placementType === "tabletop" && currentValidWorldPos) {
-          raycaster.setFromCamera(pointer, camera);
-          const intersects = raycaster.intersectObjects(scene.children, true);
-          let hoverNodeId: string | null = null;
-
-          for (const hit of intersects) {
-            const hitId = hit.object.userData?.nodeId;
-
-            if (hitId && hitId !== dragNodeId) {
-              const hitNode = findNode(tree, hitId);
-
-              if (hitNode && hitNode.placementType === "floor") {
-                hoverNodeId = hitId;
-                break;
-              }
-            }
+        if (!hasMoved && isAdding) {
+          const validation = validatePlacement(
+            dragNode,
+            new THREE.Matrix4().compose(
+              new THREE.Vector3(...currentValidPos),
+              new THREE.Quaternion().setFromEuler(
+                new THREE.Euler(...(currentValidRotation || [0, 0, 0]))
+              ),
+              new THREE.Vector3(...(dragNode.scale || [1, 1, 1]))
+            ),
+            tree,
+            useSceneStore.getState().roomDimensions
+          );
+          if (!validation.isValid) {
+            cancelDrag();
+            return;
           }
+        }
 
-          const targetParentId = hoverNodeId || "group-1";
+        if (dragNode.placementType === "tabletop" && currentValidWorldPos) {
+          const roomDimensions = useSceneStore.getState().roomDimensions;
+          const dropRotation = currentValidRotation || dragNode.rotation || [0, 0, 0];
+          const clampedWorldPos = clampWorldPlanarToRoom(
+            dragNode,
+            currentValidWorldPos.clone(),
+            dropRotation,
+            roomDimensions
+          );
+
+          const support = resolveTabletopFloorSupport(
+            dragNode,
+            dragNodeId,
+            clampedWorldPos.x,
+            clampedWorldPos.z,
+            dropRotation,
+            tree
+          );
+          const targetParentId = support.floorNodeId || "group-1";
           let newParentSpace: THREE.Object3D | null = null;
 
           scene.traverse((child) => {
@@ -394,7 +414,23 @@ function DragDropHandler() {
             }
           });
 
-          const localPos = currentValidWorldPos.clone();
+          const dropWorldMatrix = new THREE.Matrix4().compose(
+            clampedWorldPos,
+            new THREE.Quaternion().setFromEuler(new THREE.Euler(...dropRotation)),
+            new THREE.Vector3(...(dragNode.scale || [1, 1, 1]))
+          );
+          const dropValidation = validatePlacement(
+            dragNode,
+            dropWorldMatrix,
+            tree,
+            roomDimensions
+          );
+          if (!dropValidation.isValid) {
+            cancelDrag();
+            return;
+          }
+
+          const localPos = clampedWorldPos.clone();
           if (newParentSpace) {
             (newParentSpace as THREE.Object3D).worldToLocal(localPos);
           }
@@ -437,7 +473,59 @@ function DragDropHandler() {
       if (controls) controls.enabled = true;
     };
 
+    const rotateDragBy = (deltaDeg: number) => {
+      const { dragNodeId, tree } = stateRef.current;
+      if (!dragNodeId) return;
+
+      const dragNode = findNode(tree, dragNodeId);
+      if (
+        !dragNode ||
+        dragNode.placementType === "opening" ||
+        dragNode.placementType === "wall"
+      ) {
+        return;
+      }
+
+      const base =
+        stateRef.current.currentValidRotation ??
+        (dragNode.rotation as [number, number, number] | undefined) ??
+        [0, 0, 0];
+      const newRot = rotateYaw(base, deltaDeg);
+
+      stateRef.current.currentValidRotation = newRot;
+      useSceneStore.getState().updateNode(dragNodeId, { rotation: newRot });
+      handlePointerMove();
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (stateRef.current.dragNodeId) {
+        if (e.key === "q" || e.key === "Q" || e.key === "[") {
+          e.preventDefault();
+          rotateDragBy(-90);
+          return;
+        }
+        if (e.key === "e" || e.key === "E" || e.key === "]") {
+          e.preventDefault();
+          rotateDragBy(90);
+          return;
+        }
+        if (e.key === "f" || e.key === "F") {
+          e.preventDefault();
+          rotateDragBy(180);
+          return;
+        }
+      }
+
       if (e.key === "Escape" && stateRef.current.dragNodeId) {
         cancelDrag();
       }
@@ -450,16 +538,24 @@ function DragDropHandler() {
       }
     };
 
+    const handleDragRotate = (e: Event) => {
+      const angle = (e as CustomEvent<{ angle: number }>).detail?.angle;
+      if (typeof angle !== "number") return;
+      rotateDragBy(angle);
+    };
+
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("contextmenu", handleContextMenu);
+    window.addEventListener("drag-rotate", handleDragRotate as EventListener);
 
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("contextmenu", handleContextMenu);
+      window.removeEventListener("drag-rotate", handleDragRotate as EventListener);
     };
   }, [camera, scene, pointer, raycaster, setDragState, finalizeDragPlacement, get]);
 

@@ -59,11 +59,23 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
         >
           <ArrowUp className="h-3.5 w-3.5 shrink-0 text-indigo-300" />
           <span>
-            Drag to place, press{" "}
+            Drag to place ·{" "}
+            <kbd className="mx-0.5 rounded border border-indigo-400/60 bg-indigo-900 px-1.5 py-0.5 font-sans text-[10px] font-semibold text-white">
+              Q
+            </kbd>
+            /
+            <kbd className="mx-0.5 rounded border border-indigo-400/60 bg-indigo-900 px-1.5 py-0.5 font-sans text-[10px] font-semibold text-white">
+              E
+            </kbd>
+            /
+            <kbd className="mx-0.5 rounded border border-indigo-400/60 bg-indigo-900 px-1.5 py-0.5 font-sans text-[10px] font-semibold text-white">
+              F
+            </kbd>{" "}
+            rotate ·{" "}
             <kbd className="mx-0.5 rounded border border-indigo-400/60 bg-indigo-900 px-1.5 py-0.5 font-sans text-[10px] font-semibold text-white">
               Esc
             </kbd>{" "}
-            or <span className="font-semibold text-white">Right-Click</span> to cancel
+            cancel
           </span>
         </div>
       )}

@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { getPlacementSpawnPose } from "@/lib/placement-defaults";
 import { generateModelThumbnail } from "@/lib/thumbnail-generator";
 import { beginSceneHistoryGesture, useSceneStore } from "@/store/use-scene-store";
 import type { Asset, AssetCardProps, SceneNode } from "@/types";
@@ -132,7 +133,12 @@ function AssetCard({
     }
 
     const newNodeId = `${asset.id}-${Date.now()}`;
-    const initialPos: [number, number, number] = [0, -1000, 0];
+    const dims = asset.dimensions || { w, h, d };
+    const resolvedPlacement = asset.placementType || placementType;
+    const { position: initialPos, rotation: initialRot } = getPlacementSpawnPose(
+      dims,
+      resolvedPlacement
+    );
 
     const newNode: SceneNode = {
       id: newNodeId,
@@ -140,11 +146,11 @@ function AssetCard({
       type: "model",
       assetId: asset.id,
       glbUrl: asset.glbUrl,
-      placementType: asset.placementType || placementType,
+      placementType: resolvedPlacement,
       position: initialPos,
-      rotation: [0, 0, 0],
+      rotation: initialRot,
       scale: asset.defaultScale || [1, 1, 1],
-      dimensions: asset.dimensions || { w, h, d },
+      dimensions: dims,
       wallClearance: asset.wallClearance,
       color: "#e2e8f0",
       visible: true,
@@ -155,7 +161,7 @@ function AssetCard({
     addNode(newNode, null);
     setSelectedIds([newNodeId]);
     setIsAddingNode(true);
-    setDragState(newNodeId, initialPos, [0, 0, 0], false, []);
+    setDragState(newNodeId, initialPos, initialRot, false, []);
   };
 
   return (

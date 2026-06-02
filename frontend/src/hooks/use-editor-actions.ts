@@ -72,6 +72,15 @@ export function useEditorActions() {
         return;
       }
 
+      if (e.key === "Escape") {
+        const { dragNodeId, selectedIds, setSelectedIds } = useSceneStore.getState();
+        if (!dragNodeId && selectedIds.length > 0) {
+          e.preventDefault();
+          setSelectedIds([]);
+        }
+        return;
+      }
+
       if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
         e.preventDefault();
         if (canUndo) onUndo();
@@ -105,6 +114,30 @@ export function useEditorActions() {
         if (!e.ctrlKey && !e.metaKey) {
           e.preventDefault();
           toggleGridSnapping();
+          return;
+        }
+      }
+
+      if (!e.ctrlKey && !e.metaKey && !useSceneStore.getState().dragNodeId) {
+        if (e.key === "q" || e.key === "Q" || e.key === "[") {
+          e.preventDefault();
+          window.dispatchEvent(
+            new CustomEvent("request-rotation", { detail: { angle: -90 } })
+          );
+          return;
+        }
+        if (e.key === "e" || e.key === "E" || e.key === "]") {
+          e.preventDefault();
+          window.dispatchEvent(
+            new CustomEvent("request-rotation", { detail: { angle: 90 } })
+          );
+          return;
+        }
+        if (e.key === "f" || e.key === "F") {
+          e.preventDefault();
+          window.dispatchEvent(
+            new CustomEvent("request-rotation", { detail: { angle: 180 } })
+          );
         }
       }
     };

@@ -696,13 +696,23 @@ export const DEFAULT_SCENE_SETTINGS = {
 };
 
 export const WORKSPACE_SHORTCUTS = [
-  { keys: "Ctrl+K", description: "Open command palette" },
+  { section: "General", keys: "Ctrl+K", description: "Open command palette" },
+  { keys: "Ctrl+B", description: "Toggle sidebar" },
   { keys: "Ctrl+Z", description: "Undo" },
   { keys: "Ctrl+Y", description: "Redo" },
   { keys: "Ctrl+S", description: "Save bedroom layout (coming soon)" },
   { keys: "Ctrl+Shift+E", description: "Export 2D blueprint" },
-  { keys: "G", description: "Toggle 3D floor grid" },
+  { section: "View", keys: "G", description: "Toggle 3D floor grid" },
   { keys: "S", description: "Toggle grid snapping" },
+  { keys: "Scroll", description: "Zoom in / out (3D view)" },
+  {
+    section: "Selection",
+    keys: "Q or [",
+    description: "Rotate selected object left 90°",
+  },
+  { keys: "E or ]", description: "Rotate selected object right 90°" },
+  { keys: "F", description: "Flip selected object 180°" },
+  { keys: "Esc", description: "Clear selection (or cancel placement while dragging)" },
 ];
 
 export const ABOUT_DECORGEN = {

@@ -137,4 +137,5 @@ export interface RenderQualityOption {
 export interface WorkspaceShortcut {
   keys: string;
   description: string;
+  section?: string;
 }
