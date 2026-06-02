@@ -276,15 +276,14 @@ export async function exportProjectGLB(): Promise<void> {
   });
 }
 
-export function importProjectGLB(file: File): Promise<GLBProjectMetadata> {
+function importProjectFromUrl(url: string, cleanupUrl?: () => void): Promise<GLBProjectMetadata> {
   return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
     const loader = new GLTFLoader();
 
     loader.load(
       url,
       (gltf) => {
-        URL.revokeObjectURL(url);
+        cleanupUrl?.();
 
         const metadata = findProjectMetadata(gltf.scene);
         if (!metadata) {
@@ -312,9 +311,18 @@ export function importProjectGLB(file: File): Promise<GLBProjectMetadata> {
       },
       undefined,
       (error) => {
-        URL.revokeObjectURL(url);
+        cleanupUrl?.();
         reject(error);
       }
     );
   });
+}
+
+export function importProjectGLB(file: File): Promise<GLBProjectMetadata> {
+  const url = URL.createObjectURL(file);
+  return importProjectFromUrl(url, () => URL.revokeObjectURL(url));
+}
+
+export function importProjectGLBFromUrl(url: string): Promise<GLBProjectMetadata> {
+  return importProjectFromUrl(url);
 }

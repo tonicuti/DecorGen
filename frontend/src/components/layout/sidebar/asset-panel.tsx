@@ -32,7 +32,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { getPlacementSpawnPose } from "@/lib/placement-defaults";
 import { generateModelThumbnail } from "@/lib/thumbnail-generator";
+import { useBedroomStore } from "@/store/use-bedroom-store";
 import { beginSceneHistoryGesture, useSceneStore } from "@/store/use-scene-store";
+import { toast } from "sonner";
 import type { Asset, AssetCardProps, SceneNode } from "@/types";
 
 function normalizeSearchText(value: string) {
@@ -77,6 +79,7 @@ function AssetCard({
 
   const setIsAddingNode = useSceneStore((state) => state.setIsAddingNode);
   const currentDragNodeId = useSceneStore((state) => state.dragNodeId);
+  const activeBedroomId = useBedroomStore((state) => state.activeBedroomId);
 
   React.useEffect(() => {
     setImageError(false);
@@ -85,6 +88,10 @@ function AssetCard({
   const handleAddClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (currentDragNodeId) return;
+    if (!activeBedroomId) {
+      toast.error("Create or open a bedroom layout before adding assets.");
+      return;
+    }
 
     let placementType: "floor" | "wall" | "ceiling" | "opening" | "tabletop" = "floor";
     let w = 1,

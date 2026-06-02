@@ -83,4 +83,9 @@ export interface SceneState {
   }) => void;
   clearUserContent: () => void;
   resetScene: () => void;
+  loadBedroomLayout: (layout: {
+    tree: SceneNode[];
+    roomDimensions: SceneDimensions;
+    roomMaterials: SceneState["roomMaterials"];
+  }) => void;
 }

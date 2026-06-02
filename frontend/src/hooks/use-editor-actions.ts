@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { exportPlan2DPng } from "@/lib/export-plan-2d";
-import { exportProjectGLB, exportSceneGLB, importProjectGLB } from "@/lib/export-scene-glb";
+import { exportSceneGLB, importProjectGLB } from "@/lib/export-scene-glb";
+import { useBedroomStore } from "@/store/use-bedroom-store";
 import {
   redoSceneHistory,
   undoSceneHistory,
@@ -36,10 +37,23 @@ export function useEditorActions() {
 
   const onSave = useCallback(async () => {
     try {
-      await exportProjectGLB();
-      toast.success("Project saved as GLB.");
+      const { activeBedroomId, saveActiveBedroom } = useBedroomStore.getState();
+      if (!activeBedroomId) {
+        toast.error("Create or open a bedroom layout before saving.");
+        return;
+      }
+
+      const { tree, roomDimensions, roomMaterials } = useSceneStore.getState();
+      const savedBedroom = saveActiveBedroom({
+        tree,
+        roomDimensions,
+        roomMaterials,
+      });
+
+      const assetCount = savedBedroom?.layout?.assets.length ?? 0;
+      toast.success(`Saved ${assetCount} asset metadata item${assetCount === 1 ? "" : "s"}.`);
     } catch {
-      toast.error("Failed to save project GLB.");
+      toast.error("Failed to save bedroom layout.");
     }
   }, []);
 

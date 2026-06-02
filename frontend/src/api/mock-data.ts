@@ -155,7 +155,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "coffee_table_round_01",
     name: "Coffee Table Round",
-    category: "Furniture",
+    category: "Tables",
     image: COFFEE_TABLE_ROUND_01,
     placementType: "floor",
     dimensions: { w: 1.301, d: 1.301, h: 0.491 },
@@ -223,7 +223,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "gothicbed_01",
     name: "Gothic Bed",
-    category: "Furniture",
+    category: "Beds",
     image: GOTHICBED_01,
     placementType: "floor",
     dimensions: { w: 1.494, d: 2.040, h: 1.534 },
@@ -240,7 +240,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "greenchair_01",
     name: "Green Chair",
-    category: "Furniture",
+    category: "Seating",
     image: GREENCHAIR_01,
     placementType: "floor",
     dimensions: { w: 0.673, d: 0.664, h: 1.059 },
@@ -257,7 +257,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "metal_office_desk",
     name: "Metal Office Desk",
-    category: "Furniture",
+    category: "Tables",
     image: METAL_OFFICE_DESK,
     placementType: "floor",
     dimensions: { w: 2, d: 0.947, h: 0.788 },
@@ -274,7 +274,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "mid_century_lounge_chair",
     name: "Mid Century Lounge Chair",
-    category: "Furniture",
+    category: "Seating",
     image: MID_CENTURY_LOUNGE_CHAIR,
     placementType: "floor",
     dimensions: { w: 1.009, d: 1.190, h: 1.169 },
@@ -291,7 +291,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "modern_arm_chair_01",
     name: "Modern Arm Chair",
-    category: "Furniture",
+    category: "Seating",
     image: MODERN_ARM_CHAIR_01,
     placementType: "floor",
     dimensions: { w: 0.820, d: 0.987, h: 1.023 },
@@ -308,7 +308,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "modern_coffee_table_01",
     name: "Modern Coffee Table",
-    category: "Furniture",
+    category: "Tables",
     image: MODERN_COFFEE_TABLE_01,
     placementType: "floor",
     dimensions: { w: 1.202, d: 0.6, h: 0.39 },
@@ -342,7 +342,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "ottoman_01",
     name: "Ottoman Chair",
-    category: "Furniture",
+    category: "Seating",
     image: OTTOMAN_01,
     placementType: "floor",
     dimensions: { w: 0.885, d: 0.621, h: 0.624 },
@@ -358,7 +358,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "painted_wooden_chair_01",
     name: "Painted Wooden Chair",
-    category: "Furniture",
+    category: "Seating",
     image: PAINTED_WOODEN_CHAIR_01,
     placementType: "floor",
     dimensions: { w: 0.432, d: 0.540, h: 0.957 },
@@ -400,7 +400,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "rockingchair_01",
     name: "Rocking Chair",
-    category: "Furniture",
+    category: "Seating",
     image: ROCKINGCHAIR_01,
     placementType: "floor",
     dimensions: { w: 0.708, d: 0.834, h: 0.995 },
@@ -416,7 +416,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "small_wooden_table_01",
     name: "Small Wooden Table",
-    category: "Furniture",
+    category: "Tables",
     image: SMALL_WOODEN_TABLE_01,
     placementType: "floor",
     dimensions: { w: 0.916, d: 0.44, h: 0.533 },
@@ -432,7 +432,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "sofa_02",
     name: "Black Modern Sofa",
-    category: "Furniture",
+    category: "Seating",
     image: SOFA_02,
     placementType: "floor",
     dimensions: { w: 1.807, d: 0.818, h: 0.71 },
@@ -472,7 +472,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "sofa_03",
     name: "Brown retro Sofa",
-    category: "Furniture",
+    category: "Seating",
     image: SOFA_03,
     placementType: "floor",
     dimensions: { w: 2.731, d: 0.925, h: 1.118 },
@@ -619,7 +619,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "wooden_table_02",
     name: "Square Wooden Table",
-    category: "Furniture",
+    category: "Tables",
     image: WOODEN_TABLE_02,
     placementType: "floor",
     dimensions: { w: 1.134, d: 0.706, h: 0.799 },
@@ -635,7 +635,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "parametric_window",
     name: "Parametric Window",
-    category: "Architectural",
+    category: "Openings",
     image: PARAMETRICWINDOW,
     placementType: "opening",
     dimensions: { w: 1.5, d: 0.1, h: 1.5 },
@@ -651,7 +651,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "back_room_door",
     name: "Back Room Door",
-    category: "Architectural",
+    category: "Openings",
     image: BACK_ROOM_DOOR,
     placementType: "opening",
     dimensions: { w: 0.9, d: 0.1, h: 2.0 },
@@ -667,7 +667,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "window_blinds",
     name: "Window Blinds",
-    category: "Architectural",
+    category: "Openings",
     image: WINDOW_BLINDS,
     placementType: "opening",
     dimensions: { w: 1.5, d: 0.1, h: 1.5 },
@@ -683,7 +683,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "modern_window",
     name: "Black Modern Window",
-    category: "Decor",
+    category: "Openings",
     image: MODERN_WINDOW,
     placementType: "wall",
     dimensions: { w: 1.41, d: 0.00518, h: 0.894 },
@@ -700,7 +700,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "modern_window_2",
     name: "Big Black Modern Window",
-    category: "Decor",
+    category: "Openings",
     image: MODERN_WINDOW_2,
     placementType: "wall",
     dimensions: { w: 1.77, d: 0.005, h: 1.87 },
@@ -717,7 +717,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "black_modern_bed",
     name: "Black Modern Bed",
-    category: "Furniture",
+    category: "Beds",
     image: BLACK_MODERN_BED,
     placementType: "floor",
     dimensions: { w: 1.6, d: 2.1, h: 0.5 },
@@ -733,7 +733,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "light_modern_bed",
     name: "Light Modern Bed",
-    category: "Furniture",
+    category: "Beds",
     image: LIGHT_MODERN_BED,
     placementType: "floor",
     dimensions: { w: 1.6, d: 2.1, h: 0.5 },
@@ -749,7 +749,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "wooden_door",
     name: "Wooden Door",
-    category: "Architectural",
+    category: "Openings",
     image: WOODEN_DOOR,
     placementType: "opening",
     dimensions: { w: 0.9, d: 0.005, h: 2 },
@@ -765,7 +765,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "wooden_glass_door",
     name: "Wooden Glass Door",
-    category: "Architectural",
+    category: "Openings",
     image: WOODEN_GLASS_DOOR,
     placementType: "opening",
     dimensions: { w: 0.9, d: 0.005, h: 2 },
@@ -781,7 +781,7 @@ export const SAMPLE_ASSETS: Asset[] = [
   {
     id: "hanging_tv",
     name: "Hanging TV",
-    category: "Furniture",
+    category: "Decor",
     image: HANGING_TV,
     placementType: "wall",
     dimensions: { w: 1.7, d: 0.05, h: 0.95 },

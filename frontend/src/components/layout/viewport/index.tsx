@@ -9,6 +9,7 @@ import { SceneEnvironment } from "@/components/layout/viewport/3d/scene-environm
 import { SceneLights } from "@/components/layout/viewport/3d/scene-lights";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useBedroomStore } from "@/store/use-bedroom-store";
 import { useSceneStore } from "@/store/use-scene-store";
 import type { ViewportProps } from "@/types";
 
@@ -18,6 +19,7 @@ const viewportToolBtnClass =
 function Viewport({ viewMode, setViewMode }: ViewportProps) {
   const dragNodeId = useSceneStore((state) => state.dragNodeId);
   const softShadows = useSceneStore((state) => state.sceneSettings.softShadows);
+  const activeBedroomId = useBedroomStore((state) => state.activeBedroomId);
   const handleZoomIn = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: 1 }));
   const handleZoomOut = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: -1 }));
   const handleHome = () => window.dispatchEvent(new CustomEvent("camera-home"));
@@ -79,7 +81,18 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
           </span>
         </div>
       )}
-      {viewMode === "3d" ? (
+      {!activeBedroomId ? (
+        <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
+          <div className="max-w-sm">
+            <h2 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+              No bedroom layout selected
+            </h2>
+            <p className="mt-2 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+              Create a layout with New Bedroom in Bedroom Layouts to start from an empty room.
+            </p>
+          </div>
+        </div>
+      ) : viewMode === "3d" ? (
         <div className="absolute inset-0">
           <Canvas shadows={softShadows}>
             <CameraRig />

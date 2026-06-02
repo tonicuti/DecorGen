@@ -31,6 +31,30 @@ export interface Bedroom {
   updatedAt: string;
   thumbnail: string;
   active?: boolean;
+  layout?: BedroomLayout;
+}
+
+export interface BedroomAssetMetadata {
+  id: string;
+  name: string;
+  position: [number, number, number];
+  rotation: [number, number, number];
+  glbUrl?: string;
+}
+
+export interface BedroomLayout {
+  assets: BedroomAssetMetadata[];
+  tree: SceneNode[];
+  roomDimensions: {
+    width: number;
+    length: number;
+    height: number;
+    thickness: number;
+  };
+  roomMaterials: {
+    wallColor: string;
+    floorColor: string;
+  };
 }
 
 // ==========================================
@@ -57,6 +81,24 @@ export interface Asset {
   defaultMaterials?: Record<string, string>;
   swingDirection?: "left" | "right" | "both" | "none";
   defaultElevation?: number;
+}
+
+export interface RoomTemplate {
+  id: string;
+  name: string;
+  category: string;
+  glbUrl: string;
+  description?: string;
+  aliases?: string[];
+  tags?: string[];
+  style?: string;
+  roomType?: string;
+  mood?: string[];
+  features?: string[];
+  materials?: string[];
+  placements?: string[];
+  defaultScale?: [number, number, number];
+  dimensions?: { w: number; d: number; h: number };
 }
 
 // ==========================================

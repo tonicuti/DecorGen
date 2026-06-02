@@ -9,7 +9,7 @@ import {
   Trash2,
 } from "lucide-react";
 import * as React from "react";
-import { DEFAULT_BEDROOM_SVG, SAMPLE_BEDROOMS } from "@/api/mock-data";
+import { INITIAL_TREE } from "@/api/mock-data";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,11 +28,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useBedroomStore } from "@/store/use-bedroom-store";
+import { useSceneStore } from "@/store/use-scene-store";
 import type { Bedroom } from "@/types";
+
+const DEFAULT_ROOM_DIMENSIONS = {
+  width: 4.0,
+  length: 3.5,
+  height: 2.8,
+  thickness: 15,
+};
+
+const DEFAULT_ROOM_MATERIALS = {
+  wallColor: "#f8fafc",
+  floorColor: "#d97706",
+};
 
 function BedroomPanel() {
   const [search, setSearch] = React.useState("");
-  const [bedrooms, setBedrooms] = React.useState<Bedroom[]>(SAMPLE_BEDROOMS);
   const [bedroomToDelete, setBedroomToDelete] = React.useState<Bedroom | null>(null);
   const [lastBedroomToDelete, setLastBedroomToDelete] = React.useState<Bedroom | null>(null);
   const [isAiSearch, setIsAiSearch] = React.useState(false);
@@ -44,6 +57,12 @@ function BedroomPanel() {
   const searchInputRef = React.useRef<HTMLInputElement | null>(null);
   const aiSearchRef = React.useRef<HTMLTextAreaElement | null>(null);
   const isFirstRender = React.useRef(true);
+  const bedrooms = useBedroomStore((state) => state.bedrooms);
+  const createBedroom = useBedroomStore((state) => state.createBedroom);
+  const openBedroom = useBedroomStore((state) => state.openBedroom);
+  const renameBedroom = useBedroomStore((state) => state.renameBedroom);
+  const deleteBedroom = useBedroomStore((state) => state.deleteBedroom);
+  const loadBedroomLayout = useSceneStore((state) => state.loadBedroomLayout);
 
   React.useEffect(() => {
     if (isFirstRender.current) {
@@ -74,17 +93,15 @@ function BedroomPanel() {
     const trimmed = newBedroomName.trim();
     if (!trimmed) return;
 
-    const newBed: Bedroom = {
-      id: `proj-${Date.now()}`,
-      name: trimmed,
-      updatedAt: "Just now",
-      thumbnail: DEFAULT_BEDROOM_SVG,
-      active: true,
+    const layout = {
+      assets: [],
+      tree: structuredClone(INITIAL_TREE),
+      roomDimensions: { ...DEFAULT_ROOM_DIMENSIONS },
+      roomMaterials: { ...DEFAULT_ROOM_MATERIALS },
     };
 
-    setBedrooms((prev) =>
-      [newBed, ...prev].map((p) => (p.id === newBed.id ? p : { ...p, active: false }))
-    );
+    createBedroom(trimmed, layout);
+    loadBedroomLayout(layout);
 
     setIsCreateOpen(false);
     setNewBedroomName("");
@@ -93,14 +110,15 @@ function BedroomPanel() {
   const confirmRenameBedroom = () => {
     const trimmed = renameValue.trim();
     if (bedroomToRename && trimmed) {
-      setBedrooms((prev) =>
-        prev.map((p) =>
-          p.id === bedroomToRename.id ? { ...p, name: trimmed, updatedAt: "Just now" } : p
-        )
-      );
+      renameBedroom(bedroomToRename.id, trimmed);
       setIsRenameOpen(false);
       setBedroomToRename(null);
     }
+  };
+
+  const handleOpenBedroom = (bedroom: Bedroom) => {
+    const layout = openBedroom(bedroom.id);
+    if (layout) loadBedroomLayout(layout);
   };
 
   const filteredBedrooms = bedrooms.filter((bed) =>
@@ -202,7 +220,7 @@ function BedroomPanel() {
             </div>
           </div>
           <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-semibold text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
-            Active
+            {activeBedroom ? "Active" : "Empty"}
           </span>
         </div>
       </div>
@@ -232,9 +250,7 @@ function BedroomPanel() {
                   <Button
                     size="sm"
                     className="h-8 gap-1.5 rounded-lg bg-indigo-600 px-3 text-xs font-medium text-white shadow-lg hover:bg-indigo-500 active:scale-95"
-                    onClick={() => {
-                      setBedrooms((prev) => prev.map((p) => ({ ...p, active: p.id === bed.id })));
-                    }}
+                    onClick={() => handleOpenBedroom(bed)}
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
                     <span>Open Bedroom</span>
@@ -324,7 +340,7 @@ function BedroomPanel() {
               className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500"
               onClick={() => {
                 if (bedroomToDelete) {
-                  setBedrooms(bedrooms.filter((p) => p.id !== bedroomToDelete.id));
+                  deleteBedroom(bedroomToDelete.id);
                   setBedroomToDelete(null);
                 }
               }}

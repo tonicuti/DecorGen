@@ -1,0 +1,104 @@
+{
+  "modern_design_room": {
+    "label": "Modern Design Room",
+    "category": "room_template",
+    "room_type": "living_room",
+    "style": "modern",
+    "description": "A clean modern room template with contemporary proportions, simple geometry, bright open feeling, and a polished minimal interior suitable for sleek living room scenes.",
+    "aliases": [
+      "modern room",
+      "modern design room",
+      "contemporary room",
+      "minimal room",
+      "phòng hiện đại",
+      "phong cách hiện đại",
+      "căn phòng hiện đại",
+      "phòng tối giản"
+    ],
+    "tags": [
+      "modern",
+      "contemporary",
+      "minimal",
+      "clean",
+      "bright",
+      "sleek",
+      "open",
+      "living room"
+    ],
+    "mood": [
+      "bright",
+      "clean",
+      "polished",
+      "spacious"
+    ],
+    "features": [
+      "modern interior",
+      "simple layout",
+      "clean lines",
+      "open room"
+    ],
+    "materials": [
+      "neutral",
+      "plaster",
+      "wood"
+    ],
+    "placements": [
+      "floor",
+      "wall",
+      "center"
+    ],
+    "dimensions": { "w": 4.0, "d": 3.5, "h": 2.8 },
+    "default_scale": [1.0, 1.0, 1.0]
+  },
+  "retro_small_room": {
+    "label": "Retro Small Room",
+    "category": "room_template",
+    "room_type": "small_room",
+    "style": "retro",
+    "description": "A compact retro room template with a warmer vintage character, cozy small-room layout, nostalgic styling, and an intimate interior suited for classic or playful scenes.",
+    "aliases": [
+      "retro room",
+      "small retro room",
+      "vintage room",
+      "cozy small room",
+      "phòng retro",
+      "phòng nhỏ retro",
+      "căn phòng nhỏ",
+      "phòng cổ điển"
+    ],
+    "tags": [
+      "retro",
+      "vintage",
+      "small",
+      "compact",
+      "cozy",
+      "warm",
+      "nostalgic",
+      "classic"
+    ],
+    "mood": [
+      "cozy",
+      "warm",
+      "nostalgic",
+      "intimate"
+    ],
+    "features": [
+      "small room",
+      "compact layout",
+      "retro interior",
+      "vintage atmosphere"
+    ],
+    "materials": [
+      "wood",
+      "warm tones",
+      "fabric"
+    ],
+    "placements": [
+      "floor",
+      "wall",
+      "center"
+    ],
+    "dimensions": { "w": 4.0, "d": 3.5, "h": 2.8 },
+    "default_scale": [1.0, 1.0, 1.0]
+  }
+}

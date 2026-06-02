@@ -503,6 +503,20 @@ const sceneStoreCreator: StateCreator<SceneState> = (set) => ({
         thickness: 15,
       },
     })),
+
+  loadBedroomLayout: (layout) =>
+    set(() => ({
+      tree: structuredClone(layout.tree),
+      roomDimensions: { ...layout.roomDimensions },
+      roomMaterials: { ...layout.roomMaterials },
+      selectedIds: [],
+      dragNodeId: null,
+      dragPosition: null,
+      dragRotation: null,
+      isColliding: false,
+      collidingWithIds: [],
+      isAddingNode: false,
+    })),
 });
 
 function findNodeInTree(nodes: SceneNode[], id: string): SceneNode | null {

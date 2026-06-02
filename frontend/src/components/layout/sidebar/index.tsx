@@ -6,11 +6,12 @@ import { BlueprintPanel } from "@/components/layout/sidebar/blueprint-panel";
 import { InspectorPanel } from "@/components/layout/sidebar/inspector-panel";
 import { SceneSettingsPanel } from "@/components/layout/sidebar/scene-settings-panel";
 import { SceneTreePanel } from "@/components/layout/sidebar/scene-tree-panel";
+import { TemplatePanel } from "@/components/layout/sidebar/template-panel";
 import type { SidebarProps } from "@/types";
 
 function Sidebar({}: SidebarProps) {
   const [activeTab, setActiveTab] = React.useState<
-    "assets" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint"
+    "assets" | "templates" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint"
   >("bedrooms");
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
@@ -66,6 +67,7 @@ function Sidebar({}: SidebarProps) {
         }`}
       >
         {activeTab === "assets" && <AssetPanel />}
+        {activeTab === "templates" && <TemplatePanel />}
         {activeTab === "scene" && <SceneTreePanel />}
         <div
           className={

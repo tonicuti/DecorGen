@@ -25,8 +25,13 @@ function canLoadGlbUrl(url?: string): url is string {
   if (!url.toLowerCase().endsWith(".glb")) return false;
 
   // The mock data still points to /models/..., which is not served by this app.
-  // Backend search results point to /inputs/... or http://127.0.0.1:8000/inputs/....
-  return url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/inputs/");
+  // Backend search results point to served /inputs/... assets or /outputs/template/... rooms.
+  return (
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("/inputs/") ||
+    url.startsWith("/outputs/template/")
+  );
 }
 
 function isOpeningOnHiddenWall(

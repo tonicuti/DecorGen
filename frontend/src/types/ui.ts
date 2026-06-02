@@ -63,9 +63,9 @@ export interface SidebarToggleProps {
 }
 
 export interface ActivityBarProps {
-  activeTab: "assets" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint";
+  activeTab: "assets" | "templates" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint";
   setActiveTab: (
-    tab: "assets" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint"
+    tab: "assets" | "templates" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint"
   ) => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
