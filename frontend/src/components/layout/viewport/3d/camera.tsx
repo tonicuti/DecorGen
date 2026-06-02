@@ -3,6 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import { viewportCameraSync } from "@/lib/viewport-camera-sync";
 import { useSceneStore } from "@/store/use-scene-store";
 
 const FOV_MIN = 30;
@@ -78,7 +79,8 @@ function CameraRig() {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       setAnimatingHome(false);
-      const step = e.deltaY > 0 ? -2 : 2;
+      // Scroll up (deltaY < 0) → zoom in (lower FOV); scroll down → zoom out.
+      const step = e.deltaY < 0 ? -2 : 2;
       applyCameraFov(useSceneStore.getState().sceneSettings.cameraFov + step);
     };
 
@@ -104,6 +106,12 @@ function CameraRig() {
 
   useFrame(() => {
     if (!controlsRef.current || !cameraRef.current) return;
+
+    viewportCameraSync.position.copy(cameraRef.current.position);
+    viewportCameraSync.quaternion.copy(cameraRef.current.quaternion);
+    if (controlsRef.current) {
+      viewportCameraSync.target.copy(controlsRef.current.target);
+    }
 
     if (animatingHome) {
       const defaultPos = new THREE.Vector3(0, 4, 6);

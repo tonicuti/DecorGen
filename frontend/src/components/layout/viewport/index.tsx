@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { ArrowUp, Cuboid, Grid3X3, Home, Move, Rotate3D, ZoomIn, ZoomOut } from "lucide-react";
 import { Plan2D } from "@/components/layout/viewport/2d/plan-2d";
 import { CameraRig } from "@/components/layout/viewport/3d/camera";
+import { ViewportAxisGizmo } from "@/components/layout/viewport/3d/viewport-axis-gizmo";
 import { FloorGrid3D } from "@/components/layout/viewport/3d/floor-grid-3d";
 import { Room3D } from "@/components/layout/viewport/3d/room-3d";
 import { SceneEnvironment } from "@/components/layout/viewport/3d/scene-environment";
@@ -79,6 +80,7 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
       ) : (
         <Plan2D />
       )}
+      {viewMode === "3d" && <ViewportAxisGizmo />}
       <div className="animate-in fade-in slide-in-from-bottom-4 absolute right-6 bottom-6 z-20 flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white/90 p-1.5 shadow-sm backdrop-blur-md duration-300 dark:border-zinc-800/80 dark:bg-zinc-950/80">
         <Button
           type="button"
