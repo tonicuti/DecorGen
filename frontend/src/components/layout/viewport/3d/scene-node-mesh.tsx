@@ -414,7 +414,11 @@ function SceneNodeMesh({
           </Html>
         )}
       </mesh>
-      {glbUrl && <GlbModel url={glbUrl} dimensions={{ w, h, d }} />}
+      {glbUrl && (
+        <group rotation={node.assetId === "wooden_door" ? [0, Math.PI, 0] : [0, 0, 0]}>
+          <GlbModel url={glbUrl} dimensions={{ w, h, d }} />
+        </group>
+      )}
       {isSelected && isDoor && (
         <group
           position={[(-w / 2) * flipX, -h / 2 + 0.01, d / 2]}

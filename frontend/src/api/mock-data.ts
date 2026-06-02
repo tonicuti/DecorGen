@@ -58,6 +58,12 @@ export const WOODEN_TABLE_02 = "https://cdn.polyhaven.com/asset_img/primary/wood
 export const PARAMETRICWINDOW = "https://blendswap.com/blend_previews/17550/0/500"
 export const BACK_ROOM_DOOR = "https://blendswap.com/blend_previews/16948/0/500"
 export const WINDOW_BLINDS = "https://blendswap.com/blend_previews/19794/0/500"
+export const MODERN_WINDOW = "https://img-new.cgtrader.com/items/2482711/91f1d3dd0c/aluprof-mb-86ei-007-m-0264-3d-model-91f1d3dd0c.webp"
+export const MODERN_WINDOW_2 = "https://img-new.cgtrader.com/items/3437130/2ce76b357f/window-3d-model-2ce76b357f.webp"
+export const BLACK_MODERN_BED = "https://img-new.cgtrader.com/items/4167339/6c9170be12/upholstered-bed-3d-model-6c9170be12.webp"
+export const LIGHT_MODERN_BED = "https://img-new.cgtrader.com/items/5642621/68778bd2c3/quin-fabric-panel-bed-3d-model-68778bd2c3.webp"
+export const WOODEN_DOOR = "https://img-new.cgtrader.com/items/2643199/aae7948cf8/wooden-door-3d-model-aae7948cf8.webp"
+export const WOODEN_GLASS_DOOR = "https://img-new.cgtrader.com/items/5829279/45f96af5c1/modern-wood-door-3d-model-45f96af5c1.webp"
 
 // ============================================================================
 // Layout and Scene Tree Catalog
@@ -672,6 +678,104 @@ export const SAMPLE_ASSETS: Asset[] = [
     tags: ["architectural", "blinds", "modern"],
     materials: ["fabric", "metal"],
     placements: ["wall"],
+  },
+  {
+    id: "modern_window",
+    name: "Black Modern Window",
+    category: "Decor",
+    image: MODERN_WINDOW,
+    placementType: "wall",
+    dimensions: { w: 1.41, d: 0.00518, h: 0.894 },
+    defaultScale: [1, 1, 1],
+    glbUrl: "http://127.0.0.1:8000/inputs/modern_window.glb",
+    metadataCategory: "Architectural",
+    description:
+      "A modern black window wall decoration featuring realistic textures.",
+    aliases: ["modern window", "window", "cửa sổ xanh", "cửa sổ"],
+    tags: ["wall", "decor", "modern"],
+    materials: ["wood", "metal", "glass"],
+    placements: ["wall", "left_wall", "right_wall", "back_wall"],
+  },
+  {
+    id: "modern_window_2",
+    name: "Big Black Modern Window",
+    category: "Decor",
+    image: MODERN_WINDOW_2,
+    placementType: "wall",
+    dimensions: { w: 1.77, d: 0.005, h: 1.87 },
+    defaultScale: [1, 1, 1],
+    glbUrl: "http://127.0.0.1:8000/inputs/modern_window_2.glb",
+    metadataCategory: "Architectural",
+    description:
+      "A big modern black window wall decoration featuring realistic textures.",
+    aliases: ["modern window", "window", "big window", "cửa sổ lớn", "cửa sổ"],
+    tags: ["wall", "decor", "modern"],
+    materials: ["wood", "metal", "glass"],
+    placements: ["wall", "left_wall", "right_wall", "back_wall"],
+  },
+  {
+    id: "black_modern_bed",
+    name: "Black Modern Bed",
+    category: "Furniture",
+    image: BLACK_MODERN_BED,
+    placementType: "floor",
+    dimensions: { w: 1.6, d: 2.1, h: 0.5 },
+    defaultScale: [1, 1, 1],
+    glbUrl: "http://127.0.0.1:8000/inputs/black_modern_bed.glb",
+    metadataCategory: "bed",
+    description: "A black modern bed with a minimalist design, perfect for a contemporary bedroom.",
+    aliases: ["black bed", "modern bed", "bed", "giường đen", "giường hiện đại"],
+    tags: ["furniture", "bed", "modern", "minimalist"],
+    materials: ["wood", "leather", "cushion"],
+    placements: ["floor", "center", "against_wall"],
+  },
+  {
+    id: "light_modern_bed",
+    name: "Light Modern Bed",
+    category: "Furniture",
+    image: LIGHT_MODERN_BED,
+    placementType: "floor",
+    dimensions: { w: 1.6, d: 2.1, h: 0.5 },
+    defaultScale: [1, 1, 1],
+    glbUrl: "http://127.0.0.1:8000/inputs/light_modern_bed.glb",
+    metadataCategory: "bed",
+    description: "A light modern bed with a minimalist design, perfect for a contemporary bedroom.",
+    aliases: ["light bed", "modern bed", "bed", "giường hiện đại"],  
+    tags: ["furniture", "bed", "modern", "minimalist"],
+    materials: ["wood", "leather", "cushion"],
+    placements: ["floor", "center", "against_wall"],
+  },
+  {
+    id: "wooden_door",
+    name: "Wooden Door",
+    category: "Architectural",
+    image: WOODEN_DOOR,
+    placementType: "opening",
+    dimensions: { w: 0.9, d: 0.005, h: 2 },
+    defaultScale: [1, 1, 1],
+    glbUrl: "http://127.0.0.1:8000/inputs/wooden_door.glb",
+    metadataCategory: "door",
+    description: "A wooden door with a classic design, perfect for adding a natural touch to any room.",
+    aliases: ["wooden door", "door", "cửa gỗ", "cửa"],
+    tags: ["architectural", "door", "wood"],
+    materials: ["wood"],
+    placements: ["wall", "left_wall", "right_wall", "back_wall"],
+  },
+  {
+    id: "wooden_glass_door",
+    name: "Wooden Glass Door",
+    category: "Architectural",
+    image: WOODEN_GLASS_DOOR,
+    placementType: "opening",
+    dimensions: { w: 0.9, d: 0.005, h: 2 },
+    defaultScale: [1, 1, 1],
+    glbUrl: "http://127.0.0.1:8000/inputs/wooden_glass_door.glb",
+    metadataCategory: "door",
+    description: "A wooden glass door with a modern design, perfect for adding a natural touch to any room while allowing light to pass through.",
+    aliases: ["wooden glass door", "glass door", "cửa kính gỗ", "cửa kính"],
+    tags: ["architectural", "door", "glass", "modern"],
+    materials: ["wood", "glass"],
+    placements: ["wall", "left_wall", "right_wall", "back_wall"],
   }
 ];
 

@@ -977,5 +977,89 @@
       "d": 0.706,
       "h": 0.799
     }
+  },
+  "modern_window": {
+    "category": "window",
+    "description": "A modern black window wall decoration featuring realistic textures.",
+    "aliases": [
+      "window",
+      "modern window",
+      "cửa sổ",
+      "cửa sổ hiện đại"
+    ],
+    "tags": [
+      "wall", "decor", "modern"
+    ],
+    "materials": [
+      "glass",
+      "metal"
+    ],
+    "placements": [
+      "wall",
+      "left_wall",
+      "right_wall",
+      "back_wall"
+    ],
+    "dimensions": { "w": 1.41, "d": 0.00518, "h": 0.894 }
+  },
+  "modern_window_2": {
+    "category": "window",
+    "description": "A modern white window wall decoration featuring realistic textures.",
+    "aliases": [
+      "window",
+      "modern window",
+      "cửa sổ",
+      "cửa sổ hiện đại"
+    ],
+    "tags": [
+      "wall", "decor", "modern"
+    ],
+    "materials": [
+      "glass",
+      "metal"
+    ],
+    "placements": [
+      "wall",
+      "left_wall",
+      "right_wall",
+      "back_wall"
+    ],
+    "dimensions": { "w": 1.77, "d": 0.005, "h": 1.87 }
+  },
+  "black_modern_bed": {
+    "category": "bed",
+    "description": "A black modern bed with a minimalist design, perfect for a contemporary bedroom.",
+    "aliases": ["black bed", "modern bed", "bed", "giường đen", "giường hiện đại"],
+    "tags": ["furniture", "bed", "modern"],
+    "materials": ["wood", "leather"],
+    "placements": ["floor", "center", "against_wall"],
+    "dimensions": { "w": 1.6, "d": 2.1, "h": 0.5 }
+  },
+  "light_modern_bed": {
+    "category": "bed",
+    "description": "A light modern bed with a minimalist design, perfect for a contemporary bedroom.",
+    "aliases": ["light bed", "modern bed", "bed", "giường sáng màu", "giường hiện đại"],
+    "tags": ["furniture", "bed", "modern"],
+    "materials": ["wood", "leather"],
+    "placements": ["floor", "center", "against_wall"],
+    "dimensions": { "w": 1.6, "d": 2.1, "h": 0.5 }
+  },
+  "wooden_door": {
+    "category": "door",
+    "description": "A wooden door with a classic design, perfect for adding a natural touch to any room.",
+    "aliases": ["wooden door", "door", "cửa gỗ", "cửa ra vào"],
+    "tags": ["furniture", "door", "wooden"],
+    "materials": ["wood"],
+    "placements": ["wall", "left_wall", "right_wall", "back_wall"],
+    "dimensions": { "w": 0.9, "d": 0.005, "h": 2 }
+  },
+  "wooden_glass_door": {
+    "category": "door",
+    "description": "A wooden door with a glass panel, perfect for adding a natural touch to any room while allowing light to pass through.",
+    "aliases": ["wooden glass door", "door", "cửa gỗ kính", "cửa ra vào"],
+    "tags": ["furniture", "door", "wooden", "glass"],
+    "materials": ["wood", "glass"],
+    "placements": ["wall", "left_wall", "right_wall", "back_wall"],
+    "dimensions": { "w": 0.9, "d": 0.005, "h": 2 }  
   }
 }
