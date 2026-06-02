@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { exportPlan2DPng } from "@/lib/export-plan-2d";
-import { exportSceneGLB } from "@/lib/export-scene-glb";
+import { exportProjectGLB, exportSceneGLB, importProjectGLB } from "@/lib/export-scene-glb";
 import {
   redoSceneHistory,
   undoSceneHistory,
@@ -28,13 +28,28 @@ export function useEditorActions() {
       toast.error("Redo failed.");
     }
   }, []);
+
   const clearUserContent = useSceneStore((s) => s.clearUserContent);
   const setSceneSettings = useSceneStore((s) => s.setSceneSettings);
   const toggleGridSnapping = useWorkspaceStore((s) => s.toggleGridSnapping);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
-  const onSave = useCallback(() => {
-    toast.info("Save bedroom layout requires backend — coming soon.");
+  const onSave = useCallback(async () => {
+    try {
+      await exportProjectGLB();
+      toast.success("Project saved as GLB.");
+    } catch {
+      toast.error("Failed to save project GLB.");
+    }
+  }, []);
+
+  const onImportProject = useCallback(async (file: File) => {
+    try {
+      const metadata = await importProjectGLB(file);
+      toast.success(`Imported ${metadata.objects.length} project objects.`);
+    } catch {
+      toast.error("Failed to import project GLB.");
+    }
   }, []);
 
   const onDownload2D = useCallback(async () => {
@@ -148,6 +163,7 @@ export function useEditorActions() {
 
   return {
     onSave,
+    onImportProject,
     onDownload2D,
     onExport3D,
     onExport2D: onDownload2D,

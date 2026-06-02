@@ -10,6 +10,7 @@ import type { HeaderProps } from "@/types";
 function Header({
   setViewMode,
   onSave,
+  onImportProject,
   onDownload2D,
   onExport3D,
   onExport2D,
@@ -40,6 +41,7 @@ function Header({
       <div className="flex items-center gap-3">
         <ActionBar
           onSave={onSave}
+          onImportProject={onImportProject}
           onDownload2D={onDownload2D}
           onExport3D={onExport3D}
           onUndo={onUndo}

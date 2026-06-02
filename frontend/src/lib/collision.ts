@@ -226,7 +226,7 @@ export function resolveTabletopFloorSupport(
   dragNodeId: string,
   worldX: number,
   worldZ: number,
-  rotation: [number, number, number],
+  _rotation: [number, number, number],
   tree: SceneNode[]
 ): { centerY: number; floorNodeId: string | null } {
   const h = dragNode.dimensions?.h ?? 1;

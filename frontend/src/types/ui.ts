@@ -9,6 +9,7 @@ import type { SceneDimensions } from "@/types/store";
 
 export interface EditorActionsProps {
   onSave: () => void;
+  onImportProject: (file: File) => void;
   onDownload2D: () => void;
   onExport3D: () => void;
   onExport2D: () => void;
@@ -28,6 +29,7 @@ export interface HeaderProps extends EditorActionsProps {
 
 export interface ActionBarProps {
   onSave?: () => void;
+  onImportProject?: (file: File) => void;
   onDownload2D?: () => void;
   onExport3D?: () => void;
   onUndo?: () => void;
