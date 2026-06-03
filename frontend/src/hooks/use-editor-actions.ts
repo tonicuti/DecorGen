@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { exportPlan2DPng } from "@/lib/export-plan-2d";
-import { exportSceneGLB } from "@/lib/export-scene-glb";
+import { exportSceneGLB, importProjectGLB } from "@/lib/export-scene-glb";
+import { useBedroomStore } from "@/store/use-bedroom-store";
 import {
   redoSceneHistory,
   undoSceneHistory,
@@ -28,13 +29,41 @@ export function useEditorActions() {
       toast.error("Redo failed.");
     }
   }, []);
+
   const clearUserContent = useSceneStore((s) => s.clearUserContent);
   const setSceneSettings = useSceneStore((s) => s.setSceneSettings);
   const toggleGridSnapping = useWorkspaceStore((s) => s.toggleGridSnapping);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
-  const onSave = useCallback(() => {
-    toast.info("Save bedroom layout requires backend — coming soon.");
+  const onSave = useCallback(async () => {
+    try {
+      const { activeBedroomId, saveActiveBedroom } = useBedroomStore.getState();
+      if (!activeBedroomId) {
+        toast.error("Create or open a bedroom layout before saving.");
+        return;
+      }
+
+      const { tree, roomDimensions, roomMaterials } = useSceneStore.getState();
+      const savedBedroom = saveActiveBedroom({
+        tree,
+        roomDimensions,
+        roomMaterials,
+      });
+
+      const assetCount = savedBedroom?.layout?.assets.length ?? 0;
+      toast.success(`Saved ${assetCount} asset metadata item${assetCount === 1 ? "" : "s"}.`);
+    } catch {
+      toast.error("Failed to save bedroom layout.");
+    }
+  }, []);
+
+  const onImportProject = useCallback(async (file: File) => {
+    try {
+      const metadata = await importProjectGLB(file);
+      toast.success(`Imported ${metadata.objects.length} project objects.`);
+    } catch {
+      toast.error("Failed to import project GLB.");
+    }
   }, []);
 
   const onDownload2D = useCallback(async () => {
@@ -72,6 +101,15 @@ export function useEditorActions() {
         return;
       }
 
+      if (e.key === "Escape") {
+        const { dragNodeId, selectedIds, setSelectedIds } = useSceneStore.getState();
+        if (!dragNodeId && selectedIds.length > 0) {
+          e.preventDefault();
+          setSelectedIds([]);
+        }
+        return;
+      }
+
       if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
         e.preventDefault();
         if (canUndo) onUndo();
@@ -105,6 +143,30 @@ export function useEditorActions() {
         if (!e.ctrlKey && !e.metaKey) {
           e.preventDefault();
           toggleGridSnapping();
+          return;
+        }
+      }
+
+      if (!e.ctrlKey && !e.metaKey && !useSceneStore.getState().dragNodeId) {
+        if (e.key === "q" || e.key === "Q" || e.key === "[") {
+          e.preventDefault();
+          window.dispatchEvent(
+            new CustomEvent("request-rotation", { detail: { angle: -90 } })
+          );
+          return;
+        }
+        if (e.key === "e" || e.key === "E" || e.key === "]") {
+          e.preventDefault();
+          window.dispatchEvent(
+            new CustomEvent("request-rotation", { detail: { angle: 90 } })
+          );
+          return;
+        }
+        if (e.key === "f" || e.key === "F") {
+          e.preventDefault();
+          window.dispatchEvent(
+            new CustomEvent("request-rotation", { detail: { angle: 180 } })
+          );
         }
       }
     };
@@ -115,6 +177,7 @@ export function useEditorActions() {
 
   return {
     onSave,
+    onImportProject,
     onDownload2D,
     onExport3D,
     onExport2D: onDownload2D,

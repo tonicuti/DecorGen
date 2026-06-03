@@ -9,6 +9,7 @@ import type { SceneDimensions } from "@/types/store";
 
 export interface EditorActionsProps {
   onSave: () => void;
+  onImportProject: (file: File) => void;
   onDownload2D: () => void;
   onExport3D: () => void;
   onExport2D: () => void;
@@ -28,6 +29,7 @@ export interface HeaderProps extends EditorActionsProps {
 
 export interface ActionBarProps {
   onSave?: () => void;
+  onImportProject?: (file: File) => void;
   onDownload2D?: () => void;
   onExport3D?: () => void;
   onUndo?: () => void;
@@ -61,9 +63,9 @@ export interface SidebarToggleProps {
 }
 
 export interface ActivityBarProps {
-  activeTab: "assets" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint";
+  activeTab: "assets" | "templates" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint";
   setActiveTab: (
-    tab: "assets" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint"
+    tab: "assets" | "templates" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint"
   ) => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;

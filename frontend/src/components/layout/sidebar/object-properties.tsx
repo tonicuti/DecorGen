@@ -433,8 +433,23 @@ function ObjectProperties() {
   React.useEffect(() => {
     const handleRequestRotation = (e: Event) => {
       const customEvent = e as CustomEvent;
-      const angle = customEvent.detail.angle;
-      handleRotationChange((yaw + angle + 360) % 360);
+      const angle = customEvent.detail.angle as number;
+      const store = useSceneStore.getState();
+
+      if (store.dragNodeId) {
+        window.dispatchEvent(new CustomEvent("drag-rotate", { detail: { angle } }));
+        return;
+      }
+
+      if (!selectedNode || selectedNode.type !== "model") return;
+      if (selectedNode.placementType === "opening" || selectedNode.placementType === "wall") {
+        return;
+      }
+
+      const baseYaw = Math.round(
+        THREE.MathUtils.radToDeg(selectedNode.rotation?.[1] ?? 0)
+      );
+      handleRotationChange((baseYaw + angle + 360) % 360);
     };
 
     const handleRequestDelete = (e: Event) => {

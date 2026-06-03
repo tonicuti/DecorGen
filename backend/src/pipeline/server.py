@@ -14,11 +14,13 @@ from urllib.parse import unquote, urlparse
 from .asset_library import scan_asset_library
 from .generate_scene import generate_scene
 from .semantic_search import search_assets
+from .template_library import scan_template_library, search_templates
 
 
 ROOT = Path(__file__).resolve().parents[2]
 INPUTS_DIR = ROOT / "inputs"
 OUTPUTS_DIR = ROOT / "outputs"
+TEMPLATE_DIR = OUTPUTS_DIR / "template"
 FLOOR_PLAN_ANALYZER_PATH = ROOT / "src" / "2d_extract" / "floor_plan_analyzer.py"
 _FLOOR_PLAN_MODULE = None
 _FLOOR_PLAN_ANALYZER = None
@@ -89,6 +91,46 @@ OPENAPI_SPEC = {
                 "responses": {
                     "200": {
                         "description": "Ranked asset matches",
+                        "content": {"application/json": {"schema": {"type": "object"}}},
+                    }
+                },
+            }
+        },
+        "/api/templates": {
+            "get": {
+                "summary": "List available room template .glb files",
+                "responses": {
+                    "200": {
+                        "description": "Available room templates",
+                        "content": {"application/json": {"schema": {"type": "object"}}},
+                    }
+                },
+            }
+        },
+        "/api/templates/search": {
+            "post": {
+                "summary": "Search room templates with hybrid semantic scoring",
+                "requestBody": {
+                    "required": True,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["prompt"],
+                                "properties": {
+                                    "prompt": {
+                                        "type": "string",
+                                        "example": "Mot can phong nho phong cach retro am cung",
+                                    },
+                                    "limit": {"type": "integer", "example": 3},
+                                },
+                            }
+                        }
+                    },
+                },
+                "responses": {
+                    "200": {
+                        "description": "Ranked template matches",
                         "content": {"application/json": {"schema": {"type": "object"}}},
                     }
                 },
@@ -286,10 +328,13 @@ class PipelineHandler(BaseHTTPRequestHandler):
                     "service": "prompt-to-glb-api",
                     "endpoints": {
                         "assets": "GET /api/assets",
+                        "templates": "GET /api/templates",
+                        "search_templates": "POST /api/templates/search",
                         "analyze_floor_plan": "POST /api/floor-plan/analyze",
                         "generate": "POST /api/scene",
                         "download_glb": "POST /api/glb",
                         "glb_file": "GET /inputs/<file>.glb",
+                        "template_file": "GET /outputs/template/<file>.glb",
                         "docs": "GET /docs",
                     },
                 }
@@ -309,8 +354,17 @@ class PipelineHandler(BaseHTTPRequestHandler):
             self.send_json({"assets": scan.assets, "unsupported": scan.unsupported})
             return
 
+        if path == "/api/templates":
+            scan = scan_template_library(TEMPLATE_DIR)
+            self.send_json({"templates": scan.templates, "unsupported": scan.unsupported})
+            return
+
         if path.startswith("/inputs/"):
             self.serve_input_file(path.removeprefix("/inputs/"))
+            return
+
+        if path.startswith("/outputs/template/"):
+            self.serve_template_file(path.removeprefix("/outputs/template/"))
             return
 
         self.send_json({"error": "Not found"}, status=404)
@@ -321,7 +375,7 @@ class PipelineHandler(BaseHTTPRequestHandler):
             self.handle_floor_plan_analysis()
             return
 
-        if path not in {"/api/scene", "/api/glb", "/api/assets/search"}:
+        if path not in {"/api/scene", "/api/glb", "/api/assets/search", "/api/templates/search"}:
             self.send_json({"error": "Not found"}, status=404)
             return
 
@@ -356,6 +410,59 @@ class PipelineHandler(BaseHTTPRequestHandler):
                             "label": result.asset.get("label"),
                             "category": result.asset.get("category"),
                             "asset_url": result.asset.get("asset_url"),
+                            "description": result.asset.get("description"),
+                            "aliases": result.asset.get("aliases"),
+                            "tags": result.asset.get("tags"),
+                            "materials": result.asset.get("materials"),
+                            "placements": result.asset.get("placements"),
+                            "dimensions": result.asset.get("dimensions"),
+                            "default_scale": result.asset.get("default_scale"),
+                            "final_score": result.final_score,
+                            "semantic_score": result.semantic_score,
+                            "category_score": result.category_score,
+                            "keyword_score": result.keyword_score,
+                            "placement_material_score": result.placement_material_score,
+                        }
+                        for result in matches
+                    ],
+                }
+            )
+            return
+
+        if path == "/api/templates/search":
+            scan = scan_template_library(TEMPLATE_DIR)
+            limit = int(body.get("limit", 5))
+            matches = search_templates(prompt, scan.templates, limit=max(1, min(limit, 20)))
+            parsed = matches[0].parsed_query if matches else None
+            self.send_json(
+                {
+                    "prompt": prompt,
+                    "parsed_query": {
+                        "search_text": parsed.search_text,
+                        "category": parsed.category,
+                        "keywords": parsed.keywords,
+                        "materials": parsed.materials,
+                        "placements": parsed.placements,
+                    }
+                    if parsed
+                    else None,
+                    "matches": [
+                        {
+                            "template_id": result.asset.get("template_id"),
+                            "label": result.asset.get("label"),
+                            "category": result.asset.get("category"),
+                            "template_url": result.asset.get("template_url"),
+                            "description": result.asset.get("description"),
+                            "aliases": result.asset.get("aliases"),
+                            "tags": result.asset.get("tags"),
+                            "style": result.asset.get("style"),
+                            "room_type": result.asset.get("room_type"),
+                            "mood": result.asset.get("mood"),
+                            "features": result.asset.get("features"),
+                            "materials": result.asset.get("materials"),
+                            "placements": result.asset.get("placements"),
+                            "dimensions": result.asset.get("dimensions"),
+                            "default_scale": result.asset.get("default_scale"),
                             "final_score": result.final_score,
                             "semantic_score": result.semantic_score,
                             "category_score": result.category_score,
@@ -532,6 +639,20 @@ class PipelineHandler(BaseHTTPRequestHandler):
         file_path = safe_join(INPUTS_DIR, request_path)
         if file_path is None or not file_path.is_file() or file_path.suffix.lower() != ".glb":
             self.send_json({"error": "GLB file not found"}, status=404)
+            return
+
+        content_type = mimetypes.guess_type(file_path.name)[0] or "model/gltf-binary"
+        data = file_path.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def serve_template_file(self, request_path: str) -> None:
+        file_path = safe_join(TEMPLATE_DIR, request_path)
+        if file_path is None or not file_path.is_file() or file_path.suffix.lower() != ".glb":
+            self.send_json({"error": "Template GLB file not found"}, status=404)
             return
 
         content_type = mimetypes.guess_type(file_path.name)[0] or "model/gltf-binary"

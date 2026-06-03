@@ -1,4 +1,12 @@
-import { Folder, Layers, Package, Settings, SlidersHorizontal, Wand2 } from "lucide-react";
+import {
+  Folder,
+  Layers,
+  LayoutTemplate,
+  Package,
+  Settings,
+  SlidersHorizontal,
+  Wand2,
+} from "lucide-react";
 import { SidebarToggle } from "@/components/layout/sidebar/sidebar-toggle";
 import { Button } from "@/components/ui/button";
 import type { ActivityBarProps } from "@/types";
@@ -7,6 +15,7 @@ function ActivityBar({ activeTab, setActiveTab, isCollapsed, onToggleCollapse }:
   const tabs = [
     { id: "bedrooms", label: "Saved Bedrooms", icon: Folder },
     { id: "assets", label: "3D Assets", icon: Package },
+    { id: "templates", label: "Room Templates", icon: LayoutTemplate },
     { id: "scene", label: "Scene Hierarchy", icon: Layers },
     { id: "inspector", label: "Inspector", icon: SlidersHorizontal },
     { id: "settings", label: "Scene Settings", icon: Settings },

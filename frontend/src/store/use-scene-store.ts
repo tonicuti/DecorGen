@@ -2,7 +2,9 @@ import { create } from "zustand";
 import { useStore } from "zustand";
 import { temporal } from "zundo";
 import type { StateCreator } from "zustand";
+import { toast } from "sonner";
 import { DEFAULT_SCENE_SETTINGS, INITIAL_TREE } from "@/api/mock-data";
+import { countInvalidPlacements } from "@/lib/collision";
 import {
   type SceneHistorySnapshot,
   sceneSnapshotEqual,
@@ -138,6 +140,71 @@ const insertNodeIntoTree = (
   });
 };
 
+const getWallClearance = (node: SceneNode) => {
+  if (node.placementType !== "floor") return 0;
+  if (node.wallClearance !== undefined) return Math.max(0, node.wallClearance);
+  if (node.assetId === "wooden_display_shelves_01") return 0.02;
+  return 0;
+};
+
+const clampFloorPositionToRoom = (
+  node: SceneNode,
+  position: [number, number, number],
+  rotation: [number, number, number] | undefined,
+  roomDimensions: SceneDimensions
+): [number, number, number] => {
+  if (node.placementType !== "floor") return position;
+
+  const w = node.dimensions?.w || 1;
+  const d = node.dimensions?.d || 1;
+  const yaw = rotation?.[1] ?? node.rotation?.[1] ?? 0;
+  const cos = Math.abs(Math.cos(yaw));
+  const sin = Math.abs(Math.sin(yaw));
+  const extentX = (w * cos + d * sin) / 2;
+  const extentZ = (w * sin + d * cos) / 2;
+  const clearance = getWallClearance(node);
+  const maxX = roomDimensions.width / 2 - extentX - clearance;
+  const maxZ = roomDimensions.length / 2 - extentZ - clearance;
+
+  if (maxX < 0 || maxZ < 0) {
+    return [0, position[1], 0];
+  }
+
+  return [
+    Math.max(-maxX, Math.min(maxX, position[0])),
+    position[1],
+    Math.max(-maxZ, Math.min(maxZ, position[2])),
+  ];
+};
+
+/** Pull floor furniture back inside the room after W/L shrink. */
+const clampTreePositionsToRoom = (
+  nodes: SceneNode[],
+  roomDimensions: SceneDimensions
+): SceneNode[] => {
+  return nodes.map((node) => {
+    let updated: SceneNode = { ...node };
+
+    if (node.children?.length) {
+      updated.children = clampTreePositionsToRoom(node.children, roomDimensions);
+    }
+
+    if (node.type === "model" && node.position && node.placementType === "floor") {
+      const h = node.dimensions?.h ?? 1;
+      const clamped = clampFloorPositionToRoom(
+        node,
+        node.position,
+        node.rotation,
+        roomDimensions
+      );
+      const floorY = Math.min(h / 2, Math.max(0.01, roomDimensions.height - 0.01));
+      updated.position = [clamped[0], floorY, clamped[2]];
+    }
+
+    return updated;
+  });
+};
+
 const isSystemNode = (node: SceneNode) => node.type === "camera" || node.type === "light";
 
 const isValidSnapshot = (snapshot: Partial<SceneHistorySnapshot> | undefined): snapshot is SceneHistorySnapshot =>
@@ -232,11 +299,25 @@ const sceneStoreCreator: StateCreator<SceneState> = (set) => ({
     set((state) => {
       const oldDims = state.roomDimensions;
       const newDims = { ...oldDims, ...dimensions };
-      const newTree = updateTreeOnRoomResize(state.tree, oldDims, newDims);
+      const resizedTree = updateTreeOnRoomResize(state.tree, oldDims, newDims);
+      const newTree = clampTreePositionsToRoom(resizedTree, newDims);
+      const invalidCount = countInvalidPlacements(newTree, newDims);
+
+      if (invalidCount > 0) {
+        queueMicrotask(() => {
+          toast.warning(
+            invalidCount === 1
+              ? "1 object still does not fit the smaller room (overlap or too large)."
+              : `${invalidCount} objects still do not fit the smaller room (overlap or too large).`
+          );
+        });
+      }
 
       return {
         roomDimensions: newDims,
         tree: newTree,
+        collidingWithIds: [],
+        isColliding: false,
       };
     }),
 
@@ -323,10 +404,17 @@ const sceneStoreCreator: StateCreator<SceneState> = (set) => ({
       if (parentId !== undefined) {
         const { newTree: without, extractedNode } = removeNodeFromTree(state.tree, nodeId);
         if (extractedNode) {
+          const nextRotation = rotation ?? extractedNode.rotation;
+          const nextPosition = clampFloorPositionToRoom(
+            extractedNode,
+            position,
+            nextRotation,
+            state.roomDimensions
+          );
           const updatedNode = {
             ...extractedNode,
-            position,
-            rotation: rotation ?? extractedNode.rotation,
+            position: nextPosition,
+            rotation: nextRotation,
           };
           let targetParentId = parentId;
           if (!targetParentId) {
@@ -336,8 +424,12 @@ const sceneStoreCreator: StateCreator<SceneState> = (set) => ({
           newTree = insertNodeIntoTree(without, updatedNode, targetParentId);
         }
       } else {
+        const node = findNodeInTree(state.tree, nodeId);
+        const nextPosition = node
+          ? clampFloorPositionToRoom(node, position, rotation, state.roomDimensions)
+          : position;
         newTree = updateNodeInTree(state.tree, nodeId, {
-          position,
+          position: nextPosition,
           rotation: rotation ?? undefined,
         });
       }
@@ -410,6 +502,20 @@ const sceneStoreCreator: StateCreator<SceneState> = (set) => ({
         height: 2.8,
         thickness: 15,
       },
+    })),
+
+  loadBedroomLayout: (layout) =>
+    set(() => ({
+      tree: structuredClone(layout.tree),
+      roomDimensions: { ...layout.roomDimensions },
+      roomMaterials: { ...layout.roomMaterials },
+      selectedIds: [],
+      dragNodeId: null,
+      dragPosition: null,
+      dragRotation: null,
+      isColliding: false,
+      collidingWithIds: [],
+      isAddingNode: false,
     })),
 });
 

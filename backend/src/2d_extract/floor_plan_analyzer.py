@@ -350,13 +350,14 @@ class FloorPlanAnalyzer:
         room_axes: dict[str, Any],
     ) -> dict[str, float]:
         room_x, room_y, room_width, room_height = room["axis_bbox"]
-        room_bottom = room_y + room_height
+        room_center_x = room_x + room_width / 2
+        room_center_y = room_y + room_height / 2
         x_scale, y_scale = self._room_coordinate_scale(room, room_axes)
         cx, cy = candidate["center"]
 
         return {
-            "x": round(float(cx - room_x) * x_scale, 2),
-            "y": round(float(room_bottom - cy) * y_scale, 2)
+            "x": round(float(cx - room_center_x) * x_scale, 2),
+            "y": round(float(room_center_y - cy) * y_scale, 2),
         }
 
     def _room_coordinate_scale(

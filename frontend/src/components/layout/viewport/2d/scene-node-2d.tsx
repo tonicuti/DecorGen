@@ -70,10 +70,8 @@ function SceneNode2D({ node, parentVisible = true, legendMap }: SceneNode2DProps
     const dy = Math.abs(e.clientY - lastPos.current.y);
 
     if (dx < 5 && dy < 5) {
-      if (!(e as any).hasSelectedNode) {
-        (e as any).hasSelectedNode = true;
-        setSelectedIds([node.id]);
-      }
+      e.stopPropagation();
+      setSelectedIds([node.id]);
     }
   };
 

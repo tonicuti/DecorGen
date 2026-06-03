@@ -1,9 +1,8 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-export function generateModelThumbnail(file: File): Promise<string> {
+function renderModelThumbnail(url: string, cleanupUrl?: () => void): Promise<string> {
   return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
     const loader = new GLTFLoader();
 
     loader.load(
@@ -55,7 +54,7 @@ export function generateModelThumbnail(file: File): Promise<string> {
 
           const dataUrl = renderer.domElement.toDataURL("image/png");
 
-          URL.revokeObjectURL(url);
+          cleanupUrl?.();
           model.traverse((child) => {
             if ((child as THREE.Mesh).isMesh) {
               const mesh = child as THREE.Mesh;
@@ -71,15 +70,24 @@ export function generateModelThumbnail(file: File): Promise<string> {
 
           resolve(dataUrl);
         } catch (err) {
-          URL.revokeObjectURL(url);
+          cleanupUrl?.();
           reject(err);
         }
       },
       undefined,
       (error) => {
-        URL.revokeObjectURL(url);
+        cleanupUrl?.();
         reject(error);
       }
     );
   });
+}
+
+export function generateModelThumbnail(file: File): Promise<string> {
+  const url = URL.createObjectURL(file);
+  return renderModelThumbnail(url, () => URL.revokeObjectURL(url));
+}
+
+export function generateModelThumbnailFromUrl(url: string): Promise<string> {
+  return renderModelThumbnail(url);
 }

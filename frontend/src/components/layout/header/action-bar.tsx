@@ -1,4 +1,5 @@
-import { Box, Download, FileImage, Redo2, Save, Undo2 } from "lucide-react";
+import { useRef } from "react";
+import { Box, Download, FileImage, Redo2, Save, Undo2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,6 +11,7 @@ import type { ActionBarProps } from "@/types";
 
 function ActionBar({
   onSave,
+  onImportProject,
   onDownload2D,
   onExport3D,
   onUndo,
@@ -17,16 +19,38 @@ function ActionBar({
   canUndo = false,
   canRedo = false,
 }: ActionBarProps) {
+  const importInputRef = useRef<HTMLInputElement>(null);
+
   return (
     <div className="pointer-events-auto flex items-center gap-1">
+      <input
+        ref={importInputRef}
+        type="file"
+        accept=".glb,model/gltf-binary"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) onImportProject?.(file);
+          event.target.value = "";
+        }}
+      />
       <Button
         variant="ghost"
         size="sm"
         onClick={onSave}
         className="h-8 gap-1.5 px-3 text-zinc-600 transition-all hover:bg-zinc-100 hover:text-zinc-900 active:scale-95 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
       >
-        <Save className="h-4 w-4" />
+        <Save className="h-4 w-4 text-emerald-500" />
         <span className="hidden sm:inline">Save</span>
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => importInputRef.current?.click()}
+        className="h-8 gap-1.5 px-3 text-zinc-600 transition-all hover:bg-zinc-100 hover:text-zinc-900 active:scale-95 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+      >
+        <Upload className="h-4 w-4 text-emerald-500" />
+        <span className="hidden sm:inline">Import Project</span>
       </Button>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
