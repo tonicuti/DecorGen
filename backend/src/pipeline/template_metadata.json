@@ -48,7 +48,8 @@
       "center"
     ],
     "dimensions": { "w": 4.0, "d": 3.5, "h": 2.8 },
-    "default_scale": [1.0, 1.0, 1.0]
+    "default_scale": [1.0, 1.0, 1.0],
+    "object": ["Gothic bed", "Retro Sofa", "Oil Painting", "Window blind", "Wooden Table", "Retro Chair", "Wooden Door"]
   },
   "retro_small_room": {
     "label": "Retro Small Room",
@@ -99,6 +100,7 @@
       "center"
     ],
     "dimensions": { "w": 4.0, "d": 3.5, "h": 2.8 },
-    "default_scale": [1.0, 1.0, 1.0]
+    "default_scale": [1.0, 1.0, 1.0],
+    "object": ["Big Steel Frame Shelves", "Modern Bed", "Black Glass Window", "Mirror", "Working Desk"]
   }
 }
