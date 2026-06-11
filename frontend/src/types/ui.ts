@@ -42,6 +42,7 @@ export interface CommandBarProps {
   onSwitchTo2D?: () => void;
   onSwitchTo3D?: () => void;
   onSave?: () => void;
+  onImportProject?: (file: File) => void;
   onExport2D?: () => void;
   onExport3D?: () => void;
   onClearScene?: () => void;
