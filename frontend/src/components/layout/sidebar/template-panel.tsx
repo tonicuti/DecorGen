@@ -5,43 +5,27 @@ import { searchRoomTemplates } from "@/api/templates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { importProjectGLBFromUrl } from "@/lib/export-scene-glb";
-import { generateModelThumbnailFromUrl } from "@/lib/thumbnail-generator";
 import type { RoomTemplate } from "@/types";
 
 function TemplatePreview({ template }: { template: RoomTemplate }) {
-  const [thumbnail, setThumbnail] = React.useState<string | null>(null);
   const [failed, setFailed] = React.useState(false);
 
   React.useEffect(() => {
-    let cancelled = false;
-    setThumbnail(null);
     setFailed(false);
-
-    generateModelThumbnailFromUrl(template.glbUrl)
-      .then((image) => {
-        if (!cancelled) setThumbnail(image);
-      })
-      .catch((err) => {
-        console.error("Failed to render template thumbnail:", err);
-        if (!cancelled) setFailed(true);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [template.glbUrl]);
+  }, [template.previewUrl]);
 
   return (
     <div className="relative aspect-4/3 w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
-      {thumbnail ? (
-        <img src={thumbnail} alt={template.name} className="h-full w-full object-cover" />
+      {template.previewUrl && !failed ? (
+        <img
+          src={template.previewUrl}
+          alt={template.name}
+          className="h-full w-full object-cover"
+          onError={() => setFailed(true)}
+        />
       ) : (
         <div className="flex h-full w-full items-center justify-center text-zinc-400 dark:text-zinc-500">
-          {failed ? (
-            <ImageIcon className="h-6 w-6" />
-          ) : (
-            <span className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-          )}
+          <ImageIcon className="h-6 w-6" />
         </div>
       )}
     </div>
