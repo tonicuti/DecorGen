@@ -6,6 +6,7 @@ import {
   Grid3X3,
   Home,
   Move,
+  PawPrint,
   Rotate3D,
   X,
   ZoomIn,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { Plan2D } from "@/components/layout/viewport/2d/plan-2d";
 import { CameraRig } from "@/components/layout/viewport/3d/camera";
+import { Pet3D } from "@/components/layout/viewport/3d/pet-3d";
 import { WalkthroughControls } from "@/components/layout/viewport/3d/walkthrough-controls";
 import { ViewportAxisGizmo } from "@/components/layout/viewport/3d/viewport-axis-gizmo";
 import { FloorGrid3D } from "@/components/layout/viewport/3d/floor-grid-3d";
@@ -33,6 +35,8 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
   const softShadows = useSceneStore((state) => state.sceneSettings.softShadows);
   const walkthroughMode = useSceneStore((state) => state.walkthroughMode);
   const setWalkthroughMode = useSceneStore((state) => state.setWalkthroughMode);
+  const petMode = useSceneStore((state) => state.petMode);
+  const setPetMode = useSceneStore((state) => state.setPetMode);
   const activeBedroomId = useBedroomStore((state) => state.activeBedroomId);
   const handleZoomIn = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: 1 }));
   const handleZoomOut = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: -1 }));
@@ -116,6 +120,7 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
             <SceneEnvironment />
             <FloorGrid3D />
             <Room3D />
+            {petMode && <Pet3D />}
           </Canvas>
         </div>
       ) : (
@@ -163,6 +168,20 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
               onClick={() => setWalkthroughMode(true)}
             >
               <Footprints className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className={
+                petMode
+                  ? "h-8 w-8 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 hover:text-amber-800 dark:bg-amber-500/20 dark:text-amber-400 dark:hover:bg-amber-500/30 dark:hover:text-amber-300"
+                  : viewportToolBtnClass
+              }
+              title={petMode ? "Dismiss Pet" : "Summon Pet"}
+              onClick={() => setPetMode(!petMode)}
+            >
+              <PawPrint className="h-4 w-4" />
             </Button>
             <div className="mx-1 h-4 w-px bg-zinc-200 dark:bg-zinc-800" />
           </>

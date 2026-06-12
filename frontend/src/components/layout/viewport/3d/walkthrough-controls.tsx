@@ -3,7 +3,11 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { PointerLockControls as PointerLockControlsImpl } from "three-stdlib";
-import { getFlattenedNodesWithTransforms, getNodeWorldBounds } from "@/lib/collision";
+import {
+  type ObstacleBox,
+  collectObstacleBoxes,
+  resolveCircleObstacleCollisions,
+} from "@/lib/circle-collision";
 import { viewportCameraSync } from "@/lib/viewport-camera-sync";
 import { useSceneStore } from "@/store/use-scene-store";
 
@@ -19,54 +23,6 @@ const GRAVITY = 9.81; // m/s²
 const JUMP_VELOCITY = 3.1; // m/s → peak ~0.5m
 /** Minimum head clearance to the ceiling at the jump apex. */
 const CEILING_CLEARANCE = 0.15;
-
-interface ObstacleBox {
-  minX: number;
-  maxX: number;
-  minZ: number;
-  maxZ: number;
-}
-
-/** Circle-vs-AABB resolution on the XZ plane; slides along box edges. */
-function resolveObstacleCollisions(px: number, pz: number, obstacles: ObstacleBox[]) {
-  for (let pass = 0; pass < 3; pass++) {
-    let collided = false;
-
-    for (const box of obstacles) {
-      const closestX = Math.max(box.minX, Math.min(box.maxX, px));
-      const closestZ = Math.max(box.minZ, Math.min(box.maxZ, pz));
-      const dx = px - closestX;
-      const dz = pz - closestZ;
-      const distSq = dx * dx + dz * dz;
-
-      if (distSq >= PLAYER_RADIUS * PLAYER_RADIUS) continue;
-      collided = true;
-
-      if (distSq > 1e-8) {
-        const dist = Math.sqrt(distSq);
-        const push = (PLAYER_RADIUS - dist) / dist;
-        px += dx * push;
-        pz += dz * push;
-      } else {
-        // Center inside the box: exit through the nearest face.
-        const toLeft = px - (box.minX - PLAYER_RADIUS);
-        const toRight = box.maxX + PLAYER_RADIUS - px;
-        const toBack = pz - (box.minZ - PLAYER_RADIUS);
-        const toFront = box.maxZ + PLAYER_RADIUS - pz;
-        const min = Math.min(toLeft, toRight, toBack, toFront);
-
-        if (min === toLeft) px = box.minX - PLAYER_RADIUS;
-        else if (min === toRight) px = box.maxX + PLAYER_RADIUS;
-        else if (min === toBack) pz = box.minZ - PLAYER_RADIUS;
-        else pz = box.maxZ + PLAYER_RADIUS;
-      }
-    }
-
-    if (!collided) break;
-  }
-
-  return { x: px, z: pz };
-}
 
 const MOVE_KEYS = new Set([
   "KeyW",
@@ -108,20 +64,7 @@ function WalkthroughControls() {
   // obstacle boxes only need to be computed once on entry.
   const obstacles = useMemo<ObstacleBox[]>(() => {
     const { tree } = useSceneStore.getState();
-    const boxes: ObstacleBox[] = [];
-
-    for (const { node, worldMatrix } of getFlattenedNodesWithTransforms(tree)) {
-      if (node.type !== "model" || node.visible === false) continue;
-      if (node.placementType === "ceiling" || node.placementType === "opening") continue;
-
-      const box = getNodeWorldBounds(node, worldMatrix);
-      const blocksBody = box.max.y >= STEP_OVER_HEIGHT && box.min.y <= spawn.eyeY;
-      if (!blocksBody) continue;
-
-      boxes.push({ minX: box.min.x, maxX: box.max.x, minZ: box.min.z, maxZ: box.max.z });
-    }
-
-    return boxes;
+    return collectObstacleBoxes(tree, STEP_OVER_HEIGHT, spawn.eyeY);
   }, [spawn]);
 
   useEffect(() => {
@@ -210,7 +153,7 @@ function WalkthroughControls() {
       nextZ += move.z;
     }
 
-    const resolved = resolveObstacleCollisions(nextX, nextZ, obstacles);
+    const resolved = resolveCircleObstacleCollisions(nextX, nextZ, PLAYER_RADIUS, obstacles);
 
     const { width, length, height } = useSceneStore.getState().roomDimensions;
     const maxX = Math.max(0, width / 2 - WALL_MARGIN);

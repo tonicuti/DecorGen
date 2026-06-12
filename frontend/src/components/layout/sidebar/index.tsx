@@ -7,6 +7,7 @@ import { InspectorPanel } from "@/components/layout/sidebar/inspector-panel";
 import { SceneSettingsPanel } from "@/components/layout/sidebar/scene-settings-panel";
 import { SceneTreePanel } from "@/components/layout/sidebar/scene-tree-panel";
 import { TemplatePanel } from "@/components/layout/sidebar/template-panel";
+import { useSceneStore } from "@/store/use-scene-store";
 import type { SidebarProps } from "@/types";
 
 function Sidebar({}: SidebarProps) {
@@ -14,6 +15,7 @@ function Sidebar({}: SidebarProps) {
     "assets" | "templates" | "scene" | "bedrooms" | "inspector" | "settings" | "blueprint"
   >("bedrooms");
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const walkthroughMode = useSceneStore((state) => state.walkthroughMode);
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -51,9 +53,9 @@ function Sidebar({}: SidebarProps) {
       onScroll={(e) => {
         e.currentTarget.scrollLeft = 0;
       }}
-      className={`pointer-events-auto absolute top-14 bottom-0 left-0 z-20 flex h-[calc(100vh-3.5rem)] overflow-hidden border-r border-zinc-200 bg-white/90 backdrop-blur-md transition-[width,background-color,border-color] duration-500 ease-out dark:border-zinc-800/60 dark:bg-zinc-950/80 ${
+      className={`absolute top-14 bottom-0 left-0 z-20 flex h-[calc(100vh-3.5rem)] overflow-hidden border-r border-zinc-200 bg-white/90 backdrop-blur-md transition-[width,background-color,border-color,translate] duration-500 ease-out dark:border-zinc-800/60 dark:bg-zinc-950/80 ${
         isCollapsed ? "w-16" : "w-100"
-      }`}
+      } ${walkthroughMode ? "pointer-events-none -translate-x-full" : "pointer-events-auto translate-x-0"}`}
     >
       <ActivityBar
         activeTab={activeTab}
