@@ -1,42 +1,5 @@
 <div align="center">
-  <svg width="120" height="120" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="44" height="44" rx="12" fill="url(#bg-grad)" />
-    <rect x="1.5" y="1.5" width="41" height="41" rx="10.5" fill="#09090b" />
-    <g transform="translate(10, 10) scale(1)">
-      <path d="M 2 7 V 17 L 12 12 V 2 Z" fill="#818cf8" fill-opacity="0.1" stroke="none" />
-      <path d="M 12 2 V 12 L 22 17 V 7 Z" fill="#818cf8" fill-opacity="0.15" stroke="none" />
-      <path d="M 2 17 L 12 22 L 22 17 L 12 12 Z" fill="#818cf8" fill-opacity="0.2" stroke="none" />
-      <path
-        d="M 12 22 V 12 M 2 17 L 12 12 L 22 17"
-        stroke="#818cf8"
-        stroke-opacity="0.3"
-        stroke-width="1"
-      />
-      <path
-        d="M 2 7 V 17 L 12 22 L 22 17 V 7 L 12 2 Z"
-        stroke="#818cf8"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-      <path
-        d="M 12 6.5 Q 12 10 15.5 10 Q 12 10 12 13.5 Q 12 10 8.5 10 Q 12 10 12 6.5 Z"
-        fill="url(#sparkle-grad)"
-        stroke="none"
-      />
-    </g>
-    <defs>
-      <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#6366f1" />
-        <stop offset="50%" stop-color="#a855f7" />
-        <stop offset="100%" stop-color="#ec4899" />
-      </linearGradient>
-      <linearGradient id="sparkle-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#ec4899" />
-        <stop offset="100%" stop-color="#f59e0b" />
-      </linearGradient>
-    </defs>
-  </svg>
+  <img src="./assets/logo.svg" width="120" height="120" alt="DecorGen Logo" />
   <h1>DecorGen: AI Interior Decorator</h1>
   <p>
     <b>An interactive, AI-assisted interior design platform.</b><br />
