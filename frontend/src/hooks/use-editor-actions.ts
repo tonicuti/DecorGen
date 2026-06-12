@@ -101,6 +101,11 @@ export function useEditorActions() {
         return;
       }
 
+      // WASD/S/G/Q/E/F belong to movement while walking in first-person mode.
+      if (useSceneStore.getState().walkthroughMode) {
+        return;
+      }
+
       if (e.key === "Escape") {
         const { dragNodeId, selectedIds, setSelectedIds } = useSceneStore.getState();
         if (!dragNodeId && selectedIds.length > 0) {

@@ -289,6 +289,7 @@ const sceneStoreCreator: StateCreator<SceneState> = (set) => ({
 
   tree: INITIAL_TREE,
   selectedIds: [],
+  walkthroughMode: false,
   dragNodeId: null,
   dragPosition: null,
   dragRotation: null,
@@ -344,6 +345,12 @@ const sceneStoreCreator: StateCreator<SceneState> = (set) => ({
   setSelectedIds: (ids) =>
     set((state) => ({
       selectedIds: typeof ids === "function" ? ids(state.selectedIds) : ids,
+    })),
+
+  setWalkthroughMode: (on) =>
+    set(() => ({
+      walkthroughMode: on,
+      ...(on ? { selectedIds: [] } : {}),
     })),
 
   updateNode: (id, updates) =>

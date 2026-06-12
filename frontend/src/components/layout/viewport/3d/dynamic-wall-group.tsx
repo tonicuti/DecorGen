@@ -2,6 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import * as THREE from "three";
 import { checkWallVisibility } from "@/components/layout/viewport/3d/camera";
+import { useSceneStore } from "@/store/use-scene-store";
 import type { WallGroupProps } from "@/types";
 
 function DynamicWallGroup({ position, args, color, normal, children }: WallGroupProps) {
@@ -12,7 +13,10 @@ function DynamicWallGroup({ position, args, color, normal, children }: WallGroup
   useFrame(() => {
     if (!groupRef.current || !meshRef.current) return;
 
-    const isVisible = checkWallVisibility(position, camera.position, normal);
+    // In walkthrough the camera is inside the room, so never hide walls.
+    const isVisible =
+      useSceneStore.getState().walkthroughMode ||
+      checkWallVisibility(position, camera.position, normal);
 
     groupRef.current.visible = isVisible;
     meshRef.current.visible = isVisible;

@@ -119,6 +119,23 @@ export const SAMPLE_ASSETS: Asset[] = [
     placements: ["floor", "against_wall", "corner"],
   },
   {
+    id: "bed-1",
+    name: "King Size Velvet Bed",
+    category: "Beds",
+    image: "",
+    premium: true,
+    placementType: "floor",
+    dimensions: { w: 2.0, d: 2.2, h: 1.0 },
+    defaultScale: [1.0, 1.0, 1.0],
+    glbUrl: "/models/furniture/king_bed.glb",
+    defaultElevation: 0,
+    defaultMaterials: {
+      body: "wood-walnut",
+      cushion: "fabric-velvet",
+      legs: "metal-gold",
+    },
+  },
+  {
     id: "books_1",
     name: "Books 1",
     category: "Storage",

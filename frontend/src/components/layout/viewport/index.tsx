@@ -1,7 +1,19 @@
 import { Canvas } from "@react-three/fiber";
-import { ArrowUp, Cuboid, Grid3X3, Home, Move, Rotate3D, ZoomIn, ZoomOut } from "lucide-react";
+import {
+  ArrowUp,
+  Cuboid,
+  Footprints,
+  Grid3X3,
+  Home,
+  Move,
+  Rotate3D,
+  X,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
 import { Plan2D } from "@/components/layout/viewport/2d/plan-2d";
 import { CameraRig } from "@/components/layout/viewport/3d/camera";
+import { WalkthroughControls } from "@/components/layout/viewport/3d/walkthrough-controls";
 import { ViewportAxisGizmo } from "@/components/layout/viewport/3d/viewport-axis-gizmo";
 import { FloorGrid3D } from "@/components/layout/viewport/3d/floor-grid-3d";
 import { Room3D } from "@/components/layout/viewport/3d/room-3d";
@@ -19,6 +31,8 @@ const viewportToolBtnClass =
 function Viewport({ viewMode, setViewMode }: ViewportProps) {
   const dragNodeId = useSceneStore((state) => state.dragNodeId);
   const softShadows = useSceneStore((state) => state.sceneSettings.softShadows);
+  const walkthroughMode = useSceneStore((state) => state.walkthroughMode);
+  const setWalkthroughMode = useSceneStore((state) => state.setWalkthroughMode);
   const activeBedroomId = useBedroomStore((state) => state.activeBedroomId);
   const handleZoomIn = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: 1 }));
   const handleZoomOut = () => window.dispatchEvent(new CustomEvent("camera-zoom", { detail: -1 }));
@@ -32,6 +46,7 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
           : "bg-zinc-50 dark:bg-zinc-900/50"
       }`}
     >
+      {!walkthroughMode && (
       <Tabs
         value={viewMode}
         onValueChange={(value) => setViewMode(value as "2d" | "3d")}
@@ -54,6 +69,7 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
           </TabsTrigger>
         </TabsList>
       </Tabs>
+      )}
       {!!dragNodeId && (
         <div
           role="status"
@@ -95,7 +111,7 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
       ) : viewMode === "3d" ? (
         <div className="absolute inset-0">
           <Canvas shadows={softShadows}>
-            <CameraRig />
+            {walkthroughMode ? <WalkthroughControls /> : <CameraRig />}
             <SceneLights />
             <SceneEnvironment />
             <FloorGrid3D />
@@ -105,8 +121,52 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
       ) : (
         <Plan2D />
       )}
-      {viewMode === "3d" && <ViewportAxisGizmo />}
+      {viewMode === "3d" && !walkthroughMode && <ViewportAxisGizmo />}
+      {walkthroughMode && (
+        <>
+          <div className="pointer-events-none absolute top-1/2 left-1/2 z-30 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/80 shadow-[0_0_4px_rgba(0,0,0,0.6)]" />
+          <div className="animate-in fade-in slide-in-from-bottom-4 absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full border border-zinc-700/60 bg-zinc-950/80 py-1.5 pr-1.5 pl-4 text-xs font-medium whitespace-nowrap text-zinc-200 shadow-lg backdrop-blur-sm duration-300">
+            <Footprints className="h-3.5 w-3.5 text-indigo-400" />
+            <span>
+              WASD move · Mouse look · Shift run · Space jump ·{" "}
+              <kbd className="mx-0.5 rounded border border-zinc-600 bg-zinc-900 px-1.5 py-0.5 font-sans text-[10px] font-semibold text-white">
+                Esc
+              </kbd>{" "}
+              exit
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="h-6 w-6 rounded-full text-zinc-400 hover:bg-zinc-800 hover:text-white"
+              title="Exit walkthrough"
+              onClick={(e) => {
+                e.stopPropagation();
+                setWalkthroughMode(false);
+              }}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </>
+      )}
+      {!walkthroughMode && (
       <div className="animate-in fade-in slide-in-from-bottom-4 absolute right-6 bottom-6 z-20 flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white/90 p-1.5 shadow-sm backdrop-blur-md duration-300 dark:border-zinc-800/80 dark:bg-zinc-950/80">
+        {viewMode === "3d" && !!activeBedroomId && (
+          <>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className={viewportToolBtnClass}
+              title="Walkthrough (first-person view)"
+              onClick={() => setWalkthroughMode(true)}
+            >
+              <Footprints className="h-4 w-4" />
+            </Button>
+            <div className="mx-1 h-4 w-px bg-zinc-200 dark:bg-zinc-800" />
+          </>
+        )}
         <Button
           type="button"
           variant="ghost"
@@ -149,6 +209,7 @@ function Viewport({ viewMode, setViewMode }: ViewportProps) {
           <Home className="h-4 w-4" />
         </Button>
       </div>
+      )}
     </main>
   );
 }

@@ -226,6 +226,7 @@ function SceneNodeMesh({
         userData={{ nodeId: node.id }}
         onClick={(e) => {
           if (!groupRef.current?.visible) return;
+          if (useSceneStore.getState().walkthroughMode) return;
           e.stopPropagation();
 
           const moved = pointerSessionRef.current?.moved ?? false;
@@ -238,6 +239,7 @@ function SceneNodeMesh({
         }}
         onPointerDown={(e) => {
           if (!groupRef.current?.visible) return;
+          if (useSceneStore.getState().walkthroughMode) return;
           e.stopPropagation();
           clearPointerSession();
 
