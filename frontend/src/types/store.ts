@@ -41,6 +41,10 @@ export interface SceneState {
   sceneSettings: SceneSettings;
   tree: SceneNode[];
   selectedIds: string[];
+  walkthroughMode: boolean;
+  setWalkthroughMode: (on: boolean) => void;
+  petMode: boolean;
+  setPetMode: (on: boolean) => void;
   setRoomDimensions: (dimensions: Partial<SceneDimensions>) => void;
   setRoomMaterials: (materials: Partial<SceneState["roomMaterials"]>) => void;
   setCameraState: (position: [number, number, number], target: [number, number, number]) => void;

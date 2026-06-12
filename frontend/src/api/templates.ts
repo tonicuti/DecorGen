@@ -7,6 +7,7 @@ type BackendTemplateMatch = {
   label: string;
   category?: string;
   template_url: string;
+  preview_url?: string;
   description?: string;
   aliases?: string[];
   tags?: string[];
@@ -36,6 +37,7 @@ function toRoomTemplate(item: BackendTemplateMatch): RoomTemplate {
     name: item.label,
     category: item.category || "room_template",
     glbUrl: toBackendUrl(item.template_url),
+    previewUrl: item.preview_url ? toBackendUrl(item.preview_url) : undefined,
     description: item.description,
     aliases: item.aliases,
     tags: item.tags,

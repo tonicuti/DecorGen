@@ -32,6 +32,7 @@ function Header({
         onSwitchTo2D={() => setViewMode("2d")}
         onSwitchTo3D={() => setViewMode("3d")}
         onSave={onSave}
+        onImportProject={onImportProject}
         onExport2D={onExport2D}
         onExport3D={onExport3D}
         onClearScene={onClearScene}

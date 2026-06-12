@@ -65,6 +65,11 @@ export function clampFloorPositionToRoom(
   ];
 };
 
+/** World AABB of a single model node from its declared dimensions. */
+export const getNodeWorldBounds = (node: SceneNode, worldMatrix: THREE.Matrix4) => {
+  return getBoundingBox(node, worldMatrix);
+};
+
 const getBoundingBox = (node: SceneNode, worldMatrix: THREE.Matrix4) => {
   const w = node.dimensions?.w || 1;
   const h = node.dimensions?.h || 1;
@@ -189,7 +194,7 @@ export function clampSubtreePlanarToRoom(
   return adjusted;
 };
 
-const getFlattenedNodesWithTransforms = (
+export const getFlattenedNodesWithTransforms = (
   nodes: SceneNode[],
   parentMatrix: THREE.Matrix4 = new THREE.Matrix4()
 ): NodeWithWorldMatrix[] => {

@@ -8,6 +8,8 @@ from typing import Any
 from .asset_library import SUPPORTED_EXTENSION, readable_label, slugify
 from .semantic_search import search_assets
 
+SUPPORTED_PREVIEW_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
+
 
 @dataclass(frozen=True)
 class TemplateScan:
@@ -86,6 +88,19 @@ def scan_template_library(template_dir: Path) -> TemplateScan:
                 template_id = slugify(file_path.stem)
                 metadata = metadata_by_template_id.get(template_id, {})
                 category = str(metadata.get("category") or "room_template")
+                preview_path = next(
+                    (
+                        file_path.with_suffix(extension)
+                        for extension in SUPPORTED_PREVIEW_EXTENSIONS
+                        if file_path.with_suffix(extension).is_file()
+                    ),
+                    None,
+                )
+                preview_url = (
+                    f"/outputs/template/{preview_path.relative_to(template_dir).as_posix()}"
+                    if preview_path
+                    else None
+                )
                 template = {
                     "template_id": template_id,
                     "asset_id": template_id,
@@ -93,6 +108,7 @@ def scan_template_library(template_dir: Path) -> TemplateScan:
                     "category": category,
                     "template_url": f"/outputs/template/{relative}",
                     "asset_url": f"/outputs/template/{relative}",
+                    "preview_url": preview_url,
                     "file_name": file_path.name,
                     "format": "glb",
                     "keywords": infer_template_keywords(file_path, category),

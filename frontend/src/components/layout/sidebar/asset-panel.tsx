@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import * as React from "react";
+import { toast } from "sonner";
 import { searchBedroomAssets } from "@/api/assets";
 import { CATEGORIES, DEFAULT_ASSET_SVG, SAMPLE_ASSETS } from "@/api/mock-data";
 import { Button } from "@/components/ui/button";
@@ -29,12 +30,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { getPlacementSpawnPose } from "@/lib/placement-defaults";
 import { generateModelThumbnail } from "@/lib/thumbnail-generator";
 import { useBedroomStore } from "@/store/use-bedroom-store";
 import { beginSceneHistoryGesture, useSceneStore } from "@/store/use-scene-store";
-import { toast } from "sonner";
 import type { Asset, AssetCardProps, SceneNode } from "@/types";
 
 function normalizeSearchText(value: string) {
@@ -231,23 +230,7 @@ function AssetPanel() {
   const [selectedCategory, setSelectedCategory] = React.useState("All");
   const [assets, setAssets] = React.useState<Asset[]>(SAMPLE_ASSETS);
   const [draggedId, setDraggedId] = React.useState<string | null>(null);
-  const [isAiSearch, setIsAiSearch] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
-  const searchInputRef = React.useRef<HTMLInputElement | null>(null);
-  const aiSearchRef = React.useRef<HTMLTextAreaElement | null>(null);
-  const isFirstRender = React.useRef(true);
-
-  React.useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    if (isAiSearch) {
-      aiSearchRef.current?.focus();
-    } else {
-      searchInputRef.current?.focus();
-    }
-  }, [isAiSearch]);
 
   const [uploadingFile, setUploadingFile] = React.useState<File | null>(null);
   const [uploadName, setUploadName] = React.useState("");
@@ -270,12 +253,6 @@ function AssetPanel() {
       console.error("Failed to search backend assets:", err);
     } finally {
       setIsSearchingAssets(false);
-    }
-  };
-
-  const handleSearchSubmit = () => {
-    if (isAiSearch) {
-      void handleAiSearchAssets();
     }
   };
 
@@ -340,7 +317,7 @@ function AssetPanel() {
 
   const filteredAssets = assets.filter((asset) => {
     const matchesCategory = selectedCategory === "All" || asset.category === selectedCategory;
-    const matchesSearch = isAiSearch || assetMatchesSearch(asset, search);
+    const matchesSearch = assetMatchesSearch(asset, search);
     return matchesCategory && matchesSearch;
   });
 
@@ -407,87 +384,33 @@ function AssetPanel() {
       <div className="flex flex-col gap-3 p-4">
         <div className="flex gap-2">
           <div className="relative min-w-0 flex-1">
-            <div
-              className={`relative w-full overflow-hidden rounded-lg border transition-all duration-300 ease-in-out ${
-                isAiSearch
-                  ? "h-33 border-indigo-500/80 bg-indigo-50/10 focus-within:ring-2 focus-within:ring-indigo-500/20 dark:border-indigo-500/60 dark:bg-indigo-950/10"
-                  : "h-9 border-zinc-200 bg-zinc-50 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 dark:border-zinc-800 dark:bg-zinc-900"
-              }`}
-            >
-              <div
-                className={`absolute inset-x-0 top-0 flex h-9 items-center transition-all duration-300 ease-in-out ${
-                  isAiSearch
-                    ? "pointer-events-none -translate-y-2.5 opacity-0"
-                    : "translate-y-0 opacity-100"
-                }`}
-              >
+            <div className="relative w-full overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 transition-all duration-300 ease-in-out focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 dark:border-zinc-800 dark:bg-zinc-900">
+              <div className="flex h-9 items-center">
                 <Search className="absolute left-3 h-4 w-4 text-zinc-400 dark:text-zinc-500" />
                 <Input
-                  autoFocus
-                  ref={searchInputRef}
                   placeholder="Search bedroom models..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      handleSearchSubmit();
+                      void handleAiSearchAssets();
                     }
                   }}
                   className="h-full w-full border-0! bg-transparent! pr-3 pl-9 text-sm text-zinc-900 shadow-none! placeholder:text-zinc-400 focus-visible:ring-0! focus-visible:ring-offset-0! dark:text-zinc-100 dark:placeholder:text-zinc-500"
                 />
               </div>
-              <div
-                className={`absolute inset-0 flex items-start p-2.5 pl-9 transition-all duration-300 ease-in-out ${
-                  isAiSearch
-                    ? "translate-y-0 opacity-100"
-                    : "pointer-events-none translate-y-2.5 opacity-0"
-                }`}
-              >
-                <Sparkles className="absolute top-3 left-3 z-10 h-4 w-4 animate-pulse text-indigo-500" />
-                <Textarea
-                  autoFocus
-                  ref={aiSearchRef}
-                  placeholder="Describe bedroom styles with AI prompt..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                      e.preventDefault();
-                      void handleAiSearchAssets();
-                    }
-                  }}
-                  className="h-28 w-full resize-none overflow-y-auto rounded-none! border-0! bg-transparent! p-0! pr-1 text-sm text-zinc-900 shadow-none! placeholder:text-xs placeholder:text-zinc-400 focus-visible:ring-0! focus-visible:ring-offset-0! dark:text-zinc-100 dark:placeholder:text-zinc-500 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-800/80 [&::-webkit-scrollbar-track]:bg-transparent"
-                />
-              </div>
             </div>
           </div>
           <Button
-            variant="outline"
+            type="button"
             size="icon"
             disabled={isSearchingAssets}
-            onClick={() => {
-              if (search.trim()) {
-                handleSearchSubmit();
-                return;
-              }
-
-              setIsAiSearch((prev) => !prev);
-            }}
-            className={`h-9 w-9 rounded-lg border transition-all ${
-              isAiSearch
-                ? "border-indigo-500 bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 dark:border-indigo-500 dark:bg-indigo-950/20"
-                : "border-zinc-200 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"
-            }`}
-            title={
-              search.trim()
-                ? "Search Assets"
-                : isAiSearch
-                  ? "Switch to Regular Search"
-                  : "Use AI Prompt Search"
-            }
+            onClick={() => void handleAiSearchAssets()}
+            className="h-9 w-9 shrink-0 rounded-lg border border-indigo-500 bg-indigo-500/10 text-indigo-500 transition-all hover:bg-indigo-500/20 disabled:opacity-50 dark:border-indigo-500 dark:bg-indigo-950/20"
+            title="Search Assets with AI"
           >
-            <Sparkles className={`h-4 w-4 ${isSearchingAssets ? "animate-pulse" : ""}`} />
+            <Sparkles className="h-4 w-4" />
           </Button>
         </div>
         <div className="flex w-full items-center justify-between gap-1 rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-1 dark:border-zinc-800/80 dark:bg-zinc-900/50">

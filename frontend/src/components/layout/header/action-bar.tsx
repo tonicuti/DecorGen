@@ -1,5 +1,5 @@
-import { useRef } from "react";
 import { Box, Download, FileImage, Redo2, Save, Undo2, Upload } from "lucide-react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -49,7 +49,7 @@ function ActionBar({
         onClick={() => importInputRef.current?.click()}
         className="h-8 gap-1.5 px-3 text-zinc-600 transition-all hover:bg-zinc-100 hover:text-zinc-900 active:scale-95 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
       >
-        <Upload className="h-4 w-4 text-emerald-500" />
+        <Upload className="h-4 w-4 text-rose-500" />
         <span className="hidden sm:inline">Import Project</span>
       </Button>
       <DropdownMenu modal={false}>

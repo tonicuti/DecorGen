@@ -16,11 +16,11 @@ function ShortcutsDialog({ open, onOpenChange }: ShortcutsDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[min(32rem,85vh)] max-w-md overflow-y-auto border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+      <DialogContent className="flex max-h-[min(32rem,85vh)] max-w-md flex-col overflow-hidden border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <DialogHeader>
           <DialogTitle className="text-zinc-900 dark:text-zinc-100">Keyboard Shortcuts</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-1">
+        <div className="flex min-h-0 flex-1 scrollbar-none flex-col gap-1 overflow-y-auto [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {WORKSPACE_SHORTCUTS.map((shortcut, index) => {
             const showSection = shortcut.section && shortcut.section !== lastSection;
             if (shortcut.section) lastSection = shortcut.section;

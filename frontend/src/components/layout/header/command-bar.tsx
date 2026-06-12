@@ -9,6 +9,7 @@ import {
   Sun,
   Trash2,
   Undo2,
+  Upload,
 } from "lucide-react";
 import * as React from "react";
 import {
@@ -29,6 +30,7 @@ function CommandBar({
   onSwitchTo2D,
   onSwitchTo3D,
   onSave,
+  onImportProject,
   onExport2D,
   onExport3D,
   onClearScene,
@@ -37,6 +39,7 @@ function CommandBar({
 }: CommandBarProps) {
   const [open, setOpen] = React.useState(false);
   const { theme, setTheme } = useTheme();
+  const importInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -57,6 +60,17 @@ function CommandBar({
 
   return (
     <div className="pointer-events-auto mx-4 hidden max-w-md flex-1 items-center md:flex">
+      <input
+        ref={importInputRef}
+        type="file"
+        accept=".glb,model/gltf-binary"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) onImportProject?.(file);
+          event.target.value = "";
+        }}
+      />
       <Button
         type="button"
         variant="outline"
@@ -109,6 +123,13 @@ function CommandBar({
               <CommandShortcut className="text-[10px] text-zinc-400 dark:text-zinc-500">
                 Ctrl+S
               </CommandShortcut>
+            </CommandItem>
+            <CommandItem
+              onSelect={() => handleSelect(() => importInputRef.current?.click())}
+              className="my-1 cursor-pointer rounded-xl px-3 py-2.5 text-xs font-medium transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
+            >
+              <Upload className="mr-2 h-4 w-4 text-rose-500" />
+              <span>Import Project (.glb)</span>
             </CommandItem>
             <CommandItem
               onSelect={() => handleSelect(onExport2D)}

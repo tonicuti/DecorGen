@@ -11,6 +11,7 @@ function Room3D() {
   const { wallColor, floorColor } = useSceneStore((state) => state.roomMaterials);
   const tree = useSceneStore((state) => state.tree);
   const setSelectedIds = useSceneStore((state) => state.setSelectedIds);
+  const walkthroughMode = useSceneStore((state) => state.walkthroughMode);
 
   const tMeters = thickness / 100;
 
@@ -79,6 +80,14 @@ function Room3D() {
         color={wallColor}
         normal={frontNormal}
       />
+      {/* Walkthrough-only ceiling: closes the room overhead for a realistic
+          interior. No castShadow so the sun light keeps illuminating the room. */}
+      {walkthroughMode && (
+        <mesh position={[0, height + tMeters / 2, 0]}>
+          <boxGeometry args={[width + tMeters * 2, tMeters, length + tMeters * 2]} />
+          <meshStandardMaterial color={wallColor} side={THREE.DoubleSide} />
+        </mesh>
+      )}
       {tree.map((node) => (
         <SceneNodeMesh key={node.id} node={node} walls={walls} />
       ))}

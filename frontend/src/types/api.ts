@@ -88,6 +88,7 @@ export interface RoomTemplate {
   name: string;
   category: string;
   glbUrl: string;
+  previewUrl?: string;
   description?: string;
   aliases?: string[];
   tags?: string[];

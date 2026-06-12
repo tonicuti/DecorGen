@@ -452,6 +452,7 @@ class PipelineHandler(BaseHTTPRequestHandler):
                             "label": result.asset.get("label"),
                             "category": result.asset.get("category"),
                             "template_url": result.asset.get("template_url"),
+                            "preview_url": result.asset.get("preview_url"),
                             "description": result.asset.get("description"),
                             "aliases": result.asset.get("aliases"),
                             "tags": result.asset.get("tags"),
@@ -651,8 +652,13 @@ class PipelineHandler(BaseHTTPRequestHandler):
 
     def serve_template_file(self, request_path: str) -> None:
         file_path = safe_join(TEMPLATE_DIR, request_path)
-        if file_path is None or not file_path.is_file() or file_path.suffix.lower() != ".glb":
-            self.send_json({"error": "Template GLB file not found"}, status=404)
+        allowed_extensions = {".glb", ".png", ".jpg", ".jpeg", ".webp"}
+        if (
+            file_path is None
+            or not file_path.is_file()
+            or file_path.suffix.lower() not in allowed_extensions
+        ):
+            self.send_json({"error": "Template file not found"}, status=404)
             return
 
         content_type = mimetypes.guess_type(file_path.name)[0] or "model/gltf-binary"
