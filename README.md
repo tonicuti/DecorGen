@@ -12,48 +12,22 @@
 <div align="center">
   <table>
     <tr>
-      <td align="center" width="50%">
-        <b>📐 2D Floor Plan Editor</b><br />
-        <img
-          src="assets/2d.png"
-          alt="2D Editor Viewport"
-          width="400"
-          height="250"
-          style="object-fit: cover"
-        />
-      </td>
-      <td align="center" width="50%">
-        <b>📦 3D Real-Time Scene</b><br />
-        <img
-          src="assets/3d.png"
-          alt="3D Editor Viewport"
-          width="400"
-          height="250"
-          style="object-fit: cover"
-        />
-      </td>
+      <td align="center" width="50%"><b>📐 2D Floor Plan Editor</b></td>
+      <td align="center" width="50%"><b>📦 3D Real-Time Scene</b></td>
     </tr>
     <tr>
-      <td align="center" width="50%">
-        <b>🚶 First-Person Walkthrough</b><br />
-        <img
-          src="assets/walkthrough.png"
-          alt="First-Person Walkthrough"
-          width="400"
-          height="250"
-          style="object-fit: cover"
-        />
+      <td align="center"><img src="assets/2d.png" alt="2D Editor Viewport" width="400" /></td>
+      <td align="center"><img src="assets/3d.png" alt="3D Editor Viewport" width="400" /></td>
+    </tr>
+    <tr>
+      <td align="center"><b>🚶 First-Person Walkthrough</b></td>
+      <td align="center"><b>🐾 Smart Pet Simulation</b></td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="assets/walkthrough.png" alt="First-Person Walkthrough" width="400" />
       </td>
-      <td align="center" width="50%">
-        <b>🐾 Smart Pet Simulation</b><br />
-        <img
-          src="assets/pet.png"
-          alt="Smart Pet Simulation"
-          width="400"
-          height="250"
-          style="object-fit: cover"
-        />
-      </td>
+      <td align="center"><img src="assets/pet.png" alt="Smart Pet Simulation" width="400" /></td>
     </tr>
   </table>
 </div>
